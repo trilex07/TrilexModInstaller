@@ -245,6 +245,35 @@ await Test("invalid XOR range and corrupted delta cannot produce accepted output
     await Reject(()=>Sync(()=>PackageExtractor.Reconstruct(original,stage,file)));
     File.WriteAllBytes(Path.Combine(stage,"mask"),new byte[8]);file=file with{Sha256=new string('A',64)};await Reject(()=>Sync(()=>PackageExtractor.Reconstruct(original,stage,file)));
 });
+await Test("local UE3 decoder reconstructs from owned compressed input and restores originals",async()=>
+{
+    var f=Fixture();var original=Paths.Safe(f.Root,"RvGame/CookedPC/source.xxx");
+    byte[] decoded=[0xc1,0x83,0x2a,0x9e,0x48,2,0x7e,0,1,2,3,4,5,6,7,8];
+    using(var data=new MemoryStream()) {using(var writer=new BinaryWriter(data,System.Text.Encoding.UTF8,true)){writer.Write(0x9e2a83c1u);writer.Write(131072u);writer.Write(decoded.Length);writer.Write(decoded.Length);writer.Write(decoded.Length);writer.Write(decoded.Length);writer.Write(decoded);writer.Write(new byte[16]);}File.WriteAllBytes(original,data.ToArray());}
+    var hash=Convert.ToHexString(SHA256.HashData(decoded));var stage=Path.Combine(f.Root,"decoder-stage");Directory.CreateDirectory(stage);
+    var file=new PackageFile("Binaries/vr-assets/test/native.bin","",hash,"recipe","local-transform",Recipe:[new("original",0,decoded.Length)],SourcePath:"RvGame/CookedPC/source.xxx",SourceSha256:Paths.Hash(original),SourceCodec:"ue3-whole-lzo",DecodedSha256:hash,DecodedBytes:decoded.Length);
+    Assert(PackageExtractor.Reconstruct(original,stage,file).SequenceEqual(decoded));
+    Assert(PackageExtractor.Reconstruct(original,stage,file).SequenceEqual(decoded));
+    File.WriteAllText(Path.Combine(stage,"_local-decoded",hash+".u"),"CORRUPT");await Reject(()=>Sync(()=>PackageExtractor.Reconstruct(original,stage,file)));
+    var archive=Path.Combine(f.Root,"decode.zip");using(ZipFile.Open(archive,ZipArchiveMode.Create)){}
+    var module=new ModuleManifest("decoded","en".Split().ToDictionary(x=>x,x=>"Local decode"),"v1","stable",true,[],new FileInfo(archive).Length,"https://github.com/trilex07/TrilexModInstaller/releases/download/test/decode.zip",Paths.Hash(archive),decoded.Length,true,"Synthetic owned UE3 container, bundled GPL standalone decoder",[file],"");
+    var before=Paths.Hash(original);await f.Installer.InstallAsync(f.Plan(module),new(){{module.Id,archive}},null,default);
+    Assert(File.ReadAllBytes(Paths.Safe(f.Root,file.Path)).SequenceEqual(decoded));Assert(Paths.Hash(original)==before);
+    f.Installer.Uninstall(f.Root,default);Assert(!File.Exists(Paths.Safe(f.Root,file.Path))&&Paths.Hash(original)==before);
+});
+await Test("decoder declarations reject arbitrary executables codecs and unbounded output",async()=>
+{
+    var file=new PackageFile("Binaries/vr-assets/native.bin","",new string('A',64),"recipe","local-transform",BeforeSha256:new string('B',64),Recipe:[new("original",0,1)],SourceCodec:"ue3-whole-lzo",DecodedSha256:new string('C',64),DecodedBytes:16);
+    foreach(var invalid in new[]{file with{SourceCodec="powershell"},file with{DecodedBytes=536870913},file with{DecodedSha256="bad"},file with{SourceCodec=null},file with{DecodedBytes=null}})await Reject(()=>Sync(()=>LocalSources.Validate(invalid,testRoot)));
+});
+await Test("binary recipes preserve copies and literals and reject malformed instructions",async()=>
+{
+    var f=Fixture();var source=Path.Combine(f.Root,"source.bin");File.WriteAllBytes(source,[10,20,30,40]);
+    var recipe=Path.Combine(f.Root,"recipe.svrp");
+    byte[] Make(byte opcode=0,ulong offset=1,bool trailing=false){using var m=new MemoryStream();using(var w=new BinaryWriter(m,System.Text.Encoding.UTF8,true)){w.Write("SVRP"u8.ToArray());w.Write(1u);w.Write(5ul);w.Write(2u);w.Write(opcode);if(opcode==0)w.Write(offset);w.Write(2u);w.Write((byte)1);w.Write(3u);w.Write(new byte[]{50,60,70});if(trailing)w.Write((byte)99);}return m.ToArray();}
+    File.WriteAllBytes(recipe,Make());using(var output=new MemoryStream()){BinaryRecipe.Apply(source,recipe,output,5);Assert(output.ToArray().SequenceEqual(new byte[]{20,30,50,60,70}));}
+    foreach(var bad in new[]{Make(2),Make(offset:4),Make(trailing:true),Make()[..^1]}){File.WriteAllBytes(recipe,bad);await Reject(()=>Sync(()=>{using var output=new MemoryStream();BinaryRecipe.Apply(source,recipe,output,5);}));}
+});
 var report=new{time=DateTimeOffset.UtcNow,passed=results.Count-failed,failed,fixtureRoot=testRoot,steamAccess="NONE",results};
 Json.Write(Path.Combine(testRoot,"test-report.json"),report);Console.WriteLine(JsonSerializer.Serialize(new{passed=results.Count-failed,failed,report=Path.Combine(testRoot,"test-report.json")}));Environment.ExitCode=failed==0?0:1;
 
@@ -266,3 +295,4 @@ sealed class FakeHttp(byte[] bytes) : HttpMessageHandler
         LastRange=request.Headers.Range?.Ranges.Single().From;var offset=(int)(LastRange??0);var response=new HttpResponseMessage(offset>0?HttpStatusCode.PartialContent:HttpStatusCode.OK){Content=new ByteArrayContent(bytes[offset..])};if(offset>0)response.Content.Headers.ContentRange=new(offset,bytes.Length-1,bytes.Length);return Task.FromResult(response);
     }
 }
+

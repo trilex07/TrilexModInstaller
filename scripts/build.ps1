@@ -8,6 +8,7 @@ $env:DOTNET_CLI_TELEMETRY_OPTOUT='1'
 $env:MSBuildEnableWorkloadResolver='false'
 $env:TRILEX_TEST_ROOT=Join-Path $PWD 'artifacts/test-fixtures'
 New-Item -ItemType Directory -Force artifacts | Out-Null
+& (Join-Path $PSScriptRoot 'build-decoder.ps1')
 python tests/test_package_producers.py
 if($LASTEXITCODE){throw 'Package producer regressions failed'}
 
@@ -58,3 +59,4 @@ if($Publish){
     & (Join-Path $PSScriptRoot 'package-portable.ps1')
     Write-Output "Self-contained RC: $file SHA256=$sha"
 }
+

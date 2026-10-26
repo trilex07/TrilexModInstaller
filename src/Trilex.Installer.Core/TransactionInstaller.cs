@@ -46,7 +46,8 @@ public sealed class TransactionInstaller(string stateRoot, IProcessGuard process
         var existingBytes=plan.Modules.SelectMany(m=>m.Files).Select(f=>f.Path).Concat(previous?.Files.Select(f=>f.Path)??[]).Distinct(StringComparer.OrdinalIgnoreCase).Sum(p=>{var target=Paths.Safe(plan.Root,p);return File.Exists(target)?new FileInfo(target).Length:0;});
         var budgets=new Dictionary<string,long>(StringComparer.OrdinalIgnoreCase);
         void Reserve(string folder,long bytes){var drive=Path.GetPathRoot(Path.GetFullPath(folder))!;budgets[drive]=checked(budgets.GetValueOrDefault(drive)+bytes+16*1024*1024);}
-        Reserve(plan.Root,checked(plan.ExpandedBytes+existingBytes));Reserve(state,checked(plan.ExpandedBytes*2+existingBytes*3));
+        var decodedBytes=plan.Modules.Sum(m=>m.Files.Where(f=>f.SourceCodec is not null).GroupBy(f=>f.DecodedSha256).Sum(g=>g.Max(f=>f.DecodedBytes??0)));
+        Reserve(plan.Root,checked(plan.ExpandedBytes+existingBytes));Reserve(state,checked(plan.ExpandedBytes*2+existingBytes*3+decodedBytes+plan.Modules.Count*2L*1024*1024));
         foreach(var (drive,bytes) in budgets)if(new DriveInfo(drive).AvailableFreeSpace<bytes)throw new IOException("Insufficient staging/backup space on "+drive);
         var files=new Dictionary<string,(PackageFile File,string Stage)>(StringComparer.OrdinalIgnoreCase);
         foreach(var module in plan.Modules)
@@ -198,3 +199,4 @@ public sealed class TransactionInstaller(string stateRoot, IProcessGuard process
         return await InstallAsync(plan,archives,progress,ct,repair:true);
     }
 }
+

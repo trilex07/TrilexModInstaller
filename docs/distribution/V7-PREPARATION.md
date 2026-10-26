@@ -34,3 +34,13 @@ python scripts/prepare-v7-deltas.py --source ../SingularityVR-final-completion -
 ```
 
 The tools require fresh output directories, retain source files unchanged and never search or write Steam. Review emitted manifests before publication. `exercise` refuses any directory without its synthetic fixture EXE; `verify-recipes` writes only under fresh installer artifacts directories.
+
+## Local owned-source reconstruction implementation
+
+The bundled standalone GPL-2.0-or-later decoder now handles bounded UE3 whole-file and logical LZO containers. Compressed input, decoded output and final reconstructed file each require an exact SHA256. Fixed copy/literal instruction tapes run in the installer without arbitrary script execution. Long data paths are supported; the embedded verified helper uses a short ancestor cache because Windows CreateProcess rejects long executable paths.
+
+Private first-install preparation against `SingularityVR-assets-local/cooked` reconstructed **all 124 accepted final package hashes independently in the C# consumer**: 116 dubbing, 7 audio, 1 UI. This proves that exact local snapshot, not compatibility with every retail build or permission for inserted media. No originals were archived or uploaded. Source snapshot files were copied only to disposable verification fixtures and left unchanged.
+
+47 core regression tests PASS, including padded UE3 input, cross-file reconstruction, cache tampering, binary copy/literal output, malformed opcodes/ranges/truncation/trailing bytes and transactional original restoration. Build the decoder first with `scripts/build-decoder.ps1`; the offline recipe producer with `scripts/build-recipe-maker.ps1`. Prepare recipes with `scripts/prepare-v7-native.py --source ../SingularityVR-final-completion --cooked ../SingularityVR-assets-local/cooked --output artifacts/FRESH_NATIVE`.
+
+Remaining release gates above still apply: native glove/knife caches, HD image generation, portable settings and language combinations, complete catalog closure, creative-media provenance and human/clean-Windows verification. This package reconstruction milestone does not enable unavailable modules.

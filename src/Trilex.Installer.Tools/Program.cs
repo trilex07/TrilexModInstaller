@@ -32,7 +32,7 @@ try
         var module=Json.Read<ModuleManifest>(modulePath);
         if(!module.RightsVerified || string.IsNullOrWhiteSpace(module.RightsEvidence))throw new InvalidDataException("Explicit file provenance review required");
         if(File.Exists(output))throw new IOException("Refusing package overwrite");
-        var entries=module.Files.Where(x=>x.Kind=="copy").Select(x=>x.Entry).Concat(module.Files.SelectMany(x=>x.Recipe??[]).Where(x=>x.Source is "payload" or "xor-original").Select(x=>x.Entry??"")).Distinct(StringComparer.OrdinalIgnoreCase).Order().ToList();
+        var entries=module.Files.Where(x=>x.Kind=="copy").Select(x=>x.Entry).Concat(module.Files.SelectMany(x=>x.Recipe??[]).Where(x=>x.Source is "payload" or "xor-original" or "instructions").Select(x=>x.Entry??"")).Distinct(StringComparer.OrdinalIgnoreCase).Order().ToList();
         foreach(var f in module.Files){Paths.AllowedTarget(f.Path);if(f.Kind=="copy"&&f.Path.EndsWith(".xxx",StringComparison.OrdinalIgnoreCase))throw new InvalidDataException("Whole commercial packages forbidden");}
         long expanded=0;Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(output))!);
         using(var zip=ZipFile.Open(output,ZipArchiveMode.Create))foreach(var entry in entries){var path=Paths.Safe(stage,entry);expanded+=new FileInfo(path).Length;var item=zip.CreateEntry(entry,CompressionLevel.Optimal);item.LastWriteTime=new DateTimeOffset(2026,1,1,0,0,0,TimeSpan.Zero);using var src=File.OpenRead(path);using var dst=item.Open();src.CopyTo(dst);}
@@ -58,3 +58,4 @@ try
     else throw new ArgumentException("Commands: keygen PRIVATE.pem PUBLIC.pem | sign CATALOG.json PRIVATE.pem OUTPUT.json | verify SIGNED.json PUBLIC.pem | pack MODULE.json STAGE OUTPUT.zip | exercise MODULE.json ARCHIVE.zip artifacts/FRESH_FIXTURE | verify-recipes MODULE.json STAGE ORIGINALS artifacts/FRESH_OUTPUT");
 }
 catch(Exception e){Console.Error.WriteLine(e.GetType().Name+": "+e.Message);Environment.ExitCode=1;}
+

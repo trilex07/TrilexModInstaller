@@ -4,6 +4,11 @@ public static class LocalSources
 {
     public static void Validate(PackageFile file,string root)
     {
+        if(file.SourceCodec is not null)
+        {
+            if(file.SourceCodec is not ("ue3-whole-lzo" or "ue3-logical-lzo") || file.Kind!="recipe" || file.Ownership!="local-transform" || file.SystemSource is not null || !PlanBuilder.ValidHash(file.SourceSha256??file.BeforeSha256) || !PlanBuilder.ValidHash(file.DecodedSha256) || file.DecodedBytes is not (>0 and <=536870912))throw new InvalidDataException("Invalid bounded local decoder declaration");
+        }
+        else if(file.DecodedSha256 is not null || file.DecodedBytes is not null)throw new InvalidDataException("Decoded identity requires a codec");
         if(file.SourcePath is not null && file.SystemSource is not null)throw new InvalidDataException("Ambiguous original source");
         if(file.SourcePath is not null){Paths.Safe(root,file.SourcePath);Paths.AllowedTarget(file.SourcePath);}
         if(file.SystemSource is not null && file.SystemSource!="windows-directinput8-x86")throw new InvalidDataException("Unknown system source");
@@ -22,3 +27,4 @@ public static class LocalSources
         return source;
     }
 }
+

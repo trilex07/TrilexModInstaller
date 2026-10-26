@@ -13,6 +13,18 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 TOOLS=ROOT/'src/Trilex.Installer.Tools/bin/Release/net10.0/Trilex.Installer.Tools.dll'
 
+def bind_owned_texture_cache(module):
+    # Private extraction workspaces renamed the stock cache. Recipients have
+    # Steam's coalesced.tfc, with the same bytes, not the extractor's alias.
+    for file in module['files']:
+        if file.get('sourcePath') != 'RvGame/CookedPC/Textures_P0.tfc':
+            continue
+        if (file.get('kind') != 'recipe' or file.get('ownership') != 'local-transform'
+                or file.get('sourceCodec') != 'ue3-bulk-lzo'
+                or file.get('sourceSha256') != '6BE9134DF84D23B49089DA39B05594EE813B350949318A54684273104D865EE0'):
+            raise ValueError('Unsupported private texture-cache alias: '+file['path'])
+        file['sourcePath']='RvGame/CookedPC/coalesced.tfc'
+
 def prepare(inputs,output,tag):
     output=output.resolve()
     if output.exists() or not output.is_relative_to(ROOT/'artifacts'):
@@ -47,6 +59,7 @@ def prepare(inputs,output,tag):
         'polish-text':('Polish game text','Polskie teksty gry')}
     declarations=[]
     for module in game['modules']:
+        bind_owned_texture_cache(module)
         en,pl=labels[module['id']]
         module.update(state='stable',reason='',localizedReasons=None,labels=dict(en=en,pl=pl))
         if module['id']=='vr-core':

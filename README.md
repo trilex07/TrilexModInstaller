@@ -4,7 +4,7 @@ Windows launcher and modular installer by **Trilex / trilex07** for the [Singula
 
 ![Installer interface](docs/screenshots/installer-en.png)
 
-**Complete first-edition V7 candidate:** the full-bundle assembler produces a self-contained Windows installer, a pinned signed catalog and 12 local packages matching Trilex's accepted configuration. Choose **Full Trilex V7 (Polish)** to select the entire set. [Installation instructions, PL/EN](docs/INSTALL-V7.md). The candidate is unsigned and has not yet passed clean-PC/PSVR2 installer acceptance; the existing public release below remains a source preview until a complete binary release is explicitly published.
+**[Download the complete V7 installer RC3](https://github.com/trilex07/TrilexModInstaller/releases/tag/installer-1.0.0-rc.3):** self-contained Windows installer, pinned signed catalog and 12 local packages matching Trilex's accepted configuration. RC3 fixes the clean Steam texture-cache reconstruction error and retains the fpsVR guard fix. Extract the entire ZIP and choose **Full Trilex V7 (Polish)**. [Installation instructions, PL/EN](docs/INSTALL-V7.md) · [RC3 correction and retry](docs/INSTALLER-RC3-CACHE-FIX.md). The executable is unsigned; clean-PC/PSVR2 installer acceptance remains pending.
 
 ## Public fan-project preview
 

@@ -1,0 +1,157 @@
+{
+  "date": "2026-10-26",
+  "sourceCommit": "05e3560c1bcf501493d963ce250183a21a1ff515",
+  "status": "LOCAL_AUDIO_IMPLEMENTED_PUBLIC_RELEASE_GATES_UNCHANGED",
+  "exeSha256": "9930D734963B4191D38DF30E9A37C4D84BB7863959D1AC6E4EC3D4035DD56206",
+  "exeBytes": 179601614,
+  "authenticode": "UNSIGNED engineering candidate",
+  "coreTests": {
+    "passed": 55,
+    "failed": 0
+  },
+  "producerTests": {
+    "passed": 9,
+    "failed": 0
+  },
+  "normalWpf": {
+    "status": "PASS",
+    "cases": 8
+  },
+  "portableWpf": {
+    "status": "PASS",
+    "cases": 8
+  },
+  "audioMetadata": {
+    "archiveBytes": 4641,
+    "sha256": "B065C7FB5D3CA4E35133EECDFD911872FA7F6D2AA0EE8D94831B5A09B764ABC9",
+    "entries": [
+      {
+        "entry": "01_weapon_centurion_revolver.json",
+        "bytes": 877,
+        "metadataOnly": true
+      },
+      {
+        "entry": "02_weapon_kasimov_sniper.json",
+        "bytes": 874,
+        "metadataOnly": true
+      },
+      {
+        "entry": "04_weapon_walkiria_ar9.json",
+        "bytes": 871,
+        "metadataOnly": true
+      },
+      {
+        "entry": "05_weapon_spikeshot_shotgun.json",
+        "bytes": 876,
+        "metadataOnly": true
+      },
+      {
+        "entry": "06_music_explore_drone.json",
+        "bytes": 872,
+        "metadataOnly": true
+      },
+      {
+        "entry": "07_music_combat_boss_grom.json",
+        "bytes": 873,
+        "metadataOnly": true
+      },
+      {
+        "entry": "08_ambience_ocean_storm.json",
+        "bytes": 873,
+        "metadataOnly": true
+      }
+    ]
+  },
+  "exactAudioBanks": {
+    "files": [
+      {
+        "path": "RvGame/CookedPC/wp_SP_ARPistol_SF.xxx",
+        "sha256": "A5FA0D72BB6B32D845E6D0FC89990F18D3A87A9FAC444D698689D74233756D39",
+        "status": "EXACT_ACCEPTED_BYTES"
+      },
+      {
+        "path": "RvGame/CookedPC/wp_SP_ARSniperRifle_SF.xxx",
+        "sha256": "E2D5DCAE9FA7815D8EE944C4CE62C0FA2BBDE60A1303F45C61221C9CAB60362B",
+        "status": "EXACT_ACCEPTED_BYTES"
+      },
+      {
+        "path": "RvGame/CookedPC/wp_SP_ARMachineGun_SF.xxx",
+        "sha256": "59E33F9950081E91916E07F3A86473B35826572E2DBDFA26D7749A4387D2618A",
+        "status": "EXACT_ACCEPTED_BYTES"
+      },
+      {
+        "path": "RvGame/CookedPC/wp_SP_ARShotgun_SF.xxx",
+        "sha256": "57E8E5A37B667A4CB0A4EC4C2095DDDA3782063E92A7AA559CF314D4B84F33A4",
+        "status": "EXACT_ACCEPTED_BYTES"
+      },
+      {
+        "path": "RvGame/CookedPC/MUSIC_exploreDrone01_XSA.xxx",
+        "sha256": "20F4D520538691383A7E6FC9CCFE7B4DFF6682F978DB4CEE2EF5B8217806DA14",
+        "status": "EXACT_ACCEPTED_BYTES"
+      },
+      {
+        "path": "RvGame/CookedPC/MUSIC_combatBossGrom01_XSA.xxx",
+        "sha256": "EEF7866EB2541EAD378FC0DE4A39BEA5E7517C7488952404E5B1925C80FD9133",
+        "status": "EXACT_ACCEPTED_BYTES"
+      },
+      {
+        "path": "RvGame/CookedPC/SP_Freight_Audio_2010_XSA.xxx",
+        "sha256": "5A8C5CF19C38E97E4A5C4C7FEF476385739978B6A1B0347767E42B194D3A2818",
+        "status": "EXACT_ACCEPTED_BYTES"
+      }
+    ],
+    "archivedMedia": false,
+    "steamAccess": "NONE",
+    "codecSha256": "3256173F3F8BFFD7DF12227C68ADF68025EDB1832273A9530688A7BB1ED8EDEC",
+    "publicPromotion": false
+  },
+  "combinedLifecycle": {
+    "status": "PASS",
+    "modules": [
+      "runtime-code",
+      "polish-dubbing",
+      "audio-remaster",
+      "ui-hud",
+      "native-hand-assets",
+      "hd-textures",
+      "knife-assets",
+      "authored-ui-assets",
+      "native-font-assets",
+      "portable-settings",
+      "centurion-assets"
+    ],
+    "targets": 178,
+    "originalsRestored": 127,
+    "steps": [
+      "install",
+      "exact verification",
+      "reinstall",
+      "damage detection",
+      "repair",
+      "uninstall",
+      "exact original restoration"
+    ],
+    "gameLaunched": false,
+    "dllLoaded": false,
+    "steamWrites": false,
+    "redistributionApproved": false,
+    "physicalAcceptance": "NOT RUN"
+  },
+  "optionalCodec": {
+    "upstreamArchiveSha256": "60F467265B1E312373DBCD92200C2618A74850F98D3D078E94296BB3FA2047BA",
+    "executableSha256": "3256173F3F8BFFD7DF12227C68ADF68025EDB1832273A9530688A7BB1ED8EDEC",
+    "downloadAndNotices": "PASS",
+    "offlineNoNetworkRegression": "PASS"
+  },
+  "dubbing": {
+    "publicPromotion": false,
+    "automaticUnverifiedVoiceCloning": false,
+    "majorityMitProven": false,
+    "reason": "Actual final-take reference permissions are not established by proposed cast or engine license; see LOCAL-AUDIO.md"
+  },
+  "steamWrites": false,
+  "gameLaunched": false,
+  "physicalPSVR2": "NOT RUN",
+  "cleanWindowsThisCommit": "NOT RUN",
+  "publishRetry": "Initial sandbox NuGet audit network failure; official restore succeeded; publish --no-restore and portable smoke PASS"
+}

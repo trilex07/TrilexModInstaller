@@ -44,3 +44,7 @@ Optional local audio worker: seven metadata-only recipes now reproduce accepted
 remaster banks from owned originals. No recordings are included in this path.
 See LOCAL-AUDIO.md for codec preparation and the separate unresolved dubbing
 reference provenance gate. This does not promote the public dubbing package.
+
+Latest local audio source `05e3560c1bcf501493d963ce250183a21a1ff515`: 55 core / 9 producer tests, normal WPF 8/8, portable WPF 8/8; all PASS. Seven audio banks reproduce exact accepted bytes, metadata-only ZIP 4641 bytes, combined 178-target lifecycle PASS / 127 originals restored.
+Engineering EXE SHA256 `9930D734963B4191D38DF30E9A37C4D84BB7863959D1AC6E4EC3D4035DD56206`.
+Current receipt: `docs/evidence/local-audio-integration-20261026.json`. Prior hashes/CI above are historical. No public media promotion or physical acceptance is implied.

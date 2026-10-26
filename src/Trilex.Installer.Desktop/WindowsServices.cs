@@ -8,15 +8,15 @@ public sealed class WindowsProcessGuard : IProcessGuard
     public void RequireIdle(string root)
     {
         using var apps=Registry.CurrentUser.OpenSubKey(@"Software\Valve\Steam\Apps");
-        if(apps is not null)foreach(var id in apps.GetSubKeyNames()){if(id=="250820")continue;using var app=apps.OpenSubKey(id);if(Convert.ToInt32(app?.GetValue("Running",0))!=0)throw new IOException("A Steam game is running. Close it normally; no process will be terminated.");}
+        if(apps is not null)foreach(var id in apps.GetSubKeyNames()){if(SteamRuntimePolicy.IsRuntimeApp(id))continue;using var app=apps.OpenSubKey(id);if(Convert.ToInt32(app?.GetValue("Running",0))!=0)throw new IOException($"Steam reports an active game: {app?.GetValue("Name",id)} (App {id}). Close it normally; no process will be terminated.");}
         foreach(var process in Process.GetProcesses())
         {
             using(process)
             {
                 if(process.ProcessName.Equals("Singularity",StringComparison.OrdinalIgnoreCase))throw new IOException("Singularity is running. Close it normally before installation.");
                 string? path;try{path=process.MainModule?.FileName;}catch(System.ComponentModel.Win32Exception){continue;}catch(InvalidOperationException){continue;}
-                var runtimeTool=path?.Contains(@"\steamapps\common\SteamVR\",StringComparison.OrdinalIgnoreCase)==true;
-                if(path is not null && !runtimeTool && (path.StartsWith(Path.GetFullPath(root)+Path.DirectorySeparatorChar,StringComparison.OrdinalIgnoreCase) || path.Contains(@"\steamapps\common\",StringComparison.OrdinalIgnoreCase)))throw new IOException("A game is active. Installation is deferred until it exits.");
+                var runtimeTool=path is not null&&SteamRuntimePolicy.IsRuntimePath(path);
+                if(path is not null && (path.StartsWith(Path.GetFullPath(root)+Path.DirectorySeparatorChar,StringComparison.OrdinalIgnoreCase) || !runtimeTool && path.Contains(@"\steamapps\common\",StringComparison.OrdinalIgnoreCase)))throw new IOException("A game is active. Installation is deferred until it exits.");
             }
         }
     }

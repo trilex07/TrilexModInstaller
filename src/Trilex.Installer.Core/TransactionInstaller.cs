@@ -90,7 +90,19 @@ public sealed class TransactionInstaller(string stateRoot, IProcessGuard process
                 if(old?.IniValues is not null)foreach(var (key,value) in old.IniValues)if(!file.IniValues.ContainsKey(key) && ini.Get(key)==value){ini.Set(key,old.OriginalIniValues?.GetValueOrDefault(key));originalIni.Remove(key);}
                 Paths.AtomicBytes(prepared,Encoding.UTF8.GetBytes(ini.ToString()));
             }
-            else if(file.Kind=="recipe")PackageExtractor.ReconstructTo(original is null?target:Paths.Safe(state,originalBackup),stage,file,prepared);
+            else if(file.Kind=="recipe")
+            {
+                var source=original is null?target:Paths.Safe(state,originalBackup);
+                if(file.SourcePath is not null)
+                {
+                    Paths.AllowedTarget(file.SourcePath);
+                    // A prior managed replacement must use its retained original, never the new proxy.
+                    var sourceOwner=previous?.Files.SingleOrDefault(x=>Paths.Same(x.Path,file.SourcePath));
+                    source=sourceOwner?.OriginalHash is not null?Paths.Safe(state,sourceOwner.Backup):Paths.Safe(plan.Root,file.SourcePath);
+                }
+                if(file.SystemSource is not null)source=LocalSources.SystemPath(file.SystemSource);
+                PackageExtractor.ReconstructTo(source,stage,file,prepared);
+            }
             else Paths.AtomicCopy(Paths.Safe(stage,file.Entry),prepared);
             var after=Paths.Hash(prepared);var pristine=old is null || old.CanRestoreWhole&&Paths.Same(live,old.InstalledHash);
             ownership.Add(new(path,original,originalBackup,after,file.Kind,installedIni,originalIni,pristine));edits.Add((path,prepared));

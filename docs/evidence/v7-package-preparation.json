@@ -1,0 +1,14 @@
+{
+  "date":"2026-10-26",
+  "coreRegressions":{"passed":44,"failed":0},
+  "pythonProducerTests":{"passed":3,"failed":0},
+  "nativeUpgradeReconstruction":{"polishDubbing":116,"audioRemaster":7,"uiHud":1,"verification":"C# consumer final SHA256 matches accepted pins; Python producer independently checks roundtrip","baseline":"exact pre-V7 private backup, not pristine retail"},
+  "actualCodeArchive":{"sha256":"5270EAA3B165F8B6C8CFBE15F94CACD30DB36499A5EAD6921D3B1A2913B82E88","bytes":1040678,"fixtureLifecycle":"PASS install, verify, repeat install, corruption detection, repair, uninstall; DLLs never loaded"},
+  "installerExeSha256":"770E3613DEC8A2B8A98DE5A57DD523CC19DCFA0DDB488978B9EBC0CFDA6B5389",
+  "wpfOffscreenCases":8,
+  "publishedBundleOffscreenCases":8,
+  "publicPlayableCatalog":"NOT READY",
+  "cleanWindowsInstallation":"NOT RUN",
+  "steamChanges":"NONE",
+  "physicalPsvr2":"NOT RUN for installer"
+}

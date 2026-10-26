@@ -32,7 +32,7 @@ try
         var module=Json.Read<ModuleManifest>(modulePath);
         if(!module.RightsVerified || string.IsNullOrWhiteSpace(module.RightsEvidence))throw new InvalidDataException("Explicit file provenance review required");
         if(File.Exists(output))throw new IOException("Refusing package overwrite");
-        var entries=module.Files.Where(x=>x.Kind=="copy").Select(x=>x.Entry).Concat(module.Files.SelectMany(x=>x.Recipe??[]).Where(x=>x.Source=="payload").Select(x=>x.Entry??"")).Distinct(StringComparer.OrdinalIgnoreCase).Order().ToList();
+        var entries=module.Files.Where(x=>x.Kind=="copy").Select(x=>x.Entry).Concat(module.Files.SelectMany(x=>x.Recipe??[]).Where(x=>x.Source is "payload" or "xor-original").Select(x=>x.Entry??"")).Distinct(StringComparer.OrdinalIgnoreCase).Order().ToList();
         foreach(var f in module.Files){Paths.AllowedTarget(f.Path);if(f.Kind=="copy"&&f.Path.EndsWith(".xxx",StringComparison.OrdinalIgnoreCase))throw new InvalidDataException("Whole commercial packages forbidden");}
         long expanded=0;Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(output))!);
         using(var zip=ZipFile.Open(output,ZipArchiveMode.Create))foreach(var entry in entries){var path=Paths.Safe(stage,entry);expanded+=new FileInfo(path).Length;var item=zip.CreateEntry(entry,CompressionLevel.Optimal);item.LastWriteTime=new DateTimeOffset(2026,1,1,0,0,0,TimeSpan.Zero);using var src=File.OpenRead(path);using var dst=item.Open();src.CopyTo(dst);}
@@ -41,6 +41,20 @@ try
         try{PackageExtractor.Extract(output,temp,module);}finally{if(Directory.Exists(temp))Directory.Delete(temp,true);}
         Json.Write(output+".module.json",module);Console.WriteLine(module.ArchiveSha256);
     }
-    else throw new ArgumentException("Commands: keygen PRIVATE.pem PUBLIC.pem | sign CATALOG.json PRIVATE.pem OUTPUT.json | verify SIGNED.json PUBLIC.pem | pack MODULE.json STAGE OUTPUT.zip");
+    else if(args is ["exercise",var exerciseModule,var exerciseArchive,var exerciseRoot])
+        await FixtureExercise.Run(exerciseModule,exerciseArchive,exerciseRoot);
+    else if(args is ["verify-recipes",var recipeModule,var recipeStage,var originals,var recipeOutput])
+    {
+        var reconstructedRoot=Path.GetFullPath(recipeOutput);var allowed=Path.GetFullPath("artifacts")+Path.DirectorySeparatorChar;
+        if(!reconstructedRoot.StartsWith(allowed,StringComparison.OrdinalIgnoreCase)||Directory.Exists(reconstructedRoot))throw new IOException("Fresh artifacts output required");
+        var module=Json.Read<ModuleManifest>(recipeModule);Directory.CreateDirectory(reconstructedRoot);
+        foreach(var file in module.Files)
+        {
+            if(file.Kind!="recipe"||file.SourcePath is not null||file.SystemSource is not null)throw new InvalidDataException("Only same-file offline reconstruction in this command");
+            LocalSources.Validate(file,reconstructedRoot);PackageExtractor.ReconstructTo(Paths.Safe(originals,file.Path),recipeStage,file,Paths.Safe(reconstructedRoot,file.Path));
+        }
+        Json.Write(Path.Combine(reconstructedRoot,"recipe-report.json"),new{status="PASS",files=module.Files.Count,scope="Exact preimage and final SHA256; read-only originals; not a public license or game acceptance",steamAccess="NONE"});Console.WriteLine("PASS reconstructed exact files: "+module.Files.Count);
+    }
+    else throw new ArgumentException("Commands: keygen PRIVATE.pem PUBLIC.pem | sign CATALOG.json PRIVATE.pem OUTPUT.json | verify SIGNED.json PUBLIC.pem | pack MODULE.json STAGE OUTPUT.zip | exercise MODULE.json ARCHIVE.zip artifacts/FRESH_FIXTURE | verify-recipes MODULE.json STAGE ORIGINALS artifacts/FRESH_OUTPUT");
 }
 catch(Exception e){Console.Error.WriteLine(e.GetType().Name+": "+e.Message);Environment.ExitCode=1;}

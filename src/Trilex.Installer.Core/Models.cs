@@ -16,7 +16,7 @@ public sealed record ModuleManifest(string Id, Dictionary<string,string> Labels,
     public string Label(string language) => Labels.GetValueOrDefault(language, Labels.GetValueOrDefault("en", Id));
     public string ReasonFor(string language) => LocalizedReasons?.GetValueOrDefault(language,Reason)??Reason;
 }
-public sealed record PackageFile(string Path, string Entry, string Sha256, string Kind, string Ownership, string? BeforeSha256 = null, Dictionary<string,string>? IniValues = null, List<PatchPart>? Recipe = null);
+public sealed record PackageFile(string Path, string Entry, string Sha256, string Kind, string Ownership, string? BeforeSha256 = null, Dictionary<string,string>? IniValues = null, List<PatchPart>? Recipe = null, string? SourcePath = null, string? SourceSha256 = null, string? SystemSource = null);
 public sealed record PatchPart(string Source, long Offset, int Length, string? Entry = null);
 public sealed record SignedEnvelope(string Algorithm, string Payload, string Signature);
 public sealed record InstallChoices(string TextLanguage, string VoiceLanguage, string UiLanguage, List<string> SelectedModules);

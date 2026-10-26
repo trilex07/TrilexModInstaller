@@ -66,7 +66,7 @@ public static class PackageExtractor
     {
         if(!module.RightsVerified || string.IsNullOrWhiteSpace(module.RightsEvidence) || !Paths.Same(Paths.Hash(archive),module.ArchiveSha256) || new FileInfo(archive).Length!=module.DownloadBytes)throw new InvalidDataException("Package provenance or checksum rejected");
         var allowed=module.Files.Where(x=>x.Kind=="copy").Select(x=>x.Entry)
-            .Concat(module.Files.SelectMany(x=>x.Recipe??[]).Where(x=>x.Source=="payload").Select(x=>x.Entry??""))
+            .Concat(module.Files.SelectMany(x=>x.Recipe??[]).Where(x=>x.Source is "payload" or "xor-original").Select(x=>x.Entry??""))
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
         using var zip=ZipFile.OpenRead(archive);long total=0;var seen=new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         if(zip.Entries.Count>10000)throw new InvalidDataException("Too many archive entries");
@@ -84,6 +84,7 @@ public static class PackageExtractor
         foreach(var file in module.Files)
         {
             Paths.AllowedTarget(file.Path);
+            LocalSources.Validate(file,staging);
             if(file.Ownership is not ("mod-authored" or "licensed" or "local-transform"))throw new InvalidDataException("Unapproved game-content ownership");
             if(file.Kind=="copy" && (!PlanBuilder.ValidHash(file.Sha256) || !Paths.Same(Paths.Hash(Paths.Safe(staging,file.Entry)),file.Sha256)))throw new InvalidDataException("Payload checksum mismatch");
             if(file.Kind is not ("copy" or "ini" or "recipe"))throw new InvalidDataException("Unsupported file operation");
@@ -102,14 +103,22 @@ public static class PackageExtractor
     }
     private static void WriteReconstruction(string original,string staging,PackageFile file,Stream output)
     {
-        if(file.Kind!="recipe" || file.Ownership!="local-transform" || !Paths.Same(Paths.HashOrNull(original),file.BeforeSha256) || file.Recipe is not {Count:>0})throw new InvalidDataException("Local reconstruction preimage mismatch");
+        if(file.Kind!="recipe" || file.Ownership!="local-transform" || !Paths.Same(Paths.HashOrNull(original),file.SourceSha256??file.BeforeSha256) || file.Recipe is not {Count:>0})throw new InvalidDataException("Local reconstruction preimage mismatch");
         foreach(var part in file.Recipe)
         {
             if(part.Length<0 || part.Offset<0 || part.Length>256*1024*1024 || output.Length+part.Length>int.MaxValue)throw new InvalidDataException("Unsafe reconstruction range");
-            var source=part.Source switch{"original"=>original,"payload"=>Paths.Safe(staging,part.Entry??""),_=>throw new InvalidDataException("Unknown reconstruction source")};
+            var source=part.Source switch{"original" or "xor-original"=>original,"payload"=>Paths.Safe(staging,part.Entry??""),_=>throw new InvalidDataException("Unknown reconstruction source")};
             using var input=File.OpenRead(source);if(part.Offset>input.Length-part.Length)throw new InvalidDataException("Reconstruction range exceeds source");input.Position=part.Offset;
+            using var mask=part.Source=="xor-original"?File.OpenRead(Paths.Safe(staging,part.Entry??"")):null;
+            if(mask is not null){if(part.Offset>mask.Length-part.Length)throw new InvalidDataException("Delta mask exceeds source");mask.Position=part.Offset;}
             var buffer=new byte[Math.Min(part.Length,81920)];var remain=part.Length;
-            while(remain>0){var n=input.Read(buffer,0,Math.Min(remain,buffer.Length));if(n==0)throw new EndOfStreamException();output.Write(buffer,0,n);remain-=n;}
+            var maskBuffer=mask is null?null:new byte[buffer.Length];
+            while(remain>0)
+            {
+                var n=input.Read(buffer,0,Math.Min(remain,buffer.Length));if(n==0)throw new EndOfStreamException();
+                if(mask is not null){mask.ReadExactly(maskBuffer!,0,n);for(var i=0;i<n;i++)buffer[i]^=maskBuffer![i];}
+                output.Write(buffer,0,n);remain-=n;
+            }
         }
     }
 }

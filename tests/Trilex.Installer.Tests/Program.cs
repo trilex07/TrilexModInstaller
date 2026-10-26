@@ -186,6 +186,65 @@ await Test("shared INI modules merge but conflicting values fail before game wri
     var empty=Path.Combine(f.Root,"ini.zip");using(ZipFile.Open(empty,ZipArchiveMode.Create)){}second=second with{ArchiveSha256=Paths.Hash(empty),DownloadBytes=new FileInfo(empty).Length};var archives=Archives(f,m);archives[second.Id]=empty;
     await f.Installer.InstallAsync(f.Plan(m,second),archives,null,default);var iniPath=Path.Combine(f.Root,"Binaries/SingularityVR.ini");var ini=new IniDocument(File.ReadAllText(iniPath));Assert(ini.Get("Input/Test")=="1"&&ini.Get("Input/Other")=="2");var before=Paths.Hash(iniPath);second=second with{Files=[second.Files[0] with{IniValues=new(){{"Input/Test","CONFLICT"}}}]};await Reject(()=>f.Installer.InstallAsync(f.Plan(m,second),archives,null,default));Assert(Paths.Hash(iniPath)==before);
 });
+await Test("local original proxy is preserved without redistribution across install repair and uninstall",async()=>
+{
+    var f=Fixture();var m=Package(f);var source=Path.Combine(f.Root,"Binaries/dinput8.dll");File.WriteAllText(source,"SYNTHETIC ORIGINAL DIRECTINPUT");var hash=Paths.Hash(source);var length=(int)new FileInfo(source).Length;
+    var proxy=m.Files.Single(x=>x.Kind=="copy") with{Path="Binaries/dinput8.dll",BeforeSha256=hash};
+    var local=new PackageFile("Binaries/dinput8_orig.dll","",hash,"recipe","local-transform",Recipe:[new("original",0,length)],SourcePath:"Binaries/dinput8.dll",SourceSha256:hash);
+    m=m with{Files=[proxy,local]};var archives=Archives(f,m);
+    await f.Installer.InstallAsync(f.Plan(m),archives,null,default);Assert(Paths.Hash(Path.Combine(f.Root,local.Path))==hash);Assert(Paths.Hash(source)==proxy.Sha256);
+    await f.Installer.InstallAsync(f.Plan(m),archives,null,default);File.Delete(Path.Combine(f.Root,local.Path));await f.Installer.InstallAsync(f.Plan(m),archives,null,default,repair:true);Assert(Paths.Hash(Path.Combine(f.Root,local.Path))==hash);
+    f.Installer.Uninstall(f.Root,default);Assert(Paths.Hash(source)==hash&&!File.Exists(Path.Combine(f.Root,local.Path)));
+});
+await Test("external local reconstruction source mismatch is refused before writes",async()=>
+{
+    var f=Fixture();var m=Package(f);var source=Path.Combine(f.Root,"Binaries/dinput8.dll");File.WriteAllText(source,"WRONG ORIGINAL");var before=Paths.Hash(source);
+    var local=new PackageFile("Binaries/dinput8_orig.dll","",new string('A',64),"recipe","local-transform",Recipe:[new("original",0,1)],SourcePath:"Binaries/dinput8.dll",SourceSha256:new string('B',64));m=m with{Files=[local]};
+    await Reject(()=>f.Installer.InstallAsync(f.Plan(m),Archives(f,m),null,default));Assert(Paths.Hash(source)==before&&!File.Exists(Path.Combine(f.Root,local.Path)));
+});
+await Test("unsafe cross-file reconstruction sources are rejected",async()=>
+{
+    var f=Fixture();var m=Package(f);foreach(var path in new[]{"../outside.dll","Binaries/Singularity.exe","C:/outside.dll"})
+    {
+        var local=new PackageFile("Binaries/local.dll","",new string('A',64),"recipe","local-transform",Recipe:[new("original",0,1)],SourcePath:path,SourceSha256:new string('B',64));
+        await Reject(()=>Sync(()=>PackageExtractor.Extract(Archives(f,m)[m.Id],Path.Combine(f.State,Guid.NewGuid().ToString("N")),m with{Files=[..m.Files,local]})));
+    }
+});
+await Test("system source identities cannot redirect to arbitrary files",()=>Sync(()=>
+{
+    foreach(var source in new[]{"windows-directinput8-x86/../../secret","C:/Windows/System32/dinput8.dll","powershell.exe"})
+    {
+        var f=new PackageFile("Binaries/local.dll","",new string('A',64),"recipe","local-transform",Recipe:[new("original",0,1)],SourceSha256:new string('A',64),SystemSource:source);
+        try{LocalSources.Validate(f,testRoot);throw new Exception("Unknown system source accepted");}catch(InvalidDataException){}
+    }
+}));
+await Test("local source declarations require one exact identity and hash",()=>Sync(()=>
+{
+    var f=new PackageFile("Binaries/local.dll","",new string('A',64),"recipe","local-transform",Recipe:[new("original",0,1)]);
+    foreach(var bad in new[]{f with{SourceSha256=new string('A',64)},f with{SourcePath="Binaries/a.dll"},f with{SourcePath="Binaries/a.dll",SystemSource="windows-directinput8-x86",SourceSha256=new string('A',64)}})
+    {try{LocalSources.Validate(bad,testRoot);throw new Exception("Invalid source accepted");}catch(InvalidDataException){}}
+}));
+await Test("native package XOR deltas install grow shrink repair and restore originals",async()=>
+{
+    foreach(var text in new[]{"EDITED","LONGER REBUILT NATIVE PACKAGE","CUT"})
+    {
+        var f=Fixture();var target=Path.Combine(f.Root,"RvGame/CookedPC/fixture.xxx");var old=Encoding.UTF8.GetBytes("ORIGINAL SYNTHETIC PACKAGE");var next=Encoding.UTF8.GetBytes(text);File.WriteAllBytes(target,old);var before=Paths.Hash(target);var common=Math.Min(old.Length,next.Length);var mask=old.Take(common).Select((x,i)=>(byte)(x^next[i])).ToArray();var archive=Path.Combine(f.Root,"delta.zip");
+        using(var zip=ZipFile.Open(archive,ZipArchiveMode.Create)){using(var dst=zip.CreateEntry("fixture.xor").Open())dst.Write(mask);if(next.Length>common){using var dst=zip.CreateEntry("tail.bin").Open();dst.Write(next.AsSpan(common));}}
+        var parts=new List<PatchPart>{new("xor-original",0,common,"fixture.xor")};if(next.Length>common)parts.Add(new("payload",0,next.Length-common,"tail.bin"));
+        var file=new PackageFile("RvGame/CookedPC/fixture.xxx","",Convert.ToHexString(SHA256.HashData(next)),"recipe","local-transform",BeforeSha256:before,Recipe:parts);
+        var module=new ModuleManifest("delta",new(){{"en","Synthetic delta"}},"v1","stable",true,[],new FileInfo(archive).Length,"https://github.com/trilex07/TrilexModInstaller/releases/download/test/delta.zip",Paths.Hash(archive),old.Length+next.Length,true,"Synthetic test data; no original game bytes",[file],"");
+        await f.Installer.InstallAsync(f.Plan(module),new(){{module.Id,archive}},null,default);Assert(File.ReadAllBytes(target).SequenceEqual(next));
+        File.WriteAllText(target,"CORRUPT");await f.Installer.InstallAsync(f.Plan(module),new(){{module.Id,archive}},null,default,repair:true);Assert(File.ReadAllBytes(target).SequenceEqual(next));
+        f.Installer.Uninstall(f.Root,default);Assert(Paths.Hash(target)==before);
+    }
+});
+await Test("invalid XOR range and corrupted delta cannot produce accepted output",async()=>
+{
+    var f=Fixture();var original=Path.Combine(f.Root,"RvGame/CookedPC/source.xxx");File.WriteAllText(original,"ORIGINAL");var stage=Path.Combine(f.Root,"delta-stage");Directory.CreateDirectory(stage);File.WriteAllBytes(Path.Combine(stage,"mask"),[0]);
+    var file=new PackageFile("RvGame/CookedPC/source.xxx","",Paths.Hash(original),"recipe","local-transform",BeforeSha256:Paths.Hash(original),Recipe:[new("xor-original",0,8,"mask")]);
+    await Reject(()=>Sync(()=>PackageExtractor.Reconstruct(original,stage,file)));
+    File.WriteAllBytes(Path.Combine(stage,"mask"),new byte[8]);file=file with{Sha256=new string('A',64)};await Reject(()=>Sync(()=>PackageExtractor.Reconstruct(original,stage,file)));
+});
 var report=new{time=DateTimeOffset.UtcNow,passed=results.Count-failed,failed,fixtureRoot=testRoot,steamAccess="NONE",results};
 Json.Write(Path.Combine(testRoot,"test-report.json"),report);Console.WriteLine(JsonSerializer.Serialize(new{passed=results.Count-failed,failed,report=Path.Combine(testRoot,"test-report.json")}));Environment.ExitCode=failed==0?0:1;
 

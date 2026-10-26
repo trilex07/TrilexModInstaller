@@ -7,3 +7,5 @@ private/
 *.pfx
 *.key
 *.dmp
+
+**/__pycache__/

@@ -57,7 +57,11 @@ public static class PlanBuilder
         foreach(var m in game.Modules)
         {
             if(m.DownloadBytes<0 || m.DownloadBytes >= 2L*1024*1024*1024 || m.ExpandedBytes<0 || m.ExpandedBytes>16L*1024*1024*1024)throw new InvalidDataException("Invalid package size");
-            foreach(var f in m.Files) { Paths.Safe(Path.GetTempPath(),f.Path);Paths.AllowedTarget(f.Path); }
+            foreach(var f in m.Files)
+            {
+                Paths.Safe(Path.GetTempPath(),f.Path);Paths.AllowedTarget(f.Path);
+                LocalSources.Validate(f,Path.GetTempPath());
+            }
             if(m.State=="stable" && (!m.RightsVerified || string.IsNullOrWhiteSpace(m.RightsEvidence) || m.Files.Count==0 || !ValidHash(m.ArchiveSha256) || m.DownloadBytes==0 || m.DownloadUrl is null))throw new InvalidDataException("Stable module lacks rights, files or exact distribution identity");
         }
     }

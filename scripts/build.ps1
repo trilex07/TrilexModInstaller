@@ -7,6 +7,10 @@ $env:DOTNET_SKIP_FIRST_TIME_EXPERIENCE='1'
 $env:DOTNET_CLI_TELEMETRY_OPTOUT='1'
 $env:MSBuildEnableWorkloadResolver='false'
 $env:TRILEX_TEST_ROOT=Join-Path $PWD 'artifacts/test-fixtures'
+New-Item -ItemType Directory -Force artifacts | Out-Null
+python tests/test_package_producers.py
+if($LASTEXITCODE){throw 'Package producer regressions failed'}
+
 dotnet run --project tests/Trilex.Installer.Tests -c Release
 if($LASTEXITCODE){throw 'Core regressions failed'}
 dotnet build src/Trilex.Installer.Tools -c Release --nologo

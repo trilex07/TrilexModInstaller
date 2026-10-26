@@ -32,3 +32,7 @@ The accepted Singularity V7 runtime remains frozen. No installed DLL/INI/game as
 ## Short acceptance procedure
 
 Open the built RC without starting a game. Switch UI EN/PL, resize to minimum, scroll both panels and check keyboard focus and independent text/voice selectors. Darkness II stays Coming Soon. Read-only Detect/Browse may validate an owned folder, but Review must explain unavailable packs and cannot write. Import a publisher-signed approved test catalog and test package against a disposable fixture to exercise Review → Install → Verify → Repair → Restore. Stop if any unexpected folder or privileged action is requested. Never use a synthetic EXE fixture to launch Steam.
+
+## V7 packaging follow-up
+
+See [V7 preparation](distribution/V7-PREPARATION.md): 44 core tests, 3 producer tests, real code-pack fixture lifecycle and 124 exact native upgrade reconstructions passed. These are not yet clean-game recipes or a complete playable public catalog. PolyOne caches are inactive in accepted native-glove mode and excluded. No Steam changes.

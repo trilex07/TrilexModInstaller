@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "scope": "runtime-code dependency only, not complete V7 or game media",
+  "sourceCommit": "38ca72f88112bfcbd26addb0d6aa4f76095aa15e",
+  "attribution": "SingularityVR upstream LICENSE: Copyright (c) 2026 letsgosportsteam; preserved unchanged",
+  "components": [
+    {"file":"d3d9.dll","sha256":"23A3A768C44F1C6EB5479D899141924C4C44D5C6A73A3175A2827241105370B1","license":"MIT; static MinHook/HDE BSD notices; NVIDIA NIS MIT notice"},
+    {"file":"dinput8.dll","sha256":"F58CB3A805E46C3D3F7E88137BD605AF21A8A8106C289385132F677A968E95FD","license":"upstream MIT with full notices preserved"},
+    {"file":"openxr_loader.dll","license":"Apache-2.0","identity":"x86 local SDK artifact, exact hash recorded by preparation output"}
+  ],
+  "excluded": ["game executables and cooked packages", "PolyOne glove caches", "Windows DirectInput DLL", "standalone GPL UE decompressor (not linked or included in this pack)"],
+  "prerequisites": ["x86 Microsoft Visual C++ v14 runtime", "compatible active OpenXR runtime", "matching locally owned Windows DirectInput source"],
+  "creativeAssetApproval": "not implied",
+  "physicalValidation": "not performed for installer"
+}

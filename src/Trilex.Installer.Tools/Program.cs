@@ -59,6 +59,13 @@ try
         var catalog=BundleSource.CatalogAt(bundle,service)??throw new InvalidDataException("Signed bundle catalog absent");
         await FixtureExercise.RunBundle(catalog,bundle,bundleOriginals,bundleFixture);
     }
+    else if(args is ["exercise-bundle-upgrade",var bundleNew,var upgradeKey,var upgradeOriginals,var upgradeFixture,var bundleOld])
+    {
+        using var http=new HttpClient();var service=new CatalogService(http,File.ReadAllText(upgradeKey));
+        var current=BundleSource.CatalogAt(bundleNew,service)??throw new InvalidDataException("Current signed catalog absent");
+        var previous=BundleSource.CatalogAt(bundleOld,service)??throw new InvalidDataException("Previous signed catalog absent");
+        await FixtureExercise.RunBundle(current,bundleNew,upgradeOriginals,upgradeFixture,previous,bundleOld);
+    }
     else if(args is ["exercise-owned",var ownedInputs,var ownedSources,var ownedRoot])
         await FixtureExercise.RunOwned(ownedInputs,ownedSources,ownedRoot);
     else if(args is ["exercise",var exerciseModule,var exerciseArchive,var exerciseRoot])

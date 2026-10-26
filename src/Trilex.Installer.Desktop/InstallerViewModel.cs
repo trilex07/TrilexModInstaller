@@ -41,7 +41,7 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
     private string ui="en",text="en",voice="en",root="",activity="",detection="",review="",trust="";
     private bool busy,offline,showReview;
     private double percent;
-    public string UiLanguage{get=>ui;set{if(value is not("en"or"pl"))return;ui=value;L.Set(value);RefreshModules();Changed();Activity=L["Initial"];SavePreferences();}}
+    public string UiLanguage{get=>ui;set{if(Busy||value==ui||value is not("en"or"pl"))return;ui=value;L.Set(value);RefreshModules();Changed();Activity=L["Initial"];SavePreferences();}}
     public string TextLanguage{get=>text;set{if(value is not("en"or"pl"))return;text=value;SyncLanguageModule("polish-text",value=="pl");Invalidate();Changed();SavePreferences();}}
     public string VoiceLanguage{get=>voice;set{if(value is not("en"or"pl"))return;voice=value;SyncLanguageModule("polish-dubbing",value=="pl");Invalidate();Changed();SavePreferences();}}
     public string GameRoot{get=>root;set{root=value;location=null;Invalidate();Changed();Changed(nameof(CanManage));Changed(nameof(CanLaunch));}}
@@ -108,7 +108,7 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
         if(Busy)return;Busy=true;cancellation=new();Percent=0;
         try{await action(cancellation.Token);}
         catch(OperationCanceledException){Activity=L["Cancelled"];Log("Cancelled");}
-        catch(Exception e){Activity=e.Message;Log(e.GetType().Name+": "+e.Message);}
+        catch(Exception e){Activity=L["Error"]+": "+e.Message;Log(e.GetType().Name+": "+e.Message);}
         finally{Busy=false;cancellation.Dispose();cancellation=null;}
     }
     public void Cancel()=>cancellation?.Cancel();
@@ -129,7 +129,13 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
         var prerequisites=WindowsPrerequisites.Inspect();
         if(!prerequisites.Present)throw new InvalidOperationException(prerequisites.Detail+"\nMicrosoft Visual C++ v14 x86: "+WindowsPrerequisites.VisualCppX86Url+(ui=="pl"?"\nZainstaluj wymagany pakiet Microsoft i ponów sprawdzanie.":"\nInstall the Microsoft prerequisite, then review again."));
         var choices=new InstallChoices(text,voice,ui,Modules.Where(x=>x.Selected).Select(x=>x.Manifest.Id).ToList());
-        plan=PlanBuilder.Build(Game,location!,choices);
+        var reviewed=PlanBuilder.Build(Game,location!,choices);
+        if(reviewed.Modules.SelectMany(m=>m.Files).Any(f=>Paths.Same(f.Path,"Binaries/SingularityPsvr2Bridge.exe")))
+        {
+            var triggerPrerequisite=WindowsPrerequisites.InspectTriggerHelper();
+            if(!triggerPrerequisite.Present)throw new InvalidOperationException(triggerPrerequisite.Detail+"\nMicrosoft Visual C++ v14 x64: "+WindowsPrerequisites.VisualCppX64Url+(ui=="pl"?"\nZainstaluj wymagany pakiet Microsoft i ponów sprawdzanie.":"\nInstall the Microsoft prerequisite, then review again."));
+        }
+        plan=reviewed;
         ReviewText=$"{plan.Root}\n\nv{plan.Version} · {plan.DownloadBytes/1048576.0:F1} MB download · {plan.ExpandedBytes/1048576.0:F1} MB payload\nText: {text} / Voice: {voice}\n\n"+string.Join("\n",plan.Modules.Select(x=>$"{x.Label(ui)} · {x.Version} · [{string.Join(", ",x.Dependencies)}]"));
         if(LocalAudioTools.Required(plan.Modules))ReviewText+="\n\n"+(ui=="pl"?"Remaster audio: przetwarzanie lokalne z własnej kopii gry. Dodatkowy kodek FFmpeg 9.0.2 (GPLv3), około 109 MB z gyan.dev; bez pobierania nagrań.":"Audio remaster: generated locally from your own game. Additional FFmpeg 9.0.2 codec (GPLv3), approximately 109 MB from gyan.dev; no recording download.");
         if(LocalExtractorTools.Required(plan.Modules))ReviewText+="\n\n"+(ui=="pl"?"Zasoby Centuriona powstaną z własnej kopii gry. Instalator pobierze sprawdzoną wersję UE Viewer z gildor.org; nie pobiera modeli gry.":"Centurion assets are generated from your own game. The installer downloads a pinned UE Viewer from gildor.org; no game models are downloaded.");
@@ -141,14 +147,22 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
     {
         if(catalog.ExpiresUtc<=DateTimeOffset.UtcNow)throw new InvalidDataException("Catalog expired; review again");
         if(plan is null)await Review(ct);var chosen=plan!;
-        var progress=new Progress<ProgressInfo>(p=>{Activity=$"{p.Stage} · {p.Item}";Percent=p.Total==0?0:100.0*p.Completed/p.Total;});
+        var progress=BeginInstallProgress(chosen.Version);
         if(LocalAudioTools.Required(chosen.Modules))await LocalAudioTools.EnsureAsync(http,offline,progress,ct);
         if(LocalExtractorTools.Required(chosen.Modules))await LocalExtractorTools.EnsureAsync(http,offline,progress,ct);
         var downloader=new PackageDownloader(http,Path.Combine(Home,"cache"));var packages=new Dictionary<string,string>();
         foreach(var module in chosen.Modules)packages[module.Id]=BundleSource.ArchiveAt(AppContext.BaseDirectory,module)??await downloader.GetAsync(module,offline,progress,ct);
         var result=await Task.Run(async()=>repair?await installer.RepairAsync(chosen,packages,progress,ct):await installer.InstallAsync(chosen,packages,progress,ct),ct);
-        var failures=await Task.Run(()=>installer.Verify(chosen.Root),ct);if(failures.Count>0)throw new IOException("Post-install verification failed: "+string.Join(", ",failures));
+        Log("Verify installed files");var failures=await Task.Run(()=>installer.Verify(chosen.Root),ct);if(failures.Count>0)throw new IOException("Post-install verification failed: "+string.Join(", ",failures));
         Activity=L["Done"]+" v"+result.Version;Percent=100;Log("Install verified "+result.Version);
+    }
+    internal IProgress<ProgressInfo> BeginInstallProgress(string version)
+    {
+        Activity=L["Installing"];Log("Install started "+version);
+        string? lastProgress=null;
+        // Preparation can dominate the runtime; phase percentages are not overall progress.
+        // Keep one stable user-facing message and record details only on phase/item changes.
+        return new Progress<ProgressInfo>(p=>{var detail=p.Stage+" · "+p.Item;if(detail!=lastProgress){lastProgress=detail;Log(detail);}});
     }
     public async Task Verify(CancellationToken ct){var failures=await Task.Run(()=>installer.Verify(root),ct);Activity=failures.Count==0?L["Verified"]:"Repair required: "+string.Join(", ",failures);}
     public async Task Recover(CancellationToken ct){await Task.Run(()=>installer.Recover(root),ct);Activity=L["Restored"];}

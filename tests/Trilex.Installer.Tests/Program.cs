@@ -61,6 +61,19 @@ await Test("multiple Steam libraries and nested VDF",()=>Sync(()=>
     var found=new SingularityGameAdapter().Detect([steam],f.Game()).ToList();Assert(found.Count==1&&found[0].Compatible);
 }));
 await Test("manual location and executable mismatch",()=>Sync(()=>{var f=Fixture();var game=f.Game();var adapter=new SingularityGameAdapter();Assert(adapter.Validate(f.Root,game).Compatible);File.AppendAllText(Path.Combine(f.Root,"Binaries","Singularity.exe"),"different build");Assert(!adapter.Validate(f.Root,game).Compatible);Assert(!adapter.Validate(Path.Combine(f.Root,"missing"),game).Compatible);}));
+await Test("only pinned PSVR2 helper executable can install and restore",async()=>
+{
+    var f=Fixture();var module=Package(f);var helper="Binaries/SingularityPsvr2Bridge.exe";
+    module=module with{Files=[module.Files[0] with{Path=helper}]};
+    await f.Installer.InstallAsync(f.Plan(module),Archives(f,module),null,default);
+    Assert(Paths.Same(Paths.Hash(Paths.Safe(f.Root,helper)),module.Files[0].Sha256));
+    f.Installer.Uninstall(f.Root,default);Assert(!File.Exists(Paths.Safe(f.Root,helper)));
+    foreach(var name in new[]{"Binaries/Singularity.exe","Binaries/other.exe","RvGame/SingularityPsvr2Bridge.exe","Binaries/subdir/SingularityPsvr2Bridge.exe"})
+        await Reject(()=>Sync(()=>Paths.AllowedTarget(name)));
+    var bad=module with{Files=[module.Files[0] with{Sha256=new string('0',64)}]};
+    await Reject(()=>f.Installer.InstallAsync(f.Plan(bad),Archives(f,bad),null,default));
+    Assert(!File.Exists(Paths.Safe(f.Root,helper)));
+});
 await Test("Darkness II remains unavailable",()=>Sync(()=>{var f=Fixture();Assert(!new Darkness2GameAdapter().Validate(f.Root,f.Game()).Compatible);}));
 await Test("missing packages and dependency cycles",async()=>
 {
@@ -98,6 +111,30 @@ await Test("install verify repeat and uninstall preserve originals",async()=>
     var f=Fixture();var m=Package(f);var ini=Path.Combine(f.Root,"Binaries","SingularityVR.ini");File.WriteAllText(ini,"; custom\r\n[User]\r\nValue=keep\r\n");var before=File.ReadAllText(ini);
     await f.Installer.InstallAsync(f.Plan(m),Archives(f,m),null,default);Assert(f.Installer.Verify(f.Root).Count==0);await f.Installer.InstallAsync(f.Plan(m),Archives(f,m),null,default);Assert(f.Installer.Verify(f.Root).Count==0);
     f.Installer.Uninstall(f.Root,default);Assert(!File.Exists(Path.Combine(f.Root,"Binaries","trilex-test.dll")));Assert(new IniDocument(File.ReadAllText(ini)).Get("User/Value")=="keep");Assert(new IniDocument(File.ReadAllText(ini)).Get("Input/Test") is null);Assert(f.Installer.Receipt(f.Root) is null);
+});
+await Test("preparation progress identifies active work before game writes; install follows complete staging",async()=>
+{
+    var f=Fixture();var m=Package(f);var rows=new List<ProgressInfo>();
+    var progress=new InlineProgress(p=>
+    {
+        rows.Add(p);Assert(p.Total>0&&p.Completed>=0&&p.Completed<=p.Total);
+        if(p.Stage is "Extract" or "Prepare")
+            Assert(!File.Exists(Path.Combine(f.Root,"Binaries/trilex-test.dll"))&&!File.Exists(Path.Combine(f.Root,"Binaries/SingularityVR.ini")),"Game modified before preparation completed");
+        if(p.Stage=="Install")Assert(rows.Any(r=>r.Stage=="Prepare"&&r.Completed==r.Total),"Install started without complete preparation");
+    });
+    await f.Installer.InstallAsync(f.Plan(m),Archives(f,m),progress,default);
+    Assert(rows[0] is {Stage:"Extract",Completed:0,Total:1});
+    Assert(rows.Count(p=>p.Stage=="Prepare")==m.Files.Count*2);
+    foreach(var file in m.Files)Assert(rows.Any(p=>p.Stage=="Prepare"&&p.Item==file.Path&&p.Completed<p.Total));
+    Assert(rows[^1] is {Stage:"Install",Completed:2,Total:2});Assert(f.Installer.Verify(f.Root).Count==0);
+});
+await Test("cancelling preparation reports active target and leaves game untouched",async()=>
+{
+    var f=Fixture();var m=Package(f);using var cancel=new CancellationTokenSource();var rows=new List<ProgressInfo>();
+    var progress=new InlineProgress(p=>{rows.Add(p);if(p.Stage=="Prepare")cancel.Cancel();});
+    try{await f.Installer.InstallAsync(f.Plan(m),Archives(f,m),progress,cancel.Token);throw new Exception("Expected preparation cancellation");}catch(OperationCanceledException){}
+    Assert(rows[^1].Stage=="Prepare"&&rows[^1].Item==m.Files[0].Path);
+    Assert(!rows.Any(p=>p.Stage=="Install")&&!File.Exists(Path.Combine(f.Root,"Binaries/trilex-test.dll"))&&f.Installer.Receipt(f.Root)is null);
 });
 await Test("fault halfway rolls back exact preimages",async()=>
 {
@@ -349,6 +386,21 @@ await Test("VC++ prerequisite rejects missing corrupt and x64 without loading DL
     File.WriteAllBytes(Path.Combine(runtime,"vcruntime140.dll"),bytes);Assert(!WindowsPrerequisites.InspectDirectory(runtime).Present);
     Assert(WindowsPrerequisites.VisualCppX86Url=="https://aka.ms/vc14/vc_redist.x86.exe");
 }));
+await Test("PSVR2 x64 helper imports require x64 VCRUNTIME140 and VCRUNTIME140_1",()=>Sync(()=>
+{
+    var f=Fixture();var runtime=Path.Combine(f.Root,"runtime");Directory.CreateDirectory(runtime);
+    Assert(!WindowsPrerequisites.InspectTriggerDirectory(runtime).Present);
+    var bytes=new byte[160];BitConverter.GetBytes((ushort)0x5a4d).CopyTo(bytes,0);BitConverter.GetBytes(64).CopyTo(bytes,60);BitConverter.GetBytes(0x4550).CopyTo(bytes,64);BitConverter.GetBytes((ushort)0x14c).CopyTo(bytes,68);
+    File.WriteAllBytes(Path.Combine(runtime,"vcruntime140.dll"),bytes);
+    Assert(WindowsPrerequisites.InspectTriggerDirectory(runtime).Detail.Contains("Expected x64"));
+    if(WindowsPrerequisites.InspectTriggerHelper().Present)
+    {
+        foreach(var name in new[]{"vcruntime140.dll","vcruntime140_1.dll"})File.Copy(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System),name),Path.Combine(runtime,name),true);
+        Assert(WindowsPrerequisites.InspectTriggerDirectory(runtime).Present);
+        File.Delete(Path.Combine(runtime,"vcruntime140_1.dll"));Assert(!WindowsPrerequisites.InspectTriggerDirectory(runtime).Present);
+    }
+    Assert(WindowsPrerequisites.VisualCppX64Url=="https://aka.ms/vc14/vc_redist.x64.exe");
+}));
 await Test("Centurion fixed operations reject unknown mode wrong size and foreign original",async()=>
 {
     var f=Fixture();var original=Path.Combine(f.Root,"not-original.xxx");File.WriteAllText(original,"synthetic foreign package");
@@ -431,6 +483,7 @@ var report=new{time=DateTimeOffset.UtcNow,passed=results.Count-failed,failed,fix
 Json.Write(Path.Combine(testRoot,"test-report.json"),report);Console.WriteLine(JsonSerializer.Serialize(new{passed=results.Count-failed,failed,report=Path.Combine(testRoot,"test-report.json")}));Environment.ExitCode=failed==0?0:1;
 
 sealed class FakeGuard : IProcessGuard {public bool Busy;public void RequireIdle(string root){if(Busy)throw new IOException("Synthetic active Steam game");}}
+sealed class InlineProgress(Action<ProgressInfo> report) : IProgress<ProgressInfo> {public void Report(ProgressInfo value)=>report(value);}
 sealed class TestFixture
 {
     public string Root{get;}public string State{get;}public FakeGuard Guard{get;}=new();public TransactionInstaller Installer{get;}

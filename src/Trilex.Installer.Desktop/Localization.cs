@@ -10,6 +10,7 @@ public sealed class Localization : INotifyPropertyChanged
     private static readonly Dictionary<string,(string En,string Pl)> Words=new()
     {
         ["FullPreset"]=("Full Trilex V7 (Polish)","Pełna konfiguracja Trilex V7 (PL)"),
+        ["Installing"]=("Installing the mod…","Instalowanie moda…"),["Error"]=("Error","Błąd"),
         ["Tagline"]=("YOUR GAMES. ANOTHER DIMENSION.","TWOJE GRY. INNY WYMIAR."),["Library"]=("Game library","Biblioteka gier"),["Install"]=("Install mod","Zainstaluj mod"),["Options"]=("Choose your experience","Wybierz swoje wrażenia"),
         ["LibraryHint"]=("One launcher. Every Trilex VR mod.","Jeden launcher. Wszystkie mody VR Trilexa."),["Available"]=("VR PROJECT / FIRST RELEASE", "PROJEKT VR / PIERWSZE WYDANIE"),["Soon"]=("COMING SOON","WKRÓTCE"),["More"]=("More worlds ahead","Kolejne światy przed Tobą"),
         ["Detect"]=("Detect game","Wykryj grę"),["Browse"]=("Browse…","Przeglądaj…"),["Folder"]=("Game installation folder","Folder instalacji gry"),["Validate"]=("Check folder","Sprawdź folder"),["DetectionHint"]=("Steam libraries are read only. Browse to the folder containing Binaries and RvGame.","Biblioteki Steam są tylko odczytywane. Wybierz folder zawierający Binaries i RvGame."),

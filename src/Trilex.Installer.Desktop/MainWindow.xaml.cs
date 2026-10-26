@@ -25,7 +25,7 @@ public partial class MainWindow : Window
     private async void Recover_Click(object sender,RoutedEventArgs e)=>await vm.Run(vm.Recover);
     private async void Uninstall_Click(object sender,RoutedEventArgs e){if(MessageBox.Show(this,vm.L["ConfirmRestore"],"Trilex",MessageBoxButton.YesNo,MessageBoxImage.Question)==MessageBoxResult.Yes)await vm.Run(vm.Uninstall);}
     private void Cancel_Click(object sender,RoutedEventArgs e)=>vm.Cancel();
-    private void Back_Click(object sender,RoutedEventArgs e){vm.GameRoot=vm.GameRoot;}
+    private void Back_Click(object sender,RoutedEventArgs e){if(!vm.Busy)vm.GameRoot=vm.GameRoot;}
     private void Launch_Click(object sender,RoutedEventArgs e)=>vm.Launch();
     private void Logs_Click(object sender,RoutedEventArgs e)=>vm.OpenLogs();
     private void Prerequisite_Click(object sender,RoutedEventArgs e)=>System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(Trilex.Installer.Core.WindowsPrerequisites.VisualCppX86Url){UseShellExecute=true});

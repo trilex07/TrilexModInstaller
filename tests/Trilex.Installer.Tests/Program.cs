@@ -99,6 +99,30 @@ await Test("install verify repeat and uninstall preserve originals",async()=>
     await f.Installer.InstallAsync(f.Plan(m),Archives(f,m),null,default);Assert(f.Installer.Verify(f.Root).Count==0);await f.Installer.InstallAsync(f.Plan(m),Archives(f,m),null,default);Assert(f.Installer.Verify(f.Root).Count==0);
     f.Installer.Uninstall(f.Root,default);Assert(!File.Exists(Path.Combine(f.Root,"Binaries","trilex-test.dll")));Assert(new IniDocument(File.ReadAllText(ini)).Get("User/Value")=="keep");Assert(new IniDocument(File.ReadAllText(ini)).Get("Input/Test") is null);Assert(f.Installer.Receipt(f.Root) is null);
 });
+await Test("preparation progress identifies active work before game writes; install follows complete staging",async()=>
+{
+    var f=Fixture();var m=Package(f);var rows=new List<ProgressInfo>();
+    var progress=new InlineProgress(p=>
+    {
+        rows.Add(p);Assert(p.Total>0&&p.Completed>=0&&p.Completed<=p.Total);
+        if(p.Stage is "Extract" or "Prepare")
+            Assert(!File.Exists(Path.Combine(f.Root,"Binaries/trilex-test.dll"))&&!File.Exists(Path.Combine(f.Root,"Binaries/SingularityVR.ini")),"Game modified before preparation completed");
+        if(p.Stage=="Install")Assert(rows.Any(r=>r.Stage=="Prepare"&&r.Completed==r.Total),"Install started without complete preparation");
+    });
+    await f.Installer.InstallAsync(f.Plan(m),Archives(f,m),progress,default);
+    Assert(rows[0] is {Stage:"Extract",Completed:0,Total:1});
+    Assert(rows.Count(p=>p.Stage=="Prepare")==m.Files.Count*2);
+    foreach(var file in m.Files)Assert(rows.Any(p=>p.Stage=="Prepare"&&p.Item==file.Path&&p.Completed<p.Total));
+    Assert(rows[^1] is {Stage:"Install",Completed:2,Total:2});Assert(f.Installer.Verify(f.Root).Count==0);
+});
+await Test("cancelling preparation reports active target and leaves game untouched",async()=>
+{
+    var f=Fixture();var m=Package(f);using var cancel=new CancellationTokenSource();var rows=new List<ProgressInfo>();
+    var progress=new InlineProgress(p=>{rows.Add(p);if(p.Stage=="Prepare")cancel.Cancel();});
+    try{await f.Installer.InstallAsync(f.Plan(m),Archives(f,m),progress,cancel.Token);throw new Exception("Expected preparation cancellation");}catch(OperationCanceledException){}
+    Assert(rows[^1].Stage=="Prepare"&&rows[^1].Item==m.Files[0].Path);
+    Assert(!rows.Any(p=>p.Stage=="Install")&&!File.Exists(Path.Combine(f.Root,"Binaries/trilex-test.dll"))&&f.Installer.Receipt(f.Root)is null);
+});
 await Test("fault halfway rolls back exact preimages",async()=>
 {
     var f=Fixture();var m=Package(f);var ini=Path.Combine(f.Root,"Binaries","SingularityVR.ini");File.WriteAllText(ini,"[User]\nKeep=1\n");var hash=Paths.Hash(ini);await Reject(()=>f.Installer.InstallAsync(f.Plan(m),Archives(f,m),null,default,i=>throw new IOException("Injected failure")));Assert(!File.Exists(Path.Combine(f.Root,"Binaries","trilex-test.dll")));Assert(Paths.Hash(ini)==hash);Assert(f.Installer.Receipt(f.Root) is null);
@@ -431,6 +455,7 @@ var report=new{time=DateTimeOffset.UtcNow,passed=results.Count-failed,failed,fix
 Json.Write(Path.Combine(testRoot,"test-report.json"),report);Console.WriteLine(JsonSerializer.Serialize(new{passed=results.Count-failed,failed,report=Path.Combine(testRoot,"test-report.json")}));Environment.ExitCode=failed==0?0:1;
 
 sealed class FakeGuard : IProcessGuard {public bool Busy;public void RequireIdle(string root){if(Busy)throw new IOException("Synthetic active Steam game");}}
+sealed class InlineProgress(Action<ProgressInfo> report) : IProgress<ProgressInfo> {public void Report(ProgressInfo value)=>report(value);}
 sealed class TestFixture
 {
     public string Root{get;}public string State{get;}public FakeGuard Guard{get;}=new();public TransactionInstaller Installer{get;}

@@ -41,7 +41,7 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
     private string ui="en",text="en",voice="en",root="",activity="",detection="",review="",trust="";
     private bool busy,offline,showReview;
     private double percent;
-    public string UiLanguage{get=>ui;set{if(value is not("en"or"pl"))return;ui=value;L.Set(value);RefreshModules();Changed();Activity=L["Initial"];SavePreferences();}}
+    public string UiLanguage{get=>ui;set{if(Busy||value==ui||value is not("en"or"pl"))return;ui=value;L.Set(value);RefreshModules();Changed();Activity=L["Initial"];SavePreferences();}}
     public string TextLanguage{get=>text;set{if(value is not("en"or"pl"))return;text=value;SyncLanguageModule("polish-text",value=="pl");Invalidate();Changed();SavePreferences();}}
     public string VoiceLanguage{get=>voice;set{if(value is not("en"or"pl"))return;voice=value;SyncLanguageModule("polish-dubbing",value=="pl");Invalidate();Changed();SavePreferences();}}
     public string GameRoot{get=>root;set{root=value;location=null;Invalidate();Changed();Changed(nameof(CanManage));Changed(nameof(CanLaunch));}}
@@ -108,7 +108,7 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
         if(Busy)return;Busy=true;cancellation=new();Percent=0;
         try{await action(cancellation.Token);}
         catch(OperationCanceledException){Activity=L["Cancelled"];Log("Cancelled");}
-        catch(Exception e){Activity=e.Message;Log(e.GetType().Name+": "+e.Message);}
+        catch(Exception e){Activity=L["Error"]+": "+e.Message;Log(e.GetType().Name+": "+e.Message);}
         finally{Busy=false;cancellation.Dispose();cancellation=null;}
     }
     public void Cancel()=>cancellation?.Cancel();
@@ -141,14 +141,22 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
     {
         if(catalog.ExpiresUtc<=DateTimeOffset.UtcNow)throw new InvalidDataException("Catalog expired; review again");
         if(plan is null)await Review(ct);var chosen=plan!;
-        var progress=new Progress<ProgressInfo>(p=>{Activity=$"{p.Stage} · {p.Item}";Percent=p.Total==0?0:100.0*p.Completed/p.Total;});
+        var progress=BeginInstallProgress(chosen.Version);
         if(LocalAudioTools.Required(chosen.Modules))await LocalAudioTools.EnsureAsync(http,offline,progress,ct);
         if(LocalExtractorTools.Required(chosen.Modules))await LocalExtractorTools.EnsureAsync(http,offline,progress,ct);
         var downloader=new PackageDownloader(http,Path.Combine(Home,"cache"));var packages=new Dictionary<string,string>();
         foreach(var module in chosen.Modules)packages[module.Id]=BundleSource.ArchiveAt(AppContext.BaseDirectory,module)??await downloader.GetAsync(module,offline,progress,ct);
         var result=await Task.Run(async()=>repair?await installer.RepairAsync(chosen,packages,progress,ct):await installer.InstallAsync(chosen,packages,progress,ct),ct);
-        var failures=await Task.Run(()=>installer.Verify(chosen.Root),ct);if(failures.Count>0)throw new IOException("Post-install verification failed: "+string.Join(", ",failures));
+        Log("Verify installed files");var failures=await Task.Run(()=>installer.Verify(chosen.Root),ct);if(failures.Count>0)throw new IOException("Post-install verification failed: "+string.Join(", ",failures));
         Activity=L["Done"]+" v"+result.Version;Percent=100;Log("Install verified "+result.Version);
+    }
+    internal IProgress<ProgressInfo> BeginInstallProgress(string version)
+    {
+        Activity=L["Installing"];Log("Install started "+version);
+        string? lastProgress=null;
+        // Preparation can dominate the runtime; phase percentages are not overall progress.
+        // Keep one stable user-facing message and record details only on phase/item changes.
+        return new Progress<ProgressInfo>(p=>{var detail=p.Stage+" · "+p.Item;if(detail!=lastProgress){lastProgress=detail;Log(detail);}});
     }
     public async Task Verify(CancellationToken ct){var failures=await Task.Run(()=>installer.Verify(root),ct);Activity=failures.Count==0?L["Verified"]:"Repair required: "+string.Join(", ",failures);}
     public async Task Recover(CancellationToken ct){await Task.Run(()=>installer.Recover(root),ct);Activity=L["Restored"];}

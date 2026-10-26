@@ -50,10 +50,12 @@ public sealed class TransactionInstaller(string stateRoot, IProcessGuard process
         Reserve(plan.Root,checked(plan.ExpandedBytes+existingBytes));Reserve(state,checked(plan.ExpandedBytes*2+existingBytes*3+decodedBytes+plan.Modules.Count*64L*1024*1024));
         foreach(var (drive,bytes) in budgets)if(new DriveInfo(drive).AvailableFreeSpace<bytes)throw new IOException("Insufficient staging/backup space on "+drive);
         var files=new Dictionary<string,(PackageFile File,string Stage)>(StringComparer.OrdinalIgnoreCase);
+        var extracted=0;
         foreach(var module in plan.Modules)
         {
             ct.ThrowIfCancellationRequested();
             if(!archives.TryGetValue(module.Id,out var archive))throw new FileNotFoundException("Package missing: "+module.Id);
+            progress?.Report(new("Extract",module.Id,extracted,plan.Modules.Count));
             var stage=Paths.Safe(txn,"packages/"+module.Id);PackageExtractor.Extract(archive,stage,module);
             foreach(var file in module.Files)
             {
@@ -66,10 +68,12 @@ public sealed class TransactionInstaller(string stateRoot, IProcessGuard process
                 }
                 else files.Add(file.Path,(file,stage));
             }
+            progress?.Report(new("Extract",module.Id,++extracted,plan.Modules.Count));
         }
         var edits=new List<(string Path,string? Staged)>();var ownership=new List<OwnedFile>();
         foreach(var (path,(file,stage)) in files)
         {
+            progress?.Report(new("Prepare",path,edits.Count,files.Count));
             ct.ThrowIfCancellationRequested();Paths.AllowedTarget(path);var target=Paths.Safe(plan.Root,path);var live=Paths.HashOrNull(target);
             var old=previous?.Files.SingleOrDefault(x=>Paths.Same(x.Path,path));
             var original=old is not null?old.OriginalHash:live;var originalBackup=old?.Backup??("originals/"+id+"/"+path);
@@ -107,6 +111,7 @@ public sealed class TransactionInstaller(string stateRoot, IProcessGuard process
             else Paths.AtomicCopy(Paths.Safe(stage,file.Entry),prepared);
             var after=Paths.Hash(prepared);var pristine=old is null || old.CanRestoreWhole&&Paths.Same(live,old.InstalledHash);
             ownership.Add(new(path,original,originalBackup,after,file.Kind,installedIni,originalIni,pristine));edits.Add((path,prepared));
+            progress?.Report(new("Prepare",path,edits.Count,files.Count));
         }
         // Deselecting a package restores the user's originals, rather than leaving orphaned files.
         if(previous is not null)foreach(var old in previous.Files.Where(x=>!files.ContainsKey(x.Path)))edits.Add((old.Path,RestoreSource(plan.Root,state,old,txn)));

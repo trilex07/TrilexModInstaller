@@ -129,7 +129,13 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
         var prerequisites=WindowsPrerequisites.Inspect();
         if(!prerequisites.Present)throw new InvalidOperationException(prerequisites.Detail+"\nMicrosoft Visual C++ v14 x86: "+WindowsPrerequisites.VisualCppX86Url+(ui=="pl"?"\nZainstaluj wymagany pakiet Microsoft i ponów sprawdzanie.":"\nInstall the Microsoft prerequisite, then review again."));
         var choices=new InstallChoices(text,voice,ui,Modules.Where(x=>x.Selected).Select(x=>x.Manifest.Id).ToList());
-        plan=PlanBuilder.Build(Game,location!,choices);
+        var reviewed=PlanBuilder.Build(Game,location!,choices);
+        if(reviewed.Modules.SelectMany(m=>m.Files).Any(f=>Paths.Same(f.Path,"Binaries/SingularityPsvr2Bridge.exe")))
+        {
+            var triggerPrerequisite=WindowsPrerequisites.InspectTriggerHelper();
+            if(!triggerPrerequisite.Present)throw new InvalidOperationException(triggerPrerequisite.Detail+"\nMicrosoft Visual C++ v14 x64: "+WindowsPrerequisites.VisualCppX64Url+(ui=="pl"?"\nZainstaluj wymagany pakiet Microsoft i ponów sprawdzanie.":"\nInstall the Microsoft prerequisite, then review again."));
+        }
+        plan=reviewed;
         ReviewText=$"{plan.Root}\n\nv{plan.Version} · {plan.DownloadBytes/1048576.0:F1} MB download · {plan.ExpandedBytes/1048576.0:F1} MB payload\nText: {text} / Voice: {voice}\n\n"+string.Join("\n",plan.Modules.Select(x=>$"{x.Label(ui)} · {x.Version} · [{string.Join(", ",x.Dependencies)}]"));
         if(LocalAudioTools.Required(plan.Modules))ReviewText+="\n\n"+(ui=="pl"?"Remaster audio: przetwarzanie lokalne z własnej kopii gry. Dodatkowy kodek FFmpeg 9.0.2 (GPLv3), około 109 MB z gyan.dev; bez pobierania nagrań.":"Audio remaster: generated locally from your own game. Additional FFmpeg 9.0.2 codec (GPLv3), approximately 109 MB from gyan.dev; no recording download.");
         if(LocalExtractorTools.Required(plan.Modules))ReviewText+="\n\n"+(ui=="pl"?"Zasoby Centuriona powstaną z własnej kopii gry. Instalator pobierze sprawdzoną wersję UE Viewer z gildor.org; nie pobiera modeli gry.":"Centurion assets are generated from your own game. The installer downloads a pinned UE Viewer from gildor.org; no game models are downloaded.");

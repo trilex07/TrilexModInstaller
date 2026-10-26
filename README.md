@@ -4,7 +4,7 @@ Windows launcher and modular installer by **Trilex / trilex07** for the [Singula
 
 ![Installer interface](docs/screenshots/installer-en.png)
 
-**[Download the complete V7 installer RC3](https://github.com/trilex07/TrilexModInstaller/releases/tag/installer-1.0.0-rc.3):** self-contained Windows installer, pinned signed catalog and 12 local packages matching Trilex's accepted configuration. RC3 fixes the clean Steam texture-cache reconstruction error and retains the fpsVR guard fix. Extract the entire ZIP and choose **Full Trilex V7 (Polish)**. [Installation instructions, PL/EN](docs/INSTALL-V7.md) · [RC3 correction and retry](docs/INSTALLER-RC3-CACHE-FIX.md). The executable is unsigned; clean-PC/PSVR2 installer acceptance remains pending.
+**[Download the V7 installer RC4](https://github.com/trilex07/TrilexModInstaller/releases/tag/installer-1.0.0-rc.4):** self-contained Windows installer, pinned signed catalog and 12 local packages. RC4 supplies the missing wheel-selection catalog, custom startup/loading movies and splash, registered 2X/8K textures/effects and PSVR2 trigger helper. It also keeps installation status simple and stable. The accepted gameplay DLL is unchanged. Extract the entire ZIP and choose **Full Trilex V7 (Polish)**. Existing managed RC3 installations can update without reinstalling the game. [Installation instructions, PL/EN](docs/INSTALL-V7.md) · [Runtime closure and cause](docs/INSTALLER-RUNTIME-CLOSURE.md). The executable is unsigned; physical acceptance of this corrected clean-install package remains pending.
 
 ## Public fan-project preview
 

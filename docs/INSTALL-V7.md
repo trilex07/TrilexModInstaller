@@ -13,8 +13,9 @@
    Trilexa: VR, ręce/TMD, przeładowania, HUD/menu, polski tekst i dubbing, remaster
    audio oraz tekstury HD. Możesz zmienić dodatki. Polski dubbing filmów wymaga
    polskiego tekstu w tej wersji V7; EN/EN i PL/EN są dostępne.
-4. Jeśli brakuje Visual C++ x86, użyj przycisku prowadzącego do oficjalnego pakietu
-   Microsoft i wróć do sprawdzania. Przy pierwszej instalacji kodek audio i
+4. Jeśli brakuje Visual C++ x86 lub x64, użyj odpowiedniego przycisku prowadzącego
+   do oficjalnego pakietu Microsoft i wróć do sprawdzania. Gra wymaga x86,
+   helper spustów PSVR2 wymaga x64. Przy pierwszej instalacji kodek audio i
    eksporter Centuriona są pobierane ze stałych adresów upstream i weryfikowane
    hashem. Nie potrzebujesz Pythona, .NET SDK ani repozytorium.
 5. Kliknij **Podsumowanie instalacji**, sprawdź folder, dodatki i informacje o
@@ -28,6 +29,13 @@ pliki” porówna hashe; „Napraw” odtworzy wybrane moduły. „Przywróć / 
 przywraca zachowane oryginały. Zachowaj `%LOCALAPPDATA%\Trilex\ModInstaller`:
 zawiera kopie i dziennik odzyskiwania. Nie usuwaj go przed odinstalowaniem.
 Jeśli operację przerwano, zamknij grę i wybierz odzyskanie przerwanej instalacji.
+
+**Aktualizacja RC3 → RC4:** zamknij grę i stary instalator, wypakuj cały nowy ZIP
+do osobnego folderu, uruchom nowy EXE i wybierz ten sam folder gry oraz pełny
+preset. Nie usuwaj gry ani kopii z LocalAppData. RC4 uzupełnia katalog wyboru
+broni, grafikę filmów startowych/ładowania, splash i brakujące tekstury 2X/8K.
+Paczka jest większa, ponieważ zawiera teraz rzeczywiste tekstury. Odtworzenie
+plików w testach offline nie potwierdza jeszcze obrazu w PSVR2.
 
 To nieoficjalny, darmowy mod. Kod instalatora ma MIT; cudze materiały, gra i głosy
 nie otrzymują przez to MIT. Szczegóły w `FIRST-EDITION.md` oraz
@@ -46,7 +54,8 @@ to różne mechanizmy. Nie ma automatycznej instalacji sterowników ani emulator
 3. Choose **Full Trilex V7 (Polish)** for the complete accepted configuration, or
    choose individual additions. V7's Polish movie voices require Polish game text.
    EN/EN and PL text/EN voice also work; the installer language is separate.
-4. Install the official Microsoft x86 VC++ prerequisite if detection requests it.
+4. Install the official Microsoft x86/x64 VC++ prerequisites if requested (x86
+   for the game, x64 for the PSVR2 trigger helper).
    On first use, pinned audio/exporter tools are obtained from their upstream
    sites and hash-verified. No Python, .NET SDK or source checkout is needed.
 5. **Review installation**, check folder, modules and fan-content notice, then
@@ -59,6 +68,13 @@ Use **Verify files**, **Repair**, or **Restore / uninstall** under the same Wind
 account. Keep `%LOCALAPPDATA%\Trilex\ModInstaller` until restoration is complete:
 it holds original backups and the recovery journal. Recovery waits for game exit.
 Do not delete backups or unknown conflicting files to force installation.
+
+**RC3 → RC4:** close the game and old installer, extract the whole new ZIP to
+another directory, run the new EXE, select the same game folder and full preset.
+Do not reinstall the game or remove LocalAppData backups. RC4 adds the missing
+weapon-selection catalog, startup/loading artwork, splash and 2X/8K textures.
+The larger package now includes those actual texture files. Physical acceptance
+of this corrected package is still pending.
 
 This unofficial free fan mod does not grant rights over the game, recordings or
 third-party assets. See the included distribution and publisher-decision notices.

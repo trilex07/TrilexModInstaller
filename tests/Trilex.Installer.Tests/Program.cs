@@ -386,6 +386,21 @@ await Test("VC++ prerequisite rejects missing corrupt and x64 without loading DL
     File.WriteAllBytes(Path.Combine(runtime,"vcruntime140.dll"),bytes);Assert(!WindowsPrerequisites.InspectDirectory(runtime).Present);
     Assert(WindowsPrerequisites.VisualCppX86Url=="https://aka.ms/vc14/vc_redist.x86.exe");
 }));
+await Test("PSVR2 x64 helper imports require x64 VCRUNTIME140 and VCRUNTIME140_1",()=>Sync(()=>
+{
+    var f=Fixture();var runtime=Path.Combine(f.Root,"runtime");Directory.CreateDirectory(runtime);
+    Assert(!WindowsPrerequisites.InspectTriggerDirectory(runtime).Present);
+    var bytes=new byte[160];BitConverter.GetBytes((ushort)0x5a4d).CopyTo(bytes,0);BitConverter.GetBytes(64).CopyTo(bytes,60);BitConverter.GetBytes(0x4550).CopyTo(bytes,64);BitConverter.GetBytes((ushort)0x14c).CopyTo(bytes,68);
+    File.WriteAllBytes(Path.Combine(runtime,"vcruntime140.dll"),bytes);
+    Assert(WindowsPrerequisites.InspectTriggerDirectory(runtime).Detail.Contains("Expected x64"));
+    if(WindowsPrerequisites.InspectTriggerHelper().Present)
+    {
+        foreach(var name in new[]{"vcruntime140.dll","vcruntime140_1.dll"})File.Copy(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System),name),Path.Combine(runtime,name),true);
+        Assert(WindowsPrerequisites.InspectTriggerDirectory(runtime).Present);
+        File.Delete(Path.Combine(runtime,"vcruntime140_1.dll"));Assert(!WindowsPrerequisites.InspectTriggerDirectory(runtime).Present);
+    }
+    Assert(WindowsPrerequisites.VisualCppX64Url=="https://aka.ms/vc14/vc_redist.x64.exe");
+}));
 await Test("Centurion fixed operations reject unknown mode wrong size and foreign original",async()=>
 {
     var f=Fixture();var original=Path.Combine(f.Root,"not-original.xxx");File.WriteAllText(original,"synthetic foreign package");

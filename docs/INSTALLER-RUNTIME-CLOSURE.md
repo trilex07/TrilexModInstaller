@@ -32,6 +32,9 @@ while failing at runtime. The runtime DLL itself is unchanged (source
   The game EXE and every other executable path remain forbidden. The helper is
   x64, separate from the unchanged x86 game DLL. It uses the locally installed
   PlayStation VR2 application; no Sony SDK DLL is redistributed.
+  Its actual PE imports include `VCRUNTIME140.dll` and `VCRUNTIME140_1.dll`;
+  review checks their x64 presence/architecture and offers Microsoft's x64
+  prerequisite link separately from the game's x86 prerequisite.
 
 `inventory/v7-runtime-resources.json` pins all 191 runtime dependencies, their
 owners, consumers, sizes, output hashes and (where relevant) stock preimages.
@@ -62,6 +65,10 @@ Validate with the real package/transaction consumer in a fresh marker-only
 fixture: install, exact hashes, repeat install, damage detection, repair,
 uninstall and exact stock restoration. Also test the RC3-to-RC4 managed upgrade.
 No fixture test launches the game or proves headset rendering.
+
+The controlled upgrade exercise is `exercise-bundle-upgrade NEW KEY ORIGINALS
+FRESH_FIXTURE PREVIOUS`: both catalogs and all packages are verified, RC3 is
+installed first, then RC4 must update, verify, repair and restore stock files.
 
 Physical acceptance remains **PENDING**: custom startup/loading art, detailed
 wheel artwork and selecting each owned ordinary weapon in PSVR2. No new

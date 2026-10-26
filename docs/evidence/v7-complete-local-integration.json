@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-26",
+  "sourceCommit": "b6054ef41aad29c08ef5b2295af8488bd6649bca",
+  "runtimeSource": "38ca72f88112bfcbd26addb0d6aa4f76095aa15e",
+  "status": "ENGINEERING_RC_PUBLIC_PACKAGES_GATED",
+  "exeSha256": "8FDA0EAAF77E56B92DBB64EA4DDE899AEFADA7B55395F60BF07E9C667D2C470B",
+  "exeBytes": 179534030,
+  "zipSha256": "21B6A5A7510902C51F1E8CB434B867856D0E6AEB2220DFD8352B0486CFBE2428",
+  "zipBytes": 98875341,
+  "coreTests": {
+    "pass": 54,
+    "fail": 0
+  },
+  "producerTests": {
+    "pass": 5,
+    "fail": 0
+  },
+  "normalWpf": {
+    "bindingErrors": 0,
+    "cases": 8,
+    "status": "PASS"
+  },
+  "portableWpf": {
+    "bindingErrors": 0,
+    "cases": 8,
+    "status": "PASS",
+    "installedDotNetUsed": false
+  },
+  "combinedLifecycle": {
+    "status": "PASS",
+    "modules": [
+      "runtime-code",
+      "polish-dubbing",
+      "audio-remaster",
+      "ui-hud",
+      "native-hand-assets",
+      "hd-textures",
+      "knife-assets",
+      "authored-ui-assets",
+      "native-font-assets",
+      "portable-settings",
+      "centurion-assets"
+    ],
+    "targets": 178,
+    "originalsRestored": 127,
+    "steps": [
+      "install",
+      "exact verification",
+      "reinstall",
+      "damage detection",
+      "repair",
+      "uninstall",
+      "exact original restoration"
+    ],
+    "gameLaunched": false,
+    "dllLoaded": false,
+    "steamWrites": false,
+    "redistributionApproved": false,
+    "physicalAcceptance": "NOT RUN"
+  },
+  "manifestClosure": {
+    "status": "PREPARED_NOT_RELEASED",
+    "runtimeSource": "38ca72f88112bfcbd26addb0d6aa4f76095aa15e",
+    "moduleCount": 12,
+    "targets": 178,
+    "inventoryPins": 164,
+    "intentionalExclusions": {
+      "Binaries/Singularity.exe": "Owned executable: verify only, never distribute",
+      "RvGame/CookedPC/RvGame.xxx": "Owned core: verify/read only, never replace",
+      "Binaries/vr-assets/hud/katorga/glove-animation/glove_left.svrg": "Inactive PolyOne reference cache: accepted native hand route replaces it",
+      "Binaries/vr-assets/hud/katorga/glove-animation/glove_right.svrg": "Inactive PolyOne reference cache: accepted native hand route replaces it",
+      "Binaries/vr-assets/hud/katorga/glove-animation/glove.svrt": "Inactive PolyOne reference cache: accepted native hand route replaces it"
+    },
+    "unexplainedOmissions": [],
+    "rightsReview": [
+      "polish-dubbing",
+      "audio-remaster",
+      "ui-hud",
+      "native-hand-assets",
+      "hd-textures",
+      "knife-assets",
+      "authored-ui-assets",
+      "native-font-assets",
+      "centurion-assets"
+    ],
+    "productionPromotion": false,
+    "steamAccess": "NONE"
+  },
+  "centurionExactFiles": 5,
+  "nativeHandExactFiles": 3,
+  "hdExactFiles": 10,
+  "knifeExactFiles": 5,
+  "authenticode": "UNSIGNED; production gate unchanged",
+  "steamWrites": false,
+  "gameLaunched": false,
+  "cleanWindows": "NOT RUN",
+  "physicalPSVR2": "NOT RUN for installer",
+  "creativeRightsApproved": false,
+  "englishTextPolishMovies": "BLOCKED before writes: accepted runtime coupling"
+}

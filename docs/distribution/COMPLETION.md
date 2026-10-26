@@ -15,9 +15,10 @@ Completed offline:
 - Portable 381-key settings and texture INI merge; functional Diagnostic keys preserved and three bounded probes disabled.
 - Read-only x86 VC++ prerequisite detection and official download link.
 - Manifest composition: 178 unique targets, all 164 accepted pins accounted for by install/reconstruction or five documented exclusions; dependency graph validated. Preparation never manufactures rights approval or promotes public modules.
+- Full combined lifecycle PASS: 178 targets, 127 originals restored byte-exact after install, verify, reinstall, damage detection, repair and uninstall.
+- Normal and self-contained WPF: 8/8 cases each, zero binding errors. Portable executable starts with installed .NET discovery disabled on this development machine.
 
 Still executing / not complete:
-- Full 178-target combined fixture lifecycle and refreshed portable WPF release bundle (latest receipts must be recorded after completion).
 - Public immutable packages/catalog promotion: prepared manifests stay unavailable while media/extractor distribution gates remain unresolved.
 - Creative media provenance approval is separate from byte reconstruction. Do not publish original game voices/texels via encoded recipes.
 
@@ -27,3 +28,13 @@ External final gates:
 - Full English-text/Polish-movie-voice support needs a separately reviewed runtime fix; accepted V7 is frozen here.
 
 Evidence details: V7-PREPARATION.md. Private fixture outputs stay ignored; public source contains algorithms/metadata preparation, not extracted assets or signing keys.
+
+Latest exact receipt: `docs/evidence/v7-complete-local-integration.json`.
+Code commit `b6054ef41aad29c08ef5b2295af8488bd6649bca`.
+Portable EXE SHA256 `8FDA0EAAF77E56B92DBB64EA4DDE899AEFADA7B55395F60BF07E9C667D2C470B`.
+ZIP SHA256 `21B6A5A7510902C51F1E8CB434B867856D0E6AEB2220DFD8352B0486CFBE2428`.
+
+The local unsigned RC is not an approved public playable release. The production
+workflow still requires Authenticode and the pinned catalog key. A proposed
+optional-Authenticode change was rejected by automatic approval review and was
+not applied. Any such policy change requires explicit human authorization.

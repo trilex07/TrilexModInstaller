@@ -71,3 +71,38 @@ Private C# consumer evidence:
 Reproduce private metadata preparation with `prepare-hd-texture-recipes.py --source ../SingularityVR-final-completion --assets ../SingularityVR-assets-local --output artifacts/FRESH_HD` and `prepare-knife-recipes.py --source ../SingularityVR-final-completion --mesh <private-original-2010_knife.pskx> --output artifacts/FRESH_KNIFE`. Build the embedded worker before compiling C# using `scripts/build-asset-worker.ps1 -InstallDependencies`.
 
 These close local generation for three native hand caches, ten HD textures and five knife resources. They do not close authored UI/pose resources, portable preset/module integration, media provenance, production signing or clean-Windows acceptance. Bootstrap availability remains unchanged until full package closure.
+
+### Final local closure follow-up
+
+The earlier pending UI/preset items are now prepared: 20 UI/pose/localization
+resources, native font reconstruction, all 381 accepted INI keys and texture INI,
+and five native Centurion reload resources. The latter are generated locally from
+the exact owned pistol package, with bounded exporter commands and fixed worker
+operations; all five match accepted final hashes in the compiled C# consumer.
+Inline shell texture data is read from the decoded package; it is not incorrectly
+treated as an external compressed TFC mip.
+
+`compose-v7-candidate.py` normalizes runtime-code to required vr-core, requires
+native hands, checks target ownership/dependency cycles, adds the language-manifest
+entry and refuses unexplained accepted-pin omissions. It emits unavailable private
+prepared manifests, never a fake approved public catalog. Five exclusions are
+explicit: owned EXE/core are read-only, three inactive PolyOne reference caches
+are omitted in favor of accepted native hands.
+
+The full actual transaction consumer passed 178 targets, including all 124 cooked
+package reconstructions, three native hand caches, ten HD DDS, knife, Centurion,
+UI/fonts and settings. Reinstall, corruption detection and repair passed; uninstall
+restored exactly 127 original source files. No Steam writes, DLL loading or game
+launch occurred. This uses the known owned snapshot, not every retail edition.
+
+Latest evidence: `docs/evidence/v7-complete-local-integration.json`: 54 C# tests,
+5 producer tests, 8 normal WPF cases and 8 self-contained portable cases PASS.
+The real frozen image worker also passed a data path longer than 260 characters.
+An initial combined fixture exposed a Win32 path problem; absolute worker data
+paths now use extended Windows paths while executable caches stay short.
+
+Accepted V7 couples Polish Bink movie audio to the Polish text flag. English text
+with complete Polish movie voice is explicitly refused before writing; the other
+three choices set the reviewed text/native-voice INI flags. No runtime binary was
+silently changed to invent independence. Production media rights, linked-exporter
+notice review, signing and clean-Windows/physical acceptance remain separate gates.

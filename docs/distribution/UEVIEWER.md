@@ -10,6 +10,8 @@ Build input: official `umodel_win32.zip`, SHA256
 Set `TRILEX_UEVIEWER_ARCHIVE` to a local copy for offline builds. Otherwise the
 build downloads the official URL and refuses any different archive. A changed
 upstream archive requires review, never an automatic hash update.
+The official server requires its own project-page HTTP referrer; direct hotlinks
+return 404. The build sends that referrer and still verifies the unchanged SHA.
 
 Upstream: https://www.gildor.org/en/projects/umodel
 Source: https://github.com/gildor2/UEViewer

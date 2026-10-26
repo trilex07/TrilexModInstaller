@@ -5,7 +5,9 @@ if(!$Archive){$Archive=Join-Path $root '../research/tools/UEViewer/umodel_win32.
 if(!(Test-Path -LiteralPath $Archive)){
  $Archive=Join-Path $root '.build/umodel_win32.zip'
  New-Item -ItemType Directory -Force (Split-Path $Archive -Parent) | Out-Null
- if(!(Test-Path -LiteralPath $Archive)){Invoke-WebRequest 'https://www.gildor.org/down/47/umodel/umodel_win32.zip' -OutFile $Archive}
+ # Upstream rejects direct hotlinks with a 404. Use its own download-page
+ # referrer; the exact reviewed archive hash remains mandatory below.
+ if(!(Test-Path -LiteralPath $Archive)){Invoke-WebRequest 'https://www.gildor.org/down/47/umodel/umodel_win32.zip' -Headers @{Referer='https://www.gildor.org/en/projects/umodel'} -OutFile $Archive}
 }
 if((Get-FileHash -LiteralPath $Archive -Algorithm SHA256).Hash -ne '2CEAD261B360DBCC3E703F091837B415F868250DD6A73A154F4232D09E226EF8'){throw 'Unreviewed UE Viewer archive'}
 $out=Join-Path $root '.build/ueviewer'

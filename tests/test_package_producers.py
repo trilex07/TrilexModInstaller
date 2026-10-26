@@ -8,11 +8,14 @@ import random
 import unittest
 import json
 import sys
+from unittest.mock import patch
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parent.parent/"tools/asset-worker"))
 import audio_remaster as audio
 
 ROOT=Path(__file__).resolve().parent.parent
+sys.path.insert(0,str(ROOT/'scripts'))
+import runtime_resources as resources
 
 def load(name,path):
     spec=importlib.util.spec_from_file_location(name,ROOT/path)
@@ -23,8 +26,74 @@ deltas=load('deltas','scripts/prepare-v7-deltas.py')
 composer=load('composer','scripts/compose-v7-candidate.py')
 payload_audit=load('payload_audit','scripts/audit-recipe-payloads.py')
 first_edition=load('first_edition','scripts/prepare-first-edition.py')
+runtime_prepare=load('runtime_prepare','scripts/prepare-runtime-resources.py')
 
 class ProducerTests(unittest.TestCase):
+    def test_runtime_resource_closure_rejects_every_missing_or_changed_dependency(self):
+        rows=resources.inventory()['files']
+        modules=[dict(id=name,files=[dict(path=r['path'],kind='copy',sha256=r['sha256'],
+                 **({'beforeSha256':r['beforeSha256']} if 'beforeSha256' in r else {}))
+                 for r in rows if r['module']==name])
+                 for name in sorted({r['module'] for r in rows})]
+        self.assertEqual(resources.require_closure(modules),len(rows))
+        for module in modules:
+            for index,file in enumerate(list(module['files'])):
+                with self.subTest(file=file['path']):
+                    module['files'].remove(file)
+                    with self.assertRaisesRegex(ValueError,'Missing accepted runtime'):
+                        resources.require_closure(modules)
+                    module['files'].insert(index,file)
+                    saved=file['sha256'];file['sha256']='0'*64
+                    with self.assertRaisesRegex(ValueError,'identity/owner'):
+                        resources.require_closure(modules)
+                    file['sha256']=saved
+
+    def test_wheel_catalog_actual_gun_mapping_and_no_false_cycle_verification(self):
+        catalog=dict(schema='singularityvr-weapon-wheel-catalog-v1',cycle_order_verified=False,
+                     cycle_order=[5799,11387,8297,11389],sectors=[dict(index=i,gun_verts=v,atlas_icon=n)
+                     for i,(v,n) in enumerate([(5799,'gun-centurion'),(11387,'gun-valkyrie'),
+                                               (8297,'gun-spikeshot'),(11389,'gun-kasimov')])])
+        self.assertFalse(resources.validate_catalog(json.dumps(catalog))['cycle_order_verified'])
+        catalog['sectors'][0]['atlas_icon']='gun-valkyrie'
+        with self.assertRaisesRegex(ValueError,'gun/sprite'):resources.validate_catalog(json.dumps(catalog))
+
+    def test_runtime_stager_preserves_existing_recipes_and_reconstructs_movie(self):
+        with tempfile.TemporaryDirectory(dir=ROOT/'artifacts') as temp:
+            root=Path(temp);backup=root/'backup';stage=root/'source-stage';stage.mkdir();backup.mkdir()
+            old=backup/'original.bik';old.write_bytes(b'OWNED OLD MOVIE'*200)
+            movie=backup/'RvGame/Movies/loading_screen.bik';movie.parent.mkdir(parents=True)
+            movie.write_bytes(old.read_bytes()[:500]+b'AUTHORED REMASTER'*300)
+            tex=backup/'Binaries/texture-override-8K/fixture.dds';tex.parent.mkdir(parents=True)
+            header=bytearray(128);header[:4]=b'DDS ';struct.pack_into('<II',header,12,4,4)
+            header[84:88]=b'DXT1';tex.write_bytes(header+b'\x00'*8)
+            rows=[dict(path=str(p.relative_to(backup)).replace('\\','/'),module='hd-textures' if p==tex else 'authored-ui-assets',
+                       sha256=resources.sha(p),bytes=p.stat().st_size) for p in [tex,movie]]
+            rows[1].update(original='original.bik',beforeSha256=resources.sha(old))
+            unchanged=dict(path=rows[0]['path'],entry='',kind='recipe',ownership='local-transform',
+                           sha256=rows[0]['sha256'],recipe=[dict(source='original',offset=0,length=136)])
+            inputs=[]
+            for name,files in [('hd-textures',[unchanged]),('authored-ui-assets',[])]:
+                manifest=root/(name+'.json');manifest.write_text(json.dumps(dict(id=name,files=files,rightsVerified=False)))
+                inputs.append(dict(module=str(manifest),stage=str(stage)))
+            graph=root/'inputs.json';graph.write_text(json.dumps(inputs))
+            spec=dict(schema='fixture',runtimeSource='fixture',files=rows)
+            with patch.object(runtime_prepare,'inventory',return_value=spec),patch.object(resources,'inventory',return_value=spec):
+                runtime_prepare.prepare(graph,backup,root/'out')
+                result=json.loads((root/'out/hd-textures/module.json').read_text())
+                self.assertEqual(result['files'],[unchanged]);self.assertFalse(result['rightsVerified'])
+                result=json.loads((root/'out/authored-ui-assets/module.json').read_text())
+                file=result['files'][0];output=bytearray();original=old.read_bytes()
+                for part in file['recipe']:
+                    offset=part['offset'];length=part['length']
+                    data=(root/'out/authored-ui-assets/stage'/part['entry']).read_bytes()[offset:offset+length]
+                    output.extend(bytes(a^b for a,b in zip(original[offset:offset+length],data))
+                                  if part['source']=='xor-original' else data)
+                self.assertEqual(bytes(output),movie.read_bytes())
+                tex.write_bytes(tex.read_bytes()+b'corrupt')
+                with self.assertRaisesRegex(ValueError,'source changed'):
+                    runtime_prepare.prepare(graph,backup,root/'refused')
+                self.assertFalse((root/'refused').exists())
+
     def test_private_texture_cache_alias_binds_only_exact_owned_stock_bytes(self):
         file=dict(path='Binaries/texture-override-remaster/test.dds',kind='recipe',
             ownership='local-transform',sourceCodec='ue3-bulk-lzo',
@@ -93,15 +162,24 @@ class ProducerTests(unittest.TestCase):
         with tempfile.TemporaryDirectory(dir=ROOT/'artifacts') as temp:
             root=Path(temp);inventory=json.loads((ROOT/'inventory/singularity-v7.json').read_text())
             files=[dict(path=f['destination'],kind='copy') for f in inventory['files'] if f['destination'] not in composer.EXCLUDED]
-            core=dict(id='runtime-code',required=False,dependencies=[],files=files,rightsVerified=False)
+            allfiles={f['path'].lower():f for f in files}
+            extra={'authored-ui-assets':[], 'hd-textures':[]}
+            for row in resources.inventory()['files']:
+                f=dict(path=row['path'],kind='copy',sha256=row['sha256'],
+                       **({'beforeSha256':row['beforeSha256']} if 'beforeSha256' in row else {}))
+                allfiles.pop(row['path'].lower(),None)
+                if row['module'] in extra:extra[row['module']].append(f)
+                else:allfiles[row['path'].lower()]=f
+            core=dict(id='runtime-code',required=False,dependencies=[],files=list(allfiles.values()),rightsVerified=False)
             settings=dict(id='portable-settings',required=True,dependencies=['vr-core'],files=[],rightsVerified=True)
-            for name,m in [('core',core),('settings',settings)]:(root/(name+'.json')).write_text(json.dumps(m))
-            inputs=root/'inputs.json';inputs.write_text(json.dumps([dict(module=str(root/'core.json')),dict(module=str(root/'settings.json'))]))
+            specs=[('core',core),('settings',settings)]+[(name,dict(id=name,required=False,dependencies=['vr-core'],files=value,rightsVerified=False)) for name,value in extra.items()]
+            for name,m in specs:(root/(name+'.json')).write_text(json.dumps(m))
+            inputs=root/'inputs.json';inputs.write_text(json.dumps([dict(module=str(root/(name+'.json'))) for name,m in specs]))
             composer.compose(inputs,root/'composed')
             report=json.loads((root/'composed/closure.json').read_text());self.assertFalse(report['productionPromotion']);self.assertEqual(report['unexplainedOmissions'],[])
             catalog=json.loads((root/'composed/catalog.prepared.json').read_text());mods=catalog['games'][0]['modules']
             self.assertTrue(all(m['state']=='unavailable' for m in mods));self.assertFalse(mods[0]['rightsVerified']);self.assertEqual(mods[0]['id'],'vr-core');self.assertTrue(mods[0]['required'])
-            core['files'].pop();(root/'core.json').write_text(json.dumps(core))
+            core['files'].pop(0);(root/'core.json').write_text(json.dumps(core))
             with self.assertRaisesRegex(ValueError,'omissions'):composer.compose(inputs,root/'incomplete')
 
     def test_delta_roundtrips_empty_grow_shrink_and_multichunk(self):

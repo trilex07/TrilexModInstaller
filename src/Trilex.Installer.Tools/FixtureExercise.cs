@@ -2,7 +2,7 @@ using Trilex.Installer.Core;
 
 internal static class FixtureExercise
 {
-    public static async Task RunBundle(Catalog catalog,string bundle,string originals,string folder)
+    public static async Task RunBundle(Catalog catalog,string bundle,string originals,string folder,Catalog? previousCatalog=null,string? previousBundle=null)
     {
         var root=Path.GetFullPath(folder);var allowed=Path.GetFullPath("artifacts")+Path.DirectorySeparatorChar;
         if(!root.StartsWith(allowed,StringComparison.OrdinalIgnoreCase)||Directory.Exists(root))throw new IOException("Fresh artifacts fixture required");
@@ -22,6 +22,16 @@ internal static class FixtureExercise
         var choices=new InstallChoices("pl","pl","pl",game.Modules.Select(m=>m.Id).ToList());
         var plan=PlanBuilder.Build(fixtureGame,new(root,"Frozen owned-source fixture",true,"Not a playable game",Paths.Hash(exe)),choices);
         var installer=new TransactionInstaller(Path.Combine(root,"fixture-state"),new Guard());
+        if(previousCatalog is not null)
+        {
+            var oldGame=previousCatalog.Games.Single(g=>g.Id=="singularity") with{ExeSha256=[Paths.Hash(exe)]};
+            var oldChoices=choices with{SelectedModules=oldGame.Modules.Select(m=>m.Id).ToList()};
+            var oldPlan=PlanBuilder.Build(oldGame,new(root,"Frozen upgrade fixture",true,"Not a playable game",Paths.Hash(exe)),oldChoices);
+            var oldArchives=oldGame.Modules.ToDictionary(m=>m.Id,m=>BundleSource.ArchiveAt(previousBundle!,m)??throw new FileNotFoundException("Previous archive absent: "+m.Id));
+            await installer.InstallAsync(oldPlan,oldArchives,null,default);
+            if(installer.Verify(root).Count!=0)throw new IOException("Predecessor fixture failed exact verification");
+            Console.WriteLine("PASS predecessor signed bundle installation: "+previousCatalog.Version);
+        }
         await installer.InstallAsync(plan,archives,null,default);
         if(installer.Verify(root).Count!=0)throw new IOException("Bundle installation failed exact verification");
         Console.WriteLine("PASS complete bundle installation and exact output hashes");
@@ -34,7 +44,7 @@ internal static class FixtureExercise
         installer.Uninstall(root,default);
         foreach(var pair in before)if(!Paths.Same(Paths.Hash(Paths.Safe(root,pair.Key)),pair.Value))throw new IOException("Bundle original restoration failed "+pair.Key);
         foreach(var file in plan.Modules.SelectMany(m=>m.Files))if(!before.ContainsKey(file.Path)&&File.Exists(Paths.Safe(root,file.Path)))throw new IOException("Bundle uninstall left "+file.Path);
-        Json.Write(Path.Combine(root,"exercise-report.json"),new{status="PASS",catalog=catalog.Version,modules=plan.Modules.Count,targets=plan.Modules.SelectMany(m=>m.Files).Select(f=>f.Path).Distinct(StringComparer.OrdinalIgnoreCase).Count(),fileDeclarations=plan.Modules.Sum(m=>m.Files.Count),originalsRestored=before.Count,signedModulesUnchanged=true,rightsFlagsUnchanged=true,installed,steps=new[]{"signed catalog","all bundled archive hashes","actual PL full preset planning","install","verify","reinstall","detect damage","repair","uninstall","byte-exact originals"},steamAccess="NONE",physicalAcceptance="NOT RUN"});
+        Json.Write(Path.Combine(root,"exercise-report.json"),new{status="PASS",catalog=catalog.Version,predecessor=previousCatalog?.Version,modules=plan.Modules.Count,targets=plan.Modules.SelectMany(m=>m.Files).Select(f=>f.Path).Distinct(StringComparer.OrdinalIgnoreCase).Count(),fileDeclarations=plan.Modules.Sum(m=>m.Files.Count),originalsRestored=before.Count,signedModulesUnchanged=true,rightsFlagsUnchanged=true,installed,steps=new[]{"signed catalog","all bundled archive hashes","actual PL full preset planning","install or predecessor upgrade","verify","reinstall","detect damage","repair","uninstall","byte-exact originals"},steamAccess="NONE",physicalAcceptance="NOT RUN"});
         Console.WriteLine("PASS signed complete bundle lifecycle; originals restored: "+before.Count);
     }
     public sealed record OwnedExerciseInput(string Module,string Stage);

@@ -50,7 +50,7 @@ def prepare(inputs,output,tag):
         'audio-remaster':('Audio remaster','Remaster dźwięków'),
         'ui-hud':('Game menus and HUD','Menu gry i HUD'),
         'native-hand-assets':('Tracked hands and TMD','Śledzone dłonie i TMD'),
-        'hd-textures':('HD weapon textures','Tekstury HD broni'),
+        'hd-textures':('HD textures and effects (2X/8K)','Tekstury HD i efekty (2X/8K)'),
         'knife-assets':('Native knife','Natywny nóż'),
         'authored-ui-assets':('VR interface artwork','Grafika interfejsu VR'),
         'native-font-assets':('Polish font glyphs','Polskie znaki czcionki'),

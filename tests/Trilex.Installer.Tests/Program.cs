@@ -61,6 +61,19 @@ await Test("multiple Steam libraries and nested VDF",()=>Sync(()=>
     var found=new SingularityGameAdapter().Detect([steam],f.Game()).ToList();Assert(found.Count==1&&found[0].Compatible);
 }));
 await Test("manual location and executable mismatch",()=>Sync(()=>{var f=Fixture();var game=f.Game();var adapter=new SingularityGameAdapter();Assert(adapter.Validate(f.Root,game).Compatible);File.AppendAllText(Path.Combine(f.Root,"Binaries","Singularity.exe"),"different build");Assert(!adapter.Validate(f.Root,game).Compatible);Assert(!adapter.Validate(Path.Combine(f.Root,"missing"),game).Compatible);}));
+await Test("only pinned PSVR2 helper executable can install and restore",async()=>
+{
+    var f=Fixture();var module=Package(f);var helper="Binaries/SingularityPsvr2Bridge.exe";
+    module=module with{Files=[module.Files[0] with{Path=helper}]};
+    await f.Installer.InstallAsync(f.Plan(module),Archives(f,module),null,default);
+    Assert(Paths.Same(Paths.Hash(Paths.Safe(f.Root,helper)),module.Files[0].Sha256));
+    f.Installer.Uninstall(f.Root,default);Assert(!File.Exists(Paths.Safe(f.Root,helper)));
+    foreach(var name in new[]{"Binaries/Singularity.exe","Binaries/other.exe","RvGame/SingularityPsvr2Bridge.exe","Binaries/subdir/SingularityPsvr2Bridge.exe"})
+        await Reject(()=>Sync(()=>Paths.AllowedTarget(name)));
+    var bad=module with{Files=[module.Files[0] with{Sha256=new string('0',64)}]};
+    await Reject(()=>f.Installer.InstallAsync(f.Plan(bad),Archives(f,bad),null,default));
+    Assert(!File.Exists(Paths.Safe(f.Root,helper)));
+});
 await Test("Darkness II remains unavailable",()=>Sync(()=>{var f=Fixture();Assert(!new Darkness2GameAdapter().Validate(f.Root,f.Game()).Compatible);}));
 await Test("missing packages and dependency cycles",async()=>
 {

@@ -1,0 +1,1363 @@
+{
+  "schema": "trilex-v7-runtime-resource-closure-v1",
+  "runtimeSource": "38ca72f88112bfcbd26addb0d6aa4f76095aa15e",
+  "evidence": "docs/INSTALLER-RUNTIME-CLOSURE.md",
+  "files": [
+    {
+      "path": "Binaries/vr-assets/hud/katorga/3d/weapon_wheel_catalog.json",
+      "module": "authored-ui-assets",
+      "sha256": "FA02DF7A84928FBA160E5473FD77A8B14CE66CF15A3462ACEE6E6AFBF7F76189",
+      "bytes": 2110,
+      "consumer": "MaybeLoadWheelCatalog: ordered render sprites and observed direct native selection"
+    },
+    {
+      "path": "RvGame/Movies/Copyright_Sing.bik",
+      "module": "authored-ui-assets",
+      "sha256": "64261D1E2EE76F5ECE5E6B8FAB025D5A5BA3486C2A0BC425FA092322356C39E3",
+      "bytes": 13999652,
+      "consumer": "UE3 native Bink startup/loading slot",
+      "beforeSha256": "3FEAF76162AC15E9F1587F5B71A0221D9BAFF6A49FA7FBF0874B59F15707ED91",
+      "original": "RvGame/Movies/Copyright_Sing.orig.bik"
+    },
+    {
+      "path": "RvGame/Movies/Copyright_sing_eu.bik",
+      "module": "authored-ui-assets",
+      "sha256": "64261D1E2EE76F5ECE5E6B8FAB025D5A5BA3486C2A0BC425FA092322356C39E3",
+      "bytes": 13999652,
+      "consumer": "UE3 native Bink startup/loading slot",
+      "beforeSha256": "0CC5872CFC780FFA43A49732280CC6BBC51DEA287756AAE125392E9F2A60369A",
+      "original": "RvGame/Movies/Copyright_sing_eu.orig.bik"
+    },
+    {
+      "path": "RvGame/Movies/loading_screen.bik",
+      "module": "authored-ui-assets",
+      "sha256": "15C487C0993F4160FBCBDAD83A46CA3899FA3A5D330AE56636F872B8EB246EC8",
+      "bytes": 19918828,
+      "consumer": "UE3 native Bink startup/loading slot",
+      "beforeSha256": "764E701B5049F182968D2DFFF4EE9ACCD13443B0D68B66B3FD1C0FB2F059E27D",
+      "original": "RvGame/Movies/loading_screen.orig.bik"
+    },
+    {
+      "path": "RvGame/Movies/SNG_logo.bik",
+      "module": "authored-ui-assets",
+      "sha256": "94F3BA82E346F6BCFEC27317EAE4024419A9CA60CF8D7349BDAF410E6761ECDA",
+      "bytes": 30878820,
+      "consumer": "UE3 native Bink startup/loading slot",
+      "beforeSha256": "FE40BA3B4521C4D0BFAC9EFD65B7BAF2C9F0F07F2E637A703DB1E7B29EA2B03C",
+      "original": "RvGame/Movies/SNG_logo.orig.bik"
+    },
+    {
+      "path": "RvGame/Splash/PC/Splash.bmp",
+      "module": "authored-ui-assets",
+      "sha256": "B2CF4C3BF510A78DE611AF0ACE11E48D41D8A1273E978198A75DF79C7DC6FBCB",
+      "bytes": 25165878,
+      "consumer": "UE3 boot splash",
+      "beforeSha256": "8BC926887829C25E9660E831961C724A367CC738EF208FC1415017C36DEB59C1",
+      "original": "RvGame/Splash/PC/Splash.orig.bmp"
+    },
+    {
+      "path": "Binaries/texture-override/AR_E99Rifle_alt_d.dds",
+      "module": "hd-textures",
+      "sha256": "47E46B60646D081B1247218A5C8D89DB35B5CEBF389045A01EB37E9DE396E9A0",
+      "bytes": 11184944,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/AR_E99Rifle_n.dds",
+      "module": "hd-textures",
+      "sha256": "9CF49F282AFB9EC43A8E1CD3F780800788F81F6F095B4EDE133E5418830D2CFF",
+      "bytes": 5592536,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/ar_gatling_gun_d.dds",
+      "module": "hd-textures",
+      "sha256": "EF3466B9FCB024FFFCA640BCB5AB43C9AF46DE3E4FF913CAB4E5D5B21463979A",
+      "bytes": 11184944,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/ar_gatling_gun_n.dds",
+      "module": "hd-textures",
+      "sha256": "244CF49AD12A0A2C63B4EA253157B1E635A445417151A70CFA670F640F84D3EE",
+      "bytes": 5592536,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/AR_shotgun_d.dds",
+      "module": "hd-textures",
+      "sha256": "8D1865053B48F8A4ED83B2FFC374345A023884816CED3FAD4E0E3F559AC9B6A0",
+      "bytes": 5592528,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/AR_shotgun_e.dds",
+      "module": "hd-textures",
+      "sha256": "47B8CB7D0492D30B756C3A5DED69BE95EC182ED7E4FF94495054D451E4F6A9A7",
+      "bytes": 699176,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/AR_shotgun_n.dds",
+      "module": "hd-textures",
+      "sha256": "AE29C0397023ADBBC127F3D7E14B35D9B7341D2D806C0298B1108CB7ACC4B7A3",
+      "bytes": 2796328,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/ar_sniper_rifle_n.dds",
+      "module": "hd-textures",
+      "sha256": "2CA690C226A2C5CFF2E3948B69C1390B743A541FC3D41E0912B3E37AC9ADF7A9",
+      "bytes": 5592536,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/brightFlash_01.dds",
+      "module": "hd-textures",
+      "sha256": "1EBAE38DBB025B58D69D98E0531A155DFAF3D115A5A2BE2A8CBA4A12A70A73B9",
+      "bytes": 699176,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/bsplat3_d.dds",
+      "module": "hd-textures",
+      "sha256": "1F1BBB428A6FA31FD975A83A38412944F934276B60EA8562A8D5B213A9AEAA78",
+      "bytes": 349648,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/door_blastdoorN_d.dds",
+      "module": "hd-textures",
+      "sha256": "C98259526D7B0E80D018BD4EBB82C559798BDFAACC9013E0405870C150625B49",
+      "bytes": 1398232,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/door_blastdoorN_n.dds",
+      "module": "hd-textures",
+      "sha256": "106A5883FD691A898B548B7D8B9105CAB226E53DC56745478C5A3B6960F63D37",
+      "bytes": 1398232,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/door_rollingT_d.dds",
+      "module": "hd-textures",
+      "sha256": "9C0DBBC09C74EA3FE1F99D38C186C1111B9CCF71A4B43D1DD68A4531498D9035",
+      "bytes": 699176,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/door_rollingT_n.dds",
+      "module": "hd-textures",
+      "sha256": "51C4633E99C2F6C2ECC77A2E20F408D845425137FECB86F32EA906F6EA1A22E6",
+      "bytes": 699176,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/door_rollingT_s.dds",
+      "module": "hd-textures",
+      "sha256": "5F5CFC34637B6A4D1534000DEDF08B1E97D17F2456DA770D50C38A463160E56F",
+      "bytes": 174888,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/elite_beam_n.dds",
+      "module": "hd-textures",
+      "sha256": "4921F7C5896E4156C8C1B6BED320276483968E2982517543CFB3BDDB5F2A28B1",
+      "bytes": 11184936,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/env_00adab7c.dds",
+      "module": "hd-textures",
+      "sha256": "8EB0A50A7429B70E75A2CBC27D7E0E69DC3C78162FBB0755C8968094B663C1F3",
+      "bytes": 1398232,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/env_03b581da.dds",
+      "module": "hd-textures",
+      "sha256": "18247C4155ECDD8ABCC6E07DE32614C6E041380CCF22F78BCD7745925CB057A6",
+      "bytes": 5592528,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/env_0b27b3ce.dds",
+      "module": "hd-textures",
+      "sha256": "5F9284AE25799331943349B826659694A24C723F63C7B8C67D4F71A69A879BA0",
+      "bytes": 1398232,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/env_0d582fd6.dds",
+      "module": "hd-textures",
+      "sha256": "229854447BCCB729C6BBD0204BB00265253DA495B197ABC04EB7E4F49560C62B",
+      "bytes": 2796328,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/env_0e7a4cce.dds",
+      "module": "hd-textures",
+      "sha256": "4565FE703A418F47A05D6F58AEC82F652BD716533359A2151B552FB309E3FF84",
+      "bytes": 1398232,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/env_1a86a04b.dds",
+      "module": "hd-textures",
+      "sha256": "4CD8BBB731E6D00DB3C3BF1781A86BBA421A7FFF7D873E897A428B7B17527F39",
+      "bytes": 5592528,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/env_1f161de7.dds",
+      "module": "hd-textures",
+      "sha256": "D72CE11A86438E20DC2372E8960DAE9C35C739C9977B35B58C305ABA06BBA278",
+      "bytes": 2796328,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/env_2177e137.dds",
+      "module": "hd-textures",
+      "sha256": "05F1A18D59065379809727A1335623FD411358471AB6CAF1344F3D2662011787",
+      "bytes": 2796328,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/env_23077af2.dds",
+      "module": "hd-textures",
+      "sha256": "C70CD609BF8D00D9CB2EAB0748A569525FF441811070E6D5002B3E458BB10D0E",
+      "bytes": 1398232,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/env_252c3df4.dds",
+      "module": "hd-textures",
+      "sha256": "CEFCB2F8360DB1B463D1C86774278B552B4C0ED3DEEB3A4155407055EA637D55",
+      "bytes": 2796328,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/env_2f09c1bc.dds",
+      "module": "hd-textures",
+      "sha256": "C9601A8CBE8A14603C07315290AD607DF42597A315F1CE6FCADEACD6E61289AB",
+      "bytes": 2796328,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/env_3657a320.dds",
+      "module": "hd-textures",
+      "sha256": "1CA69963D918E91949B8E62143B6B5826F4223638E3F4F765BCE617CDFAF5481",
+      "bytes": 5592528,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/env_37469b7a.dds",
+      "module": "hd-textures",
+      "sha256": "C5F867108CA7BB38C6B28C8D89A0E0019DDD68F5438D2A5193AC66E03DBA8F06",
+      "bytes": 1398232,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/env_4741d8cd.dds",
+      "module": "hd-textures",
+      "sha256": "232C18F07C81AFC0FAD2F8DF0F99043E42CB11B3444EF47BB28120CEC5E0BCB1",
+      "bytes": 2796336,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/env_5bca8499.dds",
+      "module": "hd-textures",
+      "sha256": "8E327C57698D3E3EB5754322058DDC3BCF28AE01EF21EA15C19A5137448AC183",
+      "bytes": 2796328,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/env_6201ffb9.dds",
+      "module": "hd-textures",
+      "sha256": "FA9807DBD16E12A09A054AB35FC01F950AC58750000AD8EB927BA66744A7E67A",
+      "bytes": 2796328,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/env_63b3ec8d.dds",
+      "module": "hd-textures",
+      "sha256": "8AF2CA0A4904D29B3BC8FF8BDD96F194A3BF5C897E136C4CD09BC667C0DE1EF0",
+      "bytes": 2796336,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/env_6489c88e.dds",
+      "module": "hd-textures",
+      "sha256": "226E19F11C9458F6289BD60B200776C4741CAEE78048E7B01E53633B7C7BB6EC",
+      "bytes": 1398232,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/env_76306a2d.dds",
+      "module": "hd-textures",
+      "sha256": "C2A885C3D973B95FD1F1F2C93E467321C4AB09E09204655D27C1B77DA7D45D8E",
+      "bytes": 2796328,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/env_783d13f7.dds",
+      "module": "hd-textures",
+      "sha256": "3A62F98B94266EB637CE2DCFEB655BF76697ED3700D8E85D01B5C284BDBA515B",
+      "bytes": 2796328,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/env_7d21f673.dds",
+      "module": "hd-textures",
+      "sha256": "51F46569D5A8300C05BFDBF2D1506F170C0C59D158D5E69BD5774A68EBC1E97E",
+      "bytes": 1398232,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/env_bd9cf530.dds",
+      "module": "hd-textures",
+      "sha256": "4DCAE522FCADA372B46E55B8DE5B3DF56A63DFF87CAB285F9A7664ED825C5456",
+      "bytes": 1398232,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/env_d3287886.dds",
+      "module": "hd-textures",
+      "sha256": "DEBA7C4998276754BB9D250C658FC7B2B5F56D3C8A7AEF8D6BDD9FD03ED0908F",
+      "bytes": 1398232,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/env_d83b3c3a.dds",
+      "module": "hd-textures",
+      "sha256": "19C4D6CDF1076352BFFD927D2C9CC3039247C3AA655466D941F38E0960587A38",
+      "bytes": 1398232,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/env_dc94648c.dds",
+      "module": "hd-textures",
+      "sha256": "8B6105302481A488BD4740327069F69A6EA08805EF2CB32BAE5E1090D7DD455C",
+      "bytes": 1398232,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/env_door_a_d.dds",
+      "module": "hd-textures",
+      "sha256": "5309B0692A4C8AB316C6F72A3A0A08FE82ACE9832347733BCE94ED7F8683080B",
+      "bytes": 699176,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/env_door_a_n.dds",
+      "module": "hd-textures",
+      "sha256": "724C7831DFB9E713B7ECD9935F124667710D9B3508BF6BCE28A6B4161B694488",
+      "bytes": 699176,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/env_door_b_d.dds",
+      "module": "hd-textures",
+      "sha256": "6ED841DF105DFEE015D83B488DA392E502C299B04330C09D019B6CF1DB3F7723",
+      "bytes": 699176,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/env_door_b_n.dds",
+      "module": "hd-textures",
+      "sha256": "8B551D584FBC63AAAC864A74CDD7D14C3FE1056491EAFD28DE084F45F056784F",
+      "bytes": 699176,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/env_e00a5e0e.dds",
+      "module": "hd-textures",
+      "sha256": "EB55AE871F44373B484B95D9934CEF85E2B0A73923EF6C7139532D22F47DE605",
+      "bytes": 699176,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/env_e1062625.dds",
+      "module": "hd-textures",
+      "sha256": "1301875FF5D9505444EE11672142951833CD3679F1DB03446EA20812DB83AFE9",
+      "bytes": 699176,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/env_e1390108.dds",
+      "module": "hd-textures",
+      "sha256": "5C9C976D1488597F44FA987285D82695EA8B9603FF031D28B46F42BBAF65C1F9",
+      "bytes": 699176,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/env_e70c80ab.dds",
+      "module": "hd-textures",
+      "sha256": "DF63F25E20352FD05E8FF955739FCF69A66B1DA5231D6F9326C999621CDC0B28",
+      "bytes": 699176,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/env_e8a7a177.dds",
+      "module": "hd-textures",
+      "sha256": "9FD611BA95EA010E6E7BA5C54691A5488F1C6C2FEF849C6B31493E3962D97806",
+      "bytes": 1398224,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/env_eb3e6425.dds",
+      "module": "hd-textures",
+      "sha256": "439551A962C014954A3FBD6981C99BA67FDC7473384AAB848A04F4727DBFAEC8",
+      "bytes": 699176,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/env_eed86f3c.dds",
+      "module": "hd-textures",
+      "sha256": "B71BA2DC30304E402CFA8642C4D19EC4F92421D00CB05C67F4DE21C539AEBA9F",
+      "bytes": 699176,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/env_f42d9038.dds",
+      "module": "hd-textures",
+      "sha256": "64D90D993EB343A4D52CEB457EDFEE2A04B1A51F5EFB72D6B81CB03CE8662578",
+      "bytes": 699176,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/env_f51f572e.dds",
+      "module": "hd-textures",
+      "sha256": "4F18EDDC59D60122E542393BCFB46C5F15D79E069CB22E4C1B8339F928119A03",
+      "bytes": 699176,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/env_ff0916dd.dds",
+      "module": "hd-textures",
+      "sha256": "987D534DDDDC7BEC2B1239B9594D908E5E5402EF50838241E63FFF639246B98E",
+      "bytes": 699176,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/env_shutter_d.dds",
+      "module": "hd-textures",
+      "sha256": "599E8D7698B209C49D24A3B93CE18E14DC62D06AEB4A8996E70CF6F99F941751",
+      "bytes": 1398232,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/explosion.dds",
+      "module": "hd-textures",
+      "sha256": "BAE928F2E75EA3C4256034F222ACE0F9DE137ED676AFE51B317049C3B9667286",
+      "bytes": 21968,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/fireball_base_intense_02.dds",
+      "module": "hd-textures",
+      "sha256": "759269661DC10B30A6BCD3259AEFC7C5B60D57498F25C499758EF25905AEDE5A",
+      "bytes": 5592528,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/handgun_d.dds",
+      "module": "hd-textures",
+      "sha256": "29265A9764818995D74C7A67F0909943BE5CF78DCA52FCA318FB5779B5230184",
+      "bytes": 5592528,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/handgun_n.dds",
+      "module": "hd-textures",
+      "sha256": "465AE06EE043994A66A5671F7783FA1ED406C3F7CB36FF2F2778F6C32E430EED",
+      "bytes": 2796328,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/inview_glove_d.dds",
+      "module": "hd-textures",
+      "sha256": "110E808A41E3144AFFEFF42C8F06886E7AD4CCFC413B0B69744A1A5F069694FB",
+      "bytes": 2796328,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/inview_glove_n.dds",
+      "module": "hd-textures",
+      "sha256": "7EA4F657FA95A1CF220383B00C6E8170216A335C2F2E626DF044FF0B0CEA99D3",
+      "bytes": 2796328,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/laser_d.dds",
+      "module": "hd-textures",
+      "sha256": "57109A9951A98B595EF1653930A1709023A5FEAA4089D031AD58F09488792877",
+      "bytes": 174888,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/laser_n.dds",
+      "module": "hd-textures",
+      "sha256": "FB597690BB552FA1723945BAE582A9024CFEA4220F732C7B5702C2CBA0F24D55",
+      "bytes": 174888,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/muzzleflashCenter.dds",
+      "module": "hd-textures",
+      "sha256": "5FD6E354FF3F9328965FC766D8877DCD08D75C32C3D10BE55791E15E55643089",
+      "bytes": 174888,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/muzzleFlashDir_01.dds",
+      "module": "hd-textures",
+      "sha256": "D0304E17DA636324BB96A5D8E0F251F987AF7FC64A4DEC6D30B266D1114F7D08",
+      "bytes": 87512,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/phasetick_d.dds",
+      "module": "hd-textures",
+      "sha256": "549EF960271B6028C6BC1C3B65EE8CDE5AD6C4FA75550D05EF1EECFDC79DC210",
+      "bytes": 699176,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/phasetick_e.dds",
+      "module": "hd-textures",
+      "sha256": "31E11896D5A8B5B11D9E6DA87CACA33E5424B3283ED4F5A7D57DF4C28F3D95E0",
+      "bytes": 699176,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/phasetick_n.dds",
+      "module": "hd-textures",
+      "sha256": "5B757172ABB9EF6B67A1A181B0AAEA2DCFCD1E92A9C091F70D56708AFC66656B",
+      "bytes": 699176,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/phasetick_s.dds",
+      "module": "hd-textures",
+      "sha256": "90265FB4932A5C6DB41B65681F26369B2AB09A90E6A7F2DBE89A84B7D2395C4A",
+      "bytes": 699176,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/revert_d2.dds",
+      "module": "hd-textures",
+      "sha256": "5FE38C8C81A6029F261285007CB9CE39B616288FC721A8B3B19A833DB44810B2",
+      "bytes": 11184936,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/revert_n2.dds",
+      "module": "hd-textures",
+      "sha256": "C8E556884951B09F337A0A58F5DA3C33F8E92EC0E4FBAE373C79803526FCCAB9",
+      "bytes": 11184936,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/revert_t.dds",
+      "module": "hd-textures",
+      "sha256": "78DD22D48BD30F564128819C4BA6BE9FDF1367DFE3854C67AD0F49FFBF0E1123",
+      "bytes": 699176,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/spark_hit01.dds",
+      "module": "hd-textures",
+      "sha256": "C4758D90DFD16675F812829D42241270DBA51469EFC7485A4654E8E642C251E8",
+      "bytes": 699176,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/sparks1_subuv.dds",
+      "module": "hd-textures",
+      "sha256": "E8F186398C1A7C94F431529D983B6FAFAD90925C6CE735EDB6D627F61D543FF0",
+      "bytes": 5592,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/Spetsnaz_MP_Body_d.dds",
+      "module": "hd-textures",
+      "sha256": "1576A7F3EA4B2E6FBCCFF279B77FA4940C17F46B8AE89058BDAC0403FBA646A2",
+      "bytes": 2796328,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/Spetsnaz_MP_Body_n.dds",
+      "module": "hd-textures",
+      "sha256": "844772DBB9DECD2164AF8AD59096EB3E1E89CA387710249FC055CA891DED0BCC",
+      "bytes": 2796328,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/Spetsnaz_MP_helmet_d.dds",
+      "module": "hd-textures",
+      "sha256": "F0A1B1CEE0C17167675453AE1CCEB3A66753FA56C11DD18B79C5A926433BB63C",
+      "bytes": 2796328,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/Spetsnaz_MP_helmet_n.dds",
+      "module": "hd-textures",
+      "sha256": "365270FD170BF77E5234309F52207ABFA7154912B94305E87924BB85F08F0EE9",
+      "bytes": 2796328,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override/t_decal_metal_d_v4.dds",
+      "module": "hd-textures",
+      "sha256": "C04E835D98852A940530EFEFC22B7DA3C8BE01C439E8D5B2F8E3A84721C45FC2",
+      "bytes": 87504,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/AR_E99Rifle_alt_d.dds",
+      "module": "hd-textures",
+      "sha256": "3B2FCCE0FACC77BA0BA2BFCFDABAD3268296BC42D64DBEEFD449FFC2B7BBE142",
+      "bytes": 44739408,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/ar_gatling_gun_d.dds",
+      "module": "hd-textures",
+      "sha256": "735BDAB5FBB4945F292A1DAAE9D41A456205C23798D8A5F0981831C5C35D0A57",
+      "bytes": 44739408,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/AR_shotgun_d.dds",
+      "module": "hd-textures",
+      "sha256": "9D43BF769277277CFC32869E89EA7AAD7AD4A6C86CEA2B70DEF6DFDA1B63FA4A",
+      "bytes": 89478640,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/brightFlash_01.dds",
+      "module": "hd-textures",
+      "sha256": "87A3DF18A827C7E4140E0BCC266E7F596E7F711362E5531A7342F1C5CA243112",
+      "bytes": 11184952,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/bsplat3_d.dds",
+      "module": "hd-textures",
+      "sha256": "AEDEF4EF91EFA17477632F8A9308FFC40FE5F1EF690717423E38676ABA699E57",
+      "bytes": 5592560,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/CVS_Manufacturing.dds",
+      "module": "hd-textures",
+      "sha256": "A8E751EE329F637B37875199B09DD641B381D571B34807CD67C9DE1DA4B75B35",
+      "bytes": 22369768,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/CVS_Village.dds",
+      "module": "hd-textures",
+      "sha256": "9C9E0AF4CA14F43E05356FDD915006CFDEA0061CCAB9BDCD56FF46BFC5750F56",
+      "bytes": 22369768,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/CVS_Wasteland.dds",
+      "module": "hd-textures",
+      "sha256": "CCF951802356534BCAA0B1D898A3A7DFA8CFF5C025099ACDB0EB426C5433F384",
+      "bytes": 22369768,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/env_00adab7c.dds",
+      "module": "hd-textures",
+      "sha256": "006EE45DCC01190E58929D0D93AA99D92718B5297C39891FA4B2CECB8B9A83C0",
+      "bytes": 22369768,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/env_03b581da.dds",
+      "module": "hd-textures",
+      "sha256": "F5E8B034603BA118137EA9DFFB158CDA03ACDF36BB2C69D4DF921A3135CAD82F",
+      "bytes": 44739384,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/env_0b27b3ce.dds",
+      "module": "hd-textures",
+      "sha256": "1F2836C7026ED2454A3CB150502A9F6C1969839240A729385A2CF7625FAEE35D",
+      "bytes": 22369768,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/env_0d582fd6.dds",
+      "module": "hd-textures",
+      "sha256": "4EB3E99292DA71431C3083DE49AADA11E07F65DED60B49407E54B5D235F71C33",
+      "bytes": 44739384,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/env_0e7a4cce.dds",
+      "module": "hd-textures",
+      "sha256": "1DB16F7A3CEB7CD0AABE175DBAD998B4C6C63391701059B547BBDBA3404934A2",
+      "bytes": 22369768,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/env_1a86a04b.dds",
+      "module": "hd-textures",
+      "sha256": "2E90A1B10BD0307524EC88EED863DB21794ED16DCD73EA060D2F317557FA34AD",
+      "bytes": 44739384,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/env_1f161de7.dds",
+      "module": "hd-textures",
+      "sha256": "02F904BEED3CCA75210EDF66FCB70BFBB1CF0F3E0CB6BD3F0D11D5103085FE3A",
+      "bytes": 44739384,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/env_2177e137.dds",
+      "module": "hd-textures",
+      "sha256": "14E9C31986F9BBE00C9088E862992D22BFF999B0D0118DAAEEFCE8F9B090436F",
+      "bytes": 44739384,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/env_23077af2.dds",
+      "module": "hd-textures",
+      "sha256": "7B34B7CA046A9E6A8A5646620FBEB01C079FD6BF76E5FE67F8512F7ADD183454",
+      "bytes": 22369768,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/env_252c3df4.dds",
+      "module": "hd-textures",
+      "sha256": "4102B388D07992DC9AEFBE6AD5D9665BC0530A79ECEE24B6077C4A5FEAB55A48",
+      "bytes": 44739384,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/env_2f09c1bc.dds",
+      "module": "hd-textures",
+      "sha256": "F055935E8A3572C325997F438DD70BC4DF430B57A61E000AAF29CF2FA4005FC7",
+      "bytes": 44739384,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/env_3657a320.dds",
+      "module": "hd-textures",
+      "sha256": "2E1A5BCD1CE74D4EBFD1D4EE656DFE7747A4E53F5D0B9D0055BF43D2C7C24C56",
+      "bytes": 44739384,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/env_37469b7a.dds",
+      "module": "hd-textures",
+      "sha256": "B2BA365C70BB48D7E7752C627C77F615A739676ED4B5CCD884C49140848A0EA3",
+      "bytes": 22369768,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/env_4741d8cd.dds",
+      "module": "hd-textures",
+      "sha256": "95B05B7E6B08C23E11C8D9FE5295272A338ABC646EEB9C015533BAD4B735FAB2",
+      "bytes": 22369768,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/env_5bca8499.dds",
+      "module": "hd-textures",
+      "sha256": "4E13A4DDE75659081B920A6F204439756D3869FFA34A6442410BB774BADDF9C4",
+      "bytes": 44739384,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/env_6201ffb9.dds",
+      "module": "hd-textures",
+      "sha256": "022B25A90B3E74D04CE9CEAAD290AEA155FC8683DA6E847FBAB2B90E38DF031B",
+      "bytes": 44739384,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/env_63b3ec8d.dds",
+      "module": "hd-textures",
+      "sha256": "88344C87C791C154B7702B48A2852A696EE5DFC8B7AD661B644DC53EEB13F0F5",
+      "bytes": 22369768,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/env_6489c88e.dds",
+      "module": "hd-textures",
+      "sha256": "46022514ADBBBCC97217B1FADB002482B94C9BB272EB0CFD77F20F69129C9366",
+      "bytes": 22369768,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/env_76306a2d.dds",
+      "module": "hd-textures",
+      "sha256": "82E802F4D5375F77713F1D359BA6094565DBFB8A0DDD2C6FA6309F2379390341",
+      "bytes": 44739384,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/env_783d13f7.dds",
+      "module": "hd-textures",
+      "sha256": "3060ACA6ECBD1038BB5C6178BDBAFF3B7E7D9A3FF3A6BFE147A3303B8EE2373C",
+      "bytes": 44739384,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/env_7d21f673.dds",
+      "module": "hd-textures",
+      "sha256": "C0F809909E0AA4230E6F6CBAC1274394A5C155BC79FE03DBC801192207FC929B",
+      "bytes": 22369768,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/env_bd9cf530.dds",
+      "module": "hd-textures",
+      "sha256": "9C38EE431A273121174D72B5267B7AF10473A371D634A1E03978633264A05C98",
+      "bytes": 22369768,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/env_d3287886.dds",
+      "module": "hd-textures",
+      "sha256": "EA3091E8E8BDFC98A6564E39653A6798AE29B450C80944F19E6D51CBC8AC695E",
+      "bytes": 22369768,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/env_d83b3c3a.dds",
+      "module": "hd-textures",
+      "sha256": "9BB6D70EC3F77805EF17073BBC98C74D0F1D9B423077BF2E2548464A3B8DFA1A",
+      "bytes": 22369768,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/env_dc94648c.dds",
+      "module": "hd-textures",
+      "sha256": "A74320BC1DB34450DCF1326E3222DB22A47D13EDFC0FDAE51A519A36C90A0474",
+      "bytes": 22369768,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/env_door_a_d.dds",
+      "module": "hd-textures",
+      "sha256": "7BE3E9DB9D059F8446B22AD0539AC87DCC5D8BB94F37AA241FBC8A8941248FDE",
+      "bytes": 11184952,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/env_door_b_d.dds",
+      "module": "hd-textures",
+      "sha256": "97AA9A487DC42FF7D4DF1A39D41F353124EDFBF1B1587F9C7BB9956F74CC78ED",
+      "bytes": 11184952,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/env_e00a5e0e.dds",
+      "module": "hd-textures",
+      "sha256": "1FCE1C049FB968ECF7F85743A8B404BFA1ADBBACDF7DF6B21D4FFE8C4C3B4FB5",
+      "bytes": 11184952,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/env_e1062625.dds",
+      "module": "hd-textures",
+      "sha256": "86A245FA9605132F9F01CA8CCF1E869C328B7EE382BDFBEB115B2D16A2601778",
+      "bytes": 11184952,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/env_e1390108.dds",
+      "module": "hd-textures",
+      "sha256": "CBEC9E05A1B09CB3D68127FA8ED9E01E2939FB23ABC26D7EC5DF645A1E9ED133",
+      "bytes": 11184952,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/env_e70c80ab.dds",
+      "module": "hd-textures",
+      "sha256": "9ED523B8941A7DAC078152D09CF80AA3334BA85AB57CC2B8B7282D937E84ACDA",
+      "bytes": 11184952,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/env_e8a7a177.dds",
+      "module": "hd-textures",
+      "sha256": "52B72F38F0DC68852C77F17DEBCAF4418DF9FB9A2C4C4C3E765D1B644190AE6B",
+      "bytes": 11184952,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/env_eb3e6425.dds",
+      "module": "hd-textures",
+      "sha256": "63846FF2F6D16EE7B018A27B6A154F27909CC729967E9F903DBF0BC745732CDB",
+      "bytes": 11184952,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/env_eed86f3c.dds",
+      "module": "hd-textures",
+      "sha256": "758A0B145D66AB9BB8059A92AEA274E1B00EBF8446FED620868C9654D755E6ED",
+      "bytes": 11184952,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/env_f42d9038.dds",
+      "module": "hd-textures",
+      "sha256": "8D066E895F82950FFC4E7DDBB2FEBC7EF1FAA40E61A50349ED2E875A9B94D726",
+      "bytes": 11184952,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/env_f51f572e.dds",
+      "module": "hd-textures",
+      "sha256": "F2DFB299E8241D4DCBBD1BA8C487556E11EC5D2ED9C90AC0058106B0246E8FDA",
+      "bytes": 11184952,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/env_ff0916dd.dds",
+      "module": "hd-textures",
+      "sha256": "36967871CD5736FFC6B43FA00FDD22B62B3E9C8A919FC1DA5D2E3360C98E0A22",
+      "bytes": 11184952,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/env_shutter_d.dds",
+      "module": "hd-textures",
+      "sha256": "C4623A96E9E468605587F653A3CA1CA3665551FA52CE347541F59B2A3C470754",
+      "bytes": 22369768,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/explosion.dds",
+      "module": "hd-textures",
+      "sha256": "9B071A07E834DC646065C448BD057D35A159217A90B3F88DF5FE879366978066",
+      "bytes": 349680,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/fireball_base_intense_02.dds",
+      "module": "hd-textures",
+      "sha256": "F3FC9A4B964AB061B5B7A8508533146FDA8680E88D69ED1023084BF5FC3366D5",
+      "bytes": 89478640,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/handgun_d.dds",
+      "module": "hd-textures",
+      "sha256": "B4CC9F4A79A3D66C17ABF011D6AED19D020D45B5F8E6AC0BD8717CE36FFE8187",
+      "bytes": 89478640,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/inview_glove_d.dds",
+      "module": "hd-textures",
+      "sha256": "B8EC73C3F02CDF32079945E2A487FCE7EB853896582CB9569B74FAE62272D84F",
+      "bytes": 44739384,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/laser_d.dds",
+      "module": "hd-textures",
+      "sha256": "28D610928C50D902BA8BF4250F1533F70940475994855C0F4B0A0B999B81A584",
+      "bytes": 2796344,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/muzzleflashCenter.dds",
+      "module": "hd-textures",
+      "sha256": "620B492DA38306030BFCEA1B76535E7D4B048AEEC32E3D25A21D02D8AE8A42D0",
+      "bytes": 2796344,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/muzzleFlashDir_01.dds",
+      "module": "hd-textures",
+      "sha256": "BF16909A04D0B8532F7D4C5B3A64D15C24F866C4D1C32CF2BDC833AAD3E8A080",
+      "bytes": 1398248,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/phasetick_d.dds",
+      "module": "hd-textures",
+      "sha256": "4C31A5EF2E59659D2CD78F4FD948011252ADE13FD70394D0C01BA31D5EB04102",
+      "bytes": 11184952,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/revert_d2.dds",
+      "module": "hd-textures",
+      "sha256": "F9676ADD9B8FE0B4B807D650EDA50EEDA4BCC1E26C8532573FA6E3FCF2534949",
+      "bytes": 44739384,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/revert_t.dds",
+      "module": "hd-textures",
+      "sha256": "476900AA35DF887BA9FC26FA34E587A340F0A0D30361C7DAB18ED5FED8787797",
+      "bytes": 11184952,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/spark_hit01.dds",
+      "module": "hd-textures",
+      "sha256": "7EB8C66D90FB1C70AD3D599EBC6DA305020D64E798402C4A9FEF3C744C9CC2A8",
+      "bytes": 11184952,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/sparks1_subuv.dds",
+      "module": "hd-textures",
+      "sha256": "401E37A7AADD24C5D7522EF0F956AC625A4DB6778D6E9FB3D3BF74D19882C803",
+      "bytes": 87528,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/TDM_Manufacturing_A.dds",
+      "module": "hd-textures",
+      "sha256": "47145BF5A3F8A23021543B40AD120BC2E0EB69E4847E4BAFA52A7D2FD01F906C",
+      "bytes": 22369768,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/TDM_Manufacturing_B.dds",
+      "module": "hd-textures",
+      "sha256": "A861B87D4B0CC484AB4CA8FBD2D1922C992ECC6FEFE2440EA29B292D6CD1370E",
+      "bytes": 22369768,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/TDM_Manufacturing_C.dds",
+      "module": "hd-textures",
+      "sha256": "AAB2F8D1FD50BA4C474237391E32DDCC8D63E0DAD7DEB20BE0C485B2909A937C",
+      "bytes": 22369768,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/TDM_Village_A.dds",
+      "module": "hd-textures",
+      "sha256": "0970551F48358653B93D636AC575B5D6AA3F5E8875374B842F085D4930537C27",
+      "bytes": 22369768,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/TDM_Village_B.dds",
+      "module": "hd-textures",
+      "sha256": "001D5F0BDA033314BC583088EA9609F76788CA70A58888681C3AA361D7E01F3C",
+      "bytes": 22369768,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/TDM_Wasteland_A.dds",
+      "module": "hd-textures",
+      "sha256": "4B5CE50C27A9BD3BF11F54BD783FE965C288B21334F7FE5D01E526432AB6A3DC",
+      "bytes": 22369768,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/TDM_Wasteland_B.dds",
+      "module": "hd-textures",
+      "sha256": "FDE58701052847081FA5E38A6F8331BF74EBBA937F9AA99EF1B4B9DD8CAC12D2",
+      "bytes": 22369768,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-8K/TDM_Wasteland_C.dds",
+      "module": "hd-textures",
+      "sha256": "13E5D36FEFB7AA4FD5279C3738FDE3001D3787666316FDCE18E5FA6C4C5AC47A",
+      "bytes": 22369768,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-remaster/AR_E99Rifle_alt_d.dds",
+      "module": "hd-textures",
+      "sha256": "A0CDC3DD8528F6B278EF814C77C8F81E7EFA708A12C6D32A30C69B7DC3B59EE9",
+      "bytes": 11184976,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-remaster/AR_E99Rifle_n.dds",
+      "module": "hd-textures",
+      "sha256": "54D47F3B7F15EE63410F321B945ACB310DBC95D94346CC006FFD2D7460D06FEE",
+      "bytes": 5592552,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-remaster/ar_gatling_gun_d.dds",
+      "module": "hd-textures",
+      "sha256": "6CC98F65B188AD65B0495283F5984683401E9B1A738DA3234E703776978268FC",
+      "bytes": 11184976,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-remaster/ar_gatling_gun_n.dds",
+      "module": "hd-textures",
+      "sha256": "C85BD288320E7E24E62781B5BBA6A35BFA99CB7073D9D3DEABEF227641C0F5DF",
+      "bytes": 5592552,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-remaster/AR_shotgun_d.dds",
+      "module": "hd-textures",
+      "sha256": "D6A98EF03EC588A31FEFDB7393757738B19B86B9E9381029E47E5C26C0506237",
+      "bytes": 5592560,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-remaster/AR_shotgun_n.dds",
+      "module": "hd-textures",
+      "sha256": "83F64BFCE085107A4EC80F14D236EB1409A402B8D879BCF8691667C3F92CD798",
+      "bytes": 2796344,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-remaster/ar_sniper_rifle_d.dds",
+      "module": "hd-textures",
+      "sha256": "61E4CC32ED2DED5E369076C5E4CCF4F099D09EA52F63DEF76E9669B4ED40B7A8",
+      "bytes": 11184976,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-remaster/ar_sniper_rifle_n.dds",
+      "module": "hd-textures",
+      "sha256": "37EA2C1A3C368E1A2B7428490D5A36D9673AB0244DFC5AF013AC604C17DAED77",
+      "bytes": 5592552,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-remaster/brightFlash_01.dds",
+      "module": "hd-textures",
+      "sha256": "CA5D582A28A0FD3C685EAC194F6DCE315910CA342E26FDC26A86C50282BCDA2B",
+      "bytes": 2796344,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-remaster/bsplat3_d.dds",
+      "module": "hd-textures",
+      "sha256": "2ED6AC7BEC203EE8C9FA9441CF13E898E781DB7A080BECCBFEED7EFF6225CB57",
+      "bytes": 5592560,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-remaster/bsplat_decal_d.dds",
+      "module": "hd-textures",
+      "sha256": "7C25D3BE55CD1A9549244472A7DF8E15B2FB724CE6161859C5B248C147BBBDB0",
+      "bytes": 2796344,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-remaster/door_blastdoorN_d.dds",
+      "module": "hd-textures",
+      "sha256": "6950D6DA5947D3E0540F7FC5E875C6B234BEFC3BB6CF6603E2C9F37911BE624B",
+      "bytes": 349672,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-remaster/door_blastdoorN_n.dds",
+      "module": "hd-textures",
+      "sha256": "E667E9A1D651026DE21F1D75CE3CED3ACE5DEB03CB82E41FEB41372EC1D5770F",
+      "bytes": 349672,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-remaster/door_rollingT_d.dds",
+      "module": "hd-textures",
+      "sha256": "7260E2B00E09ECF64687D7FB8129ED90D1DDDCBCFB87A5C6EF50FAC6D98D9366",
+      "bytes": 699192,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-remaster/door_rollingT_n.dds",
+      "module": "hd-textures",
+      "sha256": "554C50C7B15E3B53A1F51C022E3D941787255114758C4799142BE2DDF39446EE",
+      "bytes": 699192,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-remaster/elite_beam_n.dds",
+      "module": "hd-textures",
+      "sha256": "A00FC23F679BE3EE3C71802345E2C2F327ED2859FF90747F58140051C695FC75",
+      "bytes": 11184952,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-remaster/explosion.dds",
+      "module": "hd-textures",
+      "sha256": "921EC6AAE2EED08B7AFFB85BD8162DCA512605222CD051344614D6A36BB1AC4F",
+      "bytes": 5592560,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-remaster/fireball_base_intense_02.dds",
+      "module": "hd-textures",
+      "sha256": "5F5E2F4FEBE10378558ACECB31F899382E317910117B88470DE823AAECDA908D",
+      "bytes": 5592560,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-remaster/handgun_d.dds",
+      "module": "hd-textures",
+      "sha256": "3590579EDF7F67ED49675B0104798EA6D66818E9B2663C5BCCCFFE3DFE618E9C",
+      "bytes": 5592560,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-remaster/handgun_n.dds",
+      "module": "hd-textures",
+      "sha256": "ED70B5EB67E85BCCA99B305865C574F7023DA622D0EC8E9A41DC1F352D67E255",
+      "bytes": 2796344,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-remaster/inview_glove_d.dds",
+      "module": "hd-textures",
+      "sha256": "D76D05B122A6C81B24B3560E88CF181167FAB3EE64A967A7017D21770F3D4754",
+      "bytes": 2796344,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-remaster/inview_glove_n.dds",
+      "module": "hd-textures",
+      "sha256": "5F0A8E9E4C65763A58BC5E88CAFEEE238EF715935730065336CDFF2CA3D8E049",
+      "bytes": 2796344,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-remaster/laser_d.dds",
+      "module": "hd-textures",
+      "sha256": "3157F9BCCA1F34FFB3E2764EF5917287B941D68486583D43FECE6713DD033A6C",
+      "bytes": 174904,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-remaster/laser_n.dds",
+      "module": "hd-textures",
+      "sha256": "9F006AF382433C0BB0DE43E69D04E22C91EBADCB0E864F504E032EF75874EEDF",
+      "bytes": 174904,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-remaster/muzzleflashCenter.dds",
+      "module": "hd-textures",
+      "sha256": "B80381B752CF0F978EF88EB257D977827EBD3B85C71E4614DE44099BF2F23574",
+      "bytes": 2796344,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-remaster/muzzleFlashDir_01.dds",
+      "module": "hd-textures",
+      "sha256": "4D664CBBE0167486FDDEC6C59A013F2A14BDF164144AB7D5FF60962ED510B186",
+      "bytes": 1398248,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-remaster/phasetick_d.dds",
+      "module": "hd-textures",
+      "sha256": "705843A836FDFF6BBE8F60E04E620F8C440BEEB11F5699BB7D81D343E7953872",
+      "bytes": 699192,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-remaster/phasetick_n.dds",
+      "module": "hd-textures",
+      "sha256": "29F4D27B9CAAC8C590E40B3D250A06740B0B713E26C7A52D51A9FA18E5ABF7CE",
+      "bytes": 699192,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-remaster/revert_d2.dds",
+      "module": "hd-textures",
+      "sha256": "FBD534954FAC8DC07D2419842D90E7538A9015FD91AAE3727989B7573D367325",
+      "bytes": 44739368,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-remaster/revert_n2.dds",
+      "module": "hd-textures",
+      "sha256": "4672D1F1E335E257C579410720E92FD280055EF8110E56F49EAA4D4A10C0D0E7",
+      "bytes": 44739368,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-remaster/spark_hit01.dds",
+      "module": "hd-textures",
+      "sha256": "C2B3CDC54329D2DB9BC9F2430F4232756BC513B765D3C6075932AE9ADE56B84D",
+      "bytes": 2796344,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-remaster/sparks1_subuv.dds",
+      "module": "hd-textures",
+      "sha256": "8F27914F7CA434D2AA2333E94369B6C918CFB337A81875EE5A7562919648A889",
+      "bytes": 1398248,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-remaster/Spetsnaz_MP_Body_d.dds",
+      "module": "hd-textures",
+      "sha256": "B83E6C279DA12EB292F55502999C2E0E57D96794074C4B59DB39ACA5BCD0B6EA",
+      "bytes": 2796344,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-remaster/Spetsnaz_MP_Body_n.dds",
+      "module": "hd-textures",
+      "sha256": "74812B145529FA1296DA4456B5E97AD0AFF21DC8391B946806A2AD6BE4FA9323",
+      "bytes": 2796344,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-remaster/Spetsnaz_MP_helmet_d.dds",
+      "module": "hd-textures",
+      "sha256": "1967F1328209D93F8A7ECC231B7C84EEB3E63269192A11DBE6D102E200B26E23",
+      "bytes": 2796344,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-remaster/Spetsnaz_MP_helmet_n.dds",
+      "module": "hd-textures",
+      "sha256": "B8694C82CC7F3645DCEEFDBEA1C47ED589CCFDCF004826D9995E539359D0076C",
+      "bytes": 2796344,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-remaster/t_blood_splat02_d.dds",
+      "module": "hd-textures",
+      "sha256": "F58BC6B3AFE2D841902EB24EBF2BF5AC8468E91D1B9D663EC9035773D5AF8DAE",
+      "bytes": 5592560,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/texture-override-remaster/t_decal_metal_d_v4.dds",
+      "module": "hd-textures",
+      "sha256": "D8F0AC8BA7CCA178B70870C4DE336622E54DF30932A806FBA2C30E22791E4F44",
+      "bytes": 5592560,
+      "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
+    },
+    {
+      "path": "Binaries/SingularityPsvr2Bridge.exe",
+      "module": "vr-core",
+      "sha256": "22FB94D0B49ED21CDFD941CC89E6BDBE5F6894AF0F684DDFC07BB48D9BC3786D",
+      "bytes": 22528,
+      "consumer": "StartPsvr2TriggerClientOnce: adaptive trigger IPC helper, source-owned program"
+    }
+  ],
+  "excluded": {
+    "Binaries/capture": "Diagnostic captures, not input assets",
+    "Binaries/vfx_atlas": "VfxHost=0, native bridge effects enabled instead",
+    "Binaries/texture-override-priority": "No runtime consumer; reviewed pairs are read from remasterdir",
+    "Binaries/vr-assets/audio": "Loose production WAV sources not used by native bank playback; optional UI narrator is OFF",
+    "Binaries/vr-assets/hud/katorga/glove-animation/glove_left.svrg": "Inactive PolyOne cache; accepted native hand assets remain authoritative",
+    "*.orig.bik": "Originals used only on owner PC for local reconstruction",
+    "*.bak": "Rollback files are not runtime assets"
+  }
+}

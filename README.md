@@ -6,6 +6,16 @@ Windows launcher and modular installer by **Trilex / trilex07** for the [Singula
 
 **Status: installer engineering RC, not a publicly installable Singularity mod bundle.** The real transaction engine and signed-package flow are tested against synthetic game directories. The embedded catalog deliberately marks all seven game packs unavailable until their distributable content and local asset reconstruction are reviewed. No game files are included. This app has not installed the real Steam game in this task.
 
+## Public fan-project preview
+
+Nieoficjalny, bezpłatny mod fanowski Trilexa. Kod pozostaje otwarty; nagrania i głosy
+mają osobne pochodzenie i status. [Opis dystrybucji PL/EN](docs/DISTRIBUTION-NOTICE.md).
+
+[Public source/audio-recipe preview 0.1.0](https://github.com/trilex07/TrilexModInstaller/releases/tag/installer-0.1.0-source-preview.1)
+provides source and metadata-only local DSP recipes. It does **not** contain an
+installer EXE, game recordings or a full installable mod catalog. See the
+[source-preview notes](docs/SOURCE-PREVIEW-0.1.0.md) for the exact contents.
+
 ## Features
 
 - Trilex dark desktop interface, supplied logo and icons, English/Polish UI.

@@ -32,9 +32,23 @@ def prepare(inputs,output,tag):
         stages['vr-core' if manifest['id']=='runtime-code' else manifest['id']]=ROOT/row['stage']
     stages['polish-text']=output/'empty-stage';stages['polish-text'].mkdir()
     packages=output/'packages';packages.mkdir()
+    labels={
+        'vr-core':('V7 VR runtime','Silnik VR V7'),
+        'polish-dubbing':('Polish dubbing','Polski dubbing'),
+        'audio-remaster':('Audio remaster','Remaster dźwięków'),
+        'ui-hud':('Game menus and HUD','Menu gry i HUD'),
+        'native-hand-assets':('Tracked hands and TMD','Śledzone dłonie i TMD'),
+        'hd-textures':('HD weapon textures','Tekstury HD broni'),
+        'knife-assets':('Native knife','Natywny nóż'),
+        'authored-ui-assets':('VR interface artwork','Grafika interfejsu VR'),
+        'native-font-assets':('Polish font glyphs','Polskie znaki czcionki'),
+        'portable-settings':('Accepted V7 settings','Zaakceptowane ustawienia V7'),
+        'centurion-assets':('Centurion manual reload','Ręczne przeładowanie Centuriona'),
+        'polish-text':('Polish game text','Polskie teksty gry')}
     declarations=[]
     for module in game['modules']:
-        module.update(state='stable',reason='',localizedReasons=None)
+        en,pl=labels[module['id']]
+        module.update(state='stable',reason='',localizedReasons=None,labels=dict(en=en,pl=pl))
         if module['id']=='vr-core':
             for file in module['files']:
                 if file.get('systemSource')=='windows-directinput8-x86':

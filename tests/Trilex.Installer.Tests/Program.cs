@@ -408,6 +408,13 @@ await Test("Windows dependency binds locally without changing pinned game assets
     foreach(var wrong in new[]{original with{Path="Binaries/d3d9.dll"},original with{SourceCodec="ue3-whole-lzo"},original with{SourcePath="Binaries/foreign.dll"},original with{Recipe=[new("payload",0,1,"a")]}})
         await Reject(()=>Sync(()=>LocalSources.Validate(wrong,f.Root)));
 });
+await Test("SteamVR and fpsVR are tools, not running games; exact boundaries remain enforced",()=>Sync(()=>
+{
+    Assert(SteamRuntimePolicy.IsRuntimeApp("250820")&&SteamRuntimePolicy.IsRuntimeApp("908520"));
+    foreach(var id in new[]{"42670","9085200","0",""})Assert(!SteamRuntimePolicy.IsRuntimeApp(id));
+    foreach(var name in new[]{"SteamVR","fpsVR"})Assert(SteamRuntimePolicy.IsRuntimePath(@"D:\SteamLibrary\steamapps\common\"+name+@"\bin\tool.exe"));
+    foreach(var name in new[]{"Singularity","fpsVR-game","SteamVR2"})Assert(!SteamRuntimePolicy.IsRuntimePath(@"D:\SteamLibrary\steamapps\common\"+name+@"\game.exe"));
+}));
 var report=new{time=DateTimeOffset.UtcNow,passed=results.Count-failed,failed,fixtureRoot=testRoot,steamAccess="NONE",results};
 Json.Write(Path.Combine(testRoot,"test-report.json"),report);Console.WriteLine(JsonSerializer.Serialize(new{passed=results.Count-failed,failed,report=Path.Combine(testRoot,"test-report.json")}));Environment.ExitCode=failed==0?0:1;
 

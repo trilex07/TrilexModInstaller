@@ -20,11 +20,14 @@ $imageNotices=Join-Path $notices 'asset-worker'
 if(!(Test-Path '.build/asset-worker/licenses/Python-LICENSE.txt')){throw 'Missing bundled image-worker license audit'}
 New-Item -ItemType Directory -Force $imageNotices | Out-Null
 Copy-Item -Path '.build/asset-worker/licenses/*' -Destination $imageNotices -Recurse -Force
+$extractorNotices=Join-Path $notices 'ueviewer'
+New-Item -ItemType Directory -Force $extractorNotices | Out-Null
+Copy-Item -LiteralPath '.build/ueviewer/LICENSE.txt','.build/ueviewer/readme.txt','third_party/ueviewer/SDL2-COPYING.txt','docs/distribution/UEVIEWER.md' -Destination $extractorNotices -Force
 $exe=Join-Path $publish 'TrilexModInstaller.exe'
 $sha=(Get-FileHash -LiteralPath $exe -Algorithm SHA256).Hash
-"$sha  TrilexModInstaller.exe" | Set-Content (Join-Path $publish 'SHA256SUMS.txt') -Encoding utf8NoBOM
+[IO.File]::WriteAllText((Join-Path $publish 'SHA256SUMS.txt'),"$sha  TrilexModInstaller.exe`n",(New-Object Text.UTF8Encoding($false)))
 $zip=Join-Path $publish 'TrilexModInstaller-win-x64.zip'
 # Explicit inputs prevent stale/debug files or a previous ZIP entering the bundle.
 Compress-Archive -LiteralPath $exe,(Join-Path $publish 'SHA256SUMS.txt'),(Join-Path $publish 'LICENSE'),(Join-Path $publish 'THIRD-PARTY-NOTICES.md'),(Join-Path $publish 'RELEASE-NOTES.md'),$notices -DestinationPath $zip -Force
-"$((Get-FileHash -LiteralPath $zip -Algorithm SHA256).Hash)  TrilexModInstaller-win-x64.zip" | Set-Content (Join-Path $publish 'ZIP-SHA256SUMS.txt') -Encoding utf8NoBOM
+[IO.File]::WriteAllText((Join-Path $publish 'ZIP-SHA256SUMS.txt'),"$((Get-FileHash -LiteralPath $zip -Algorithm SHA256).Hash)  TrilexModInstaller-win-x64.zip`n",(New-Object Text.UTF8Encoding($false)))
 

@@ -1,2 +1,3 @@
 <Project Sdk="Microsoft.NET.Sdk"><ItemGroup><EmbeddedResource Include="../../.build/ue3decode/Trilex.Ue3Decode.exe" LogicalName="Trilex.Ue3Decode.exe"/></ItemGroup>  <ItemGroup><EmbeddedResource Include="../../.build/asset-worker/Trilex.AssetWorker.exe" LogicalName="Trilex.AssetWorker.exe" /></ItemGroup>
+  <ItemGroup><EmbeddedResource Include="../../.build/ueviewer/umodel.exe" LogicalName="Trilex.UEViewer.exe"/><EmbeddedResource Include="../../.build/ueviewer/SDL2.dll" LogicalName="Trilex.SDL2.dll"/></ItemGroup>
 </Project>

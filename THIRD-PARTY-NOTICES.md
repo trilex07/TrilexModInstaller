@@ -16,3 +16,11 @@ The embedded `Trilex.Ue3Decode.exe` helper is GPL-2.0-or-later, including miniLZ
 ## Frozen local image worker
 
 `Trilex.AssetWorker.exe` includes Python (PSF license), NumPy and bundled numerical-runtime notices, Pillow (HPND and bundled library notices), and the PyInstaller bootloader (GPL with its distribution exception). Portable releases retain full collected license trees under `licenses/asset-worker`. The DDS helper originates in SingularityVR, copyright 2026 letsgosportsteam, MIT; preserve the upstream MIT grant. The image worker runs only fixed local image operations and contains no commercial image data. Python is bundled; no player-side Python installation is required.
+
+## Local Centurion exporter
+
+UE Viewer, copyright 2022 Konstantin Nosov, is provided under its bundled MIT notice.
+SDL2 2.0.10 is copyright 1997-2019 Sam Lantinga, zlib license. Portable bundles retain
+both upstream notices under `licenses/ueviewer`. See `docs/distribution/UEVIEWER.md`
+for exact archive pin and the remaining linked-codec audit gate. These tools do not
+grant distribution rights to original game models or animations.

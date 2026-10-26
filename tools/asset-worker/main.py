@@ -5,6 +5,7 @@ Final output identities are verified by the installer, independently of this wor
 """
 import argparse, json, struct, sys
 from knife_geometry import generate as generate_knife
+from centurion_assets import generate as generate_centurion
 from pathlib import Path
 import numpy as np
 from PIL import Image, ImageFilter
@@ -51,6 +52,8 @@ def transform(source,output,role,factor,fourcc,diffuse=None):
         rgb=clean.convert('RGB').filter(ImageFilter.UnsharpMask(radius=1.0,percent=38,threshold=5))
         enlarged=rgb.convert('RGBA');enlarged.putalpha(clean.getchannel('A'));save_dds(output,enlarged,fourcc)
 if __name__=='__main__':
+    if len(sys.argv)==6 and sys.argv[1]=='--centurion':
+        generate_centurion(Path(sys.argv[2]),Path(sys.argv[3]),sys.argv[4],Path(sys.argv[5]));sys.exit(0)
     if len(sys.argv)==5 and sys.argv[1]=='--knife':
         generate_knife(Path(sys.argv[2]),Path(sys.argv[3]),Path(sys.argv[4]));sys.exit(0)
     p=argparse.ArgumentParser();p.add_argument('source',type=Path);p.add_argument('output',type=Path);p.add_argument('role',choices=['diffuse','normal','svrt','weapon-diffuse-v2','weapon-normal-v2','weapon-normal-procedural-v2']);p.add_argument('factor',type=int,choices=[1,2,4]);p.add_argument('fourcc',choices=['DXT1','DXT5']);p.add_argument('--diffuse',type=Path);a=p.parse_args()

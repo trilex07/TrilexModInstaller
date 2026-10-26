@@ -5,7 +5,7 @@ using System.Text;
 namespace Trilex.Installer.Core;
 
 public sealed record ImageBulkSlice(long Offset,long Bytes,string Sha256);
-public sealed record ImageOperation(int Width,int Height,string Role,int Factor,string Fourcc,ImageBulkSlice? Diffuse=null);
+public sealed record ImageOperation(int Width,int Height,string Role,int Factor,string Fourcc,ImageBulkSlice? Diffuse=null,long? RawOffset=null);
 
 /// <summary>Fixed embedded image generator; package metadata cannot supply executable code.</summary>
 public static class LocalImageGenerator
@@ -15,6 +15,12 @@ public static class LocalImageGenerator
         var op=Json.Read<ImageOperation>(metadata);
         if(op.Width<4||op.Height<4||op.Width%4!=0||op.Height%4!=0||op.Width>4096||op.Height>4096||op.Factor is not (1 or 2 or 4)||op.Role is not ("diffuse" or "normal" or "svrt" or "weapon-diffuse-v2" or "weapon-normal-v2" or "weapon-normal-procedural-v2")||op.Fourcc is not ("DXT1" or "DXT5")||checked((long)op.Width*op.Height*op.Factor*op.Factor)>16777216)throw new InvalidDataException("Unsupported bounded image recipe");
         var rawLength=checked((long)(op.Width/4)*(op.Height/4)*(op.Fourcc=="DXT1"?8:16));
+        if(op.RawOffset is { } rawOffset)
+        {
+            if(op.Role!="svrt"||rawOffset<0||rawOffset>new FileInfo(raw).Length-rawLength)throw new InvalidDataException("Invalid inline original texture range");
+            var inlineSlice=Paths.Safe(staging,"_local-images/"+Guid.NewGuid().ToString("N")+".raw");Directory.CreateDirectory(Path.GetDirectoryName(inlineSlice)!);
+            using(var inlineInput=File.OpenRead(raw))using(var target=new FileStream(inlineSlice,FileMode.CreateNew)){inlineInput.Position=rawOffset;var block=new byte[checked((int)rawLength)];inlineInput.ReadExactly(block);target.Write(block);}raw=inlineSlice;
+        }
         if(new FileInfo(raw).Length!=rawLength)throw new InvalidDataException("Original image block length mismatch");
         if(op.Role=="normal"&&op.Factor!=2||op.Role=="svrt"&&op.Factor!=1)throw new InvalidDataException("Unsupported image factor");
         if(op.Role.StartsWith("weapon-",StringComparison.Ordinal)&&op.Factor!=2)throw new InvalidDataException("Weapon image factor must be two");
@@ -46,6 +52,14 @@ public static class LocalImageGenerator
         Run(staging,generated,["--knife",source,generated,metadata],output,expectedLength);
     }
     private sealed record KnifeOperation(string Kind,long[] Positions,long[] Uvs,long Indices);
+    public static void ApplyCenturion(string decoded,string ownedSource,string staging,string mode,Stream output,int expectedLength)
+    {
+        var length=mode switch{"clip"=>33136,"shell"=>3880,"animation"=>3208,_=>throw new InvalidDataException("Unknown Centurion operation")};
+        if(expectedLength!=length)throw new InvalidDataException("Centurion output contract mismatch");
+        var exports=LocalCenturionGenerator.Export(ownedSource,staging);
+        var folder=Paths.Safe(staging,"_local-images/"+Guid.NewGuid().ToString("N"));Directory.CreateDirectory(folder);var generated=Path.Combine(folder,"centurion.bin");
+        Run(staging,generated,["--centurion",exports,generated,mode,decoded],output,expectedLength);
+    }
     private static void Run(string staging,string generated,IEnumerable<string> arguments,Stream output,int expectedLength)
     {
         using var resource=typeof(LocalImageGenerator).Assembly.GetManifestResourceStream("Trilex.AssetWorker.exe")??throw new InvalidDataException("Bundled image worker unavailable");
@@ -57,12 +71,19 @@ public static class LocalImageGenerator
         var temp=Paths.Safe(root,"_local-image-temp");Directory.CreateDirectory(temp);
         var start=new ProcessStartInfo(helper){UseShellExecute=false,CreateNoWindow=true,RedirectStandardOutput=true,RedirectStandardError=true,WorkingDirectory=Path.GetPathRoot(helper)!};
         start.Environment["TEMP"]=temp;start.Environment["TMP"]=temp;
-        foreach(var arg in arguments)start.ArgumentList.Add(arg);
+        // The frozen Python bootloader uses the Win32 path API. A full transaction
+        // adds several directories beyond the shorter standalone producer fixtures.
+        // Prefix absolute data paths; never prefix switches or numeric metadata.
+        foreach(var arg in arguments)start.ArgumentList.Add(OperatingSystem.IsWindows()&&Path.IsPathFullyQualified(arg)?Extended(arg):arg);
         using var process=Process.Start(start)??throw new IOException("Cannot start image worker");
         var stdout=process.StandardOutput.ReadToEndAsync();var stderr=process.StandardError.ReadToEndAsync();
         if(!process.WaitForExit(120000)){process.Kill(true);process.WaitForExit();throw new IOException("Local image generation timeout");}
         Task.WaitAll(stdout,stderr);
-        if(process.ExitCode!=0||!File.Exists(generated)||new FileInfo(generated).Length!=expectedLength)throw new InvalidDataException("Local image generation refused");
+        if(process.ExitCode!=0||!File.Exists(generated)||new FileInfo(generated).Length!=expectedLength)
+        {
+            var detail=stderr.Result; if(detail.Length>1600)detail=detail[^1600..];
+            throw new InvalidDataException("Local image generation refused (exit "+process.ExitCode+", expected "+expectedLength+", actual "+(File.Exists(generated)?new FileInfo(generated).Length:-1)+"): "+detail);
+        }
         using var result=File.OpenRead(generated);result.CopyTo(output);
     }
     private static void WriteDds(string raw,string path,int width,int height,string fourcc)
@@ -72,6 +93,10 @@ public static class LocalImageGenerator
         void U(int at,int value)=>BitConverter.GetBytes(value).CopyTo(header,at);
         U(4,124);U(8,0x81007);U(12,height);U(16,width);U(20,checked((int)new FileInfo(raw).Length));U(28,1);U(76,32);U(80,4);Encoding.ASCII.GetBytes(fourcc).CopyTo(header,84);U(108,0x1000);
         f.Write(header);using var data=File.OpenRead(raw);data.CopyTo(f);
+    }
+    private static string Extended(string path)
+    {
+        var full=Path.GetFullPath(path);return full.StartsWith(@"\\?\",StringComparison.Ordinal)?full:full.StartsWith(@"\\",StringComparison.Ordinal)?@"\\?\UNC\"+full[2..]:@"\\?\"+full;
     }
 
 }

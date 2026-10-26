@@ -6,6 +6,7 @@ import tempfile
 import subprocess
 import random
 import unittest
+import json
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parent.parent
@@ -16,8 +17,24 @@ def load(name,path):
 
 pe=load('pe_dependencies','scripts/pe_dependencies.py')
 deltas=load('deltas','scripts/prepare-v7-deltas.py')
+composer=load('composer','scripts/compose-v7-candidate.py')
 
 class ProducerTests(unittest.TestCase):
+    def test_composition_preserves_rights_gates_and_rejects_missing_inventory(self):
+        with tempfile.TemporaryDirectory(dir=ROOT/'artifacts') as temp:
+            root=Path(temp);inventory=json.loads((ROOT/'inventory/singularity-v7.json').read_text())
+            files=[dict(path=f['destination'],kind='copy') for f in inventory['files'] if f['destination'] not in composer.EXCLUDED]
+            core=dict(id='runtime-code',required=False,dependencies=[],files=files,rightsVerified=False)
+            settings=dict(id='portable-settings',required=True,dependencies=['vr-core'],files=[],rightsVerified=True)
+            for name,m in [('core',core),('settings',settings)]:(root/(name+'.json')).write_text(json.dumps(m))
+            inputs=root/'inputs.json';inputs.write_text(json.dumps([dict(module=str(root/'core.json')),dict(module=str(root/'settings.json'))]))
+            composer.compose(inputs,root/'composed')
+            report=json.loads((root/'composed/closure.json').read_text());self.assertFalse(report['productionPromotion']);self.assertEqual(report['unexplainedOmissions'],[])
+            catalog=json.loads((root/'composed/catalog.prepared.json').read_text());mods=catalog['games'][0]['modules']
+            self.assertTrue(all(m['state']=='unavailable' for m in mods));self.assertFalse(mods[0]['rightsVerified']);self.assertEqual(mods[0]['id'],'vr-core');self.assertTrue(mods[0]['required'])
+            core['files'].pop();(root/'core.json').write_text(json.dumps(core))
+            with self.assertRaisesRegex(ValueError,'omissions'):composer.compose(inputs,root/'incomplete')
+
     def test_delta_roundtrips_empty_grow_shrink_and_multichunk(self):
         for before,after in [(b'',b'x'),(b'abc',b''),(b'abcd',b'xy'),(b'a'*1100000,b'b'*1100000+b'tail')]:
             with self.subTest(sizes=(len(before),len(after))),tempfile.TemporaryDirectory(dir=ROOT/'artifacts') as temp:

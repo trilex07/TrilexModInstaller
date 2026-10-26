@@ -104,6 +104,8 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
     {
         if(catalog.ExpiresUtc<=DateTimeOffset.UtcNow)throw new InvalidDataException("Catalog expired; fetch a current signed catalog");
         await Validate(ct);
+        var prerequisites=WindowsPrerequisites.Inspect();
+        if(!prerequisites.Present)throw new InvalidOperationException(prerequisites.Detail+"\nMicrosoft Visual C++ v14 x86: "+WindowsPrerequisites.VisualCppX86Url+(ui=="pl"?"\nZainstaluj wymagany pakiet Microsoft i ponów sprawdzanie.":"\nInstall the Microsoft prerequisite, then review again."));
         var choices=new InstallChoices(text,voice,ui,Modules.Where(x=>x.Selected).Select(x=>x.Manifest.Id).ToList());
         plan=PlanBuilder.Build(Game,location!,choices);
         ReviewText=$"{plan.Root}\n\nv{plan.Version} · {plan.DownloadBytes/1048576.0:F1} MB download · {plan.ExpandedBytes/1048576.0:F1} MB payload\nText: {text} / Voice: {voice}\n\n"+string.Join("\n",plan.Modules.Select(x=>$"{x.Label(ui)} · {x.Version} · [{string.Join(", ",x.Dependencies)}]"));

@@ -284,6 +284,9 @@ await Test("owned TFC bulk mip becomes exact local image without a Python instal
     var targetHash=Convert.ToHexString(SHA256.HashData(expected));
     var file=new PackageFile("Binaries/vr-assets/test/texture.svrt","",targetHash,"recipe","local-transform",Recipe:[new("image",0,expected.Length,"image.json")],SourcePath:"RvGame/CookedPC/Textures_P0.tfc",SourceSha256:Paths.Hash(source),SourceCodec:"ue3-bulk-lzo",DecodedSha256:Convert.ToHexString(SHA256.HashData(block)),DecodedBytes:8,SourceOffset:16,SourceBytes:32);
     Assert(PackageExtractor.Reconstruct(source,stage,file).SequenceEqual(expected));
+    var deep=Path.Combine(stage,new string('a',75),new string('b',75),new string('c',75));Directory.CreateDirectory(deep);
+    Json.Write(Path.Combine(deep,"image.json"),new ImageOperation(4,4,"svrt",1,"DXT1"));
+    Assert(PackageExtractor.Reconstruct(source,deep,file).SequenceEqual(expected),"Full transaction long-path image failed");
     foreach(var invalid in new[]{file with{SourceOffset=-1},file with{SourceBytes=536870913},file with{SourceCodec="ue3-whole-lzo"}})await Reject(()=>Sync(()=>LocalSources.Validate(invalid,stage)));
     Json.Write(Path.Combine(stage,"bad.json"),new ImageOperation(8192,8192,"svrt",4,"DXT1"));await Reject(()=>Sync(()=>{using var o=new MemoryStream();LocalImageGenerator.Apply(source,stage,Path.Combine(stage,"bad.json"),o,4);}));
 });
@@ -298,6 +301,46 @@ await Test("knife geometry references cannot escape decoded original or change f
     var f=Fixture();var source=Path.Combine(f.Root,"core");File.WriteAllBytes(source,new byte[7000]);var stage=Path.Combine(f.Root,"stage");Directory.CreateDirectory(stage);
     foreach(var op in new[]{new{kind="svrk",positions=new long[661],uvs=new long[662],indices=0L},new{kind="svrk",positions=Enumerable.Repeat(-1L,662).ToArray(),uvs=new long[662],indices=0L},new{kind="svnl",positions=new long[662],uvs=new long[662],indices=7000L}})
     {var metadata=Path.Combine(stage,"knife.json");Json.Write(metadata,op);await Reject(()=>Sync(()=>{using var output=new MemoryStream();LocalImageGenerator.ApplyKnife(source,stage,metadata,output,16+662*24+6060);}));}
+});
+await Test("V7 choice overrides reach actual INI and preserve accepted gameplay",async()=>
+{
+    var f=Fixture();var m=Package(f) with{Id="portable-settings"};
+    var ini=m.Files.Single(x=>x.Kind=="ini") with{IniValues=new(){{"Diagnostic/NativeMuzzleStereoMode","1"},{"Localization/PolishLanguage","1"}}};
+    m=m with{Files=[m.Files[0],ini]};
+    foreach(var choice in new[]{new InstallChoices("en","en","pl",[]),new InstallChoices("pl","en","en",[]),new InstallChoices("pl","pl","pl",[])})
+    {
+        var applied=SingularityV7Settings.Apply([m],choice).Single().Files.Single(x=>x.Kind=="ini").IniValues!;
+        Assert(applied["Localization/PolishLanguage"]==(choice.TextLanguage=="pl"?"1":"0"));
+        Assert(applied["Localization/NativePolishSpeech"]==(choice.VoiceLanguage=="pl"?"1":"0"));
+        Assert(applied["Localization/PolishIntroAudioFix"]==(choice.VoiceLanguage=="pl"?"1":"0"));
+        Assert(applied["Diagnostic/NativeMuzzleStereoMode"]=="1");
+    }
+    await Reject(()=>Sync(()=>SingularityV7Settings.Apply([m],new("en","pl","en",[]))));
+    Assert(m.Files.Single(x=>x.Kind=="ini").IniValues!["Localization/PolishLanguage"]=="1","Source manifest mutated");
+});
+await Test("VC++ prerequisite rejects missing corrupt and x64 without loading DLL",()=>Sync(()=>
+{
+    var f=Fixture();var runtime=Path.Combine(f.Root,"runtime");Directory.CreateDirectory(runtime);
+    Assert(!WindowsPrerequisites.InspectDirectory(runtime).Present);
+    File.WriteAllText(Path.Combine(runtime,"vcruntime140.dll"),"corrupt");Assert(!WindowsPrerequisites.InspectDirectory(runtime).Present);
+    var bytes=new byte[160];BitConverter.GetBytes((ushort)0x5a4d).CopyTo(bytes,0);BitConverter.GetBytes(64).CopyTo(bytes,60);BitConverter.GetBytes(0x4550).CopyTo(bytes,64);BitConverter.GetBytes((ushort)0x8664).CopyTo(bytes,68);
+    File.WriteAllBytes(Path.Combine(runtime,"vcruntime140.dll"),bytes);Assert(!WindowsPrerequisites.InspectDirectory(runtime).Present);
+    Assert(WindowsPrerequisites.VisualCppX86Url=="https://aka.ms/vc14/vc_redist.x86.exe");
+}));
+await Test("Centurion fixed operations reject unknown mode wrong size and foreign original",async()=>
+{
+    var f=Fixture();var original=Path.Combine(f.Root,"not-original.xxx");File.WriteAllText(original,"synthetic foreign package");
+    await Reject(()=>Sync(()=>LocalImageGenerator.ApplyCenturion(original,original,f.Root,"arbitrary",new MemoryStream(),1)));
+    await Reject(()=>Sync(()=>LocalImageGenerator.ApplyCenturion(original,original,f.Root,"clip",new MemoryStream(),1)));
+    await Reject(()=>Sync(()=>LocalImageGenerator.ApplyCenturion(original,original,f.Root,"clip",new MemoryStream(),33136)));
+});
+await Test("Inline texture slices reject invalid ranges and non-SVRT operations",async()=>
+{
+    var f=Fixture();var raw=Path.Combine(f.Root,"raw");File.WriteAllBytes(raw,new byte[128]);var metadata=Path.Combine(f.Root,"image.json");
+    foreach(var op in new[]{new ImageOperation(4,4,"svrt",1,"DXT1",RawOffset:-1),new ImageOperation(4,4,"svrt",1,"DXT1",RawOffset:125),new ImageOperation(4,4,"diffuse",1,"DXT1",RawOffset:0)})
+    {
+        Json.Write(metadata,op);await Reject(()=>Sync(()=>LocalImageGenerator.Apply(raw,f.Root,metadata,new MemoryStream(),80)));
+    }
 });
 var report=new{time=DateTimeOffset.UtcNow,passed=results.Count-failed,failed,fixtureRoot=testRoot,steamAccess="NONE",results};
 Json.Write(Path.Combine(testRoot,"test-report.json"),report);Console.WriteLine(JsonSerializer.Serialize(new{passed=results.Count-failed,failed,report=Path.Combine(testRoot,"test-report.json")}));Environment.ExitCode=failed==0?0:1;

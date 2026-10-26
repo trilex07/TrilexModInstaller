@@ -41,6 +41,8 @@ try
         try{PackageExtractor.Extract(output,temp,module);}finally{if(Directory.Exists(temp))Directory.Delete(temp,true);}
         Json.Write(output+".module.json",module);Console.WriteLine(module.ArchiveSha256);
     }
+    else if(args is ["exercise-owned",var ownedInputs,var ownedSources,var ownedRoot])
+        await FixtureExercise.RunOwned(ownedInputs,ownedSources,ownedRoot);
     else if(args is ["exercise",var exerciseModule,var exerciseArchive,var exerciseRoot])
         await FixtureExercise.Run(exerciseModule,exerciseArchive,exerciseRoot);
     else if(args is ["verify-recipes",var recipeModule,var recipeStage,var originals,var recipeOutput])

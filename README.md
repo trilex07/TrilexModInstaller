@@ -10,7 +10,7 @@ Windows launcher and modular installer by **Trilex / trilex07** for the [Singula
 
 - Trilex dark desktop interface, supplied logo and icons, English/Polish UI.
 - Steam library/appmanifest detection, manual folder validation, exact compatible EXE SHA-256.
-- Independent game text and dubbing languages. VR Core, UI/HUD, HD textures, audio, localized assets and **PSVR2** modules.
+- Separate game text and dubbing selectors. Accepted V7 does not support complete Polish movie voice with English text; this combination fails before writing. VR Core, UI/HUD, HD textures, audio, localized assets and **PSVR2** modules remain distribution-gated.
 - Signed ECDSA P256 catalogs, immutable GitHub Releases URLs, exact versions/dependencies/sizes, SHA-256 verification, resumable cache, cancellation and offline imports.
 - Strict ZIP allowlists; no archive links/traversal; local reconstruction recipes read verified owned originals. Downloaded scripts are never executed.
 - Install/update/repair/uninstall, original backups, durable rollback journal and recovery after process termination. Three-way INI merge retains user settings. Unrelated files/mods are preserved; collisions stop installation.
@@ -26,6 +26,13 @@ Windows x64 and .NET SDK 10.0.302 (or compatible newer 10.0 feature band):
 ```
 
 The publish is self-contained: the player does not need a separately installed .NET runtime. WPF trimming is disabled. Distribute `artifacts/publish/TrilexModInstaller-win-x64.zip`, which retains the installer and embedded runtime license notices. The local RC executable is **not Authenticode signed**; no publisher certificate has been provided. Do not bypass Windows security warnings. Production workflow refuses to publish without signatures.
+
+Building also requires Visual Studio C++ tools and the pinned Python dependencies
+installed by the build script. The Centurion exporter uses a hash-pinned official
+UE Viewer archive; `TRILEX_UEVIEWER_ARCHIVE` supplies it for offline builds. See
+[extractor provenance](docs/distribution/UEVIEWER.md). The installer itself includes
+its fixed image worker: players need no Python. Review checks the x86 VC++ runtime
+without loading a DLL and links to the official Microsoft installer when absent.
 
 App data: `%LOCALAPPDATA%/Trilex/ModInstaller`. Keep its `installations` folder: it contains original backups and recovery journals. Local logs contain no telemetry and replace the home path with a placeholder. `TRILEX_HOME` may redirect all installer state to a disposable test profile. No automatic writes to game directories occur on startup.
 

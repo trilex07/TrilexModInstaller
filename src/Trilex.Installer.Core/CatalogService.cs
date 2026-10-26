@@ -85,6 +85,7 @@ public static class PlanBuilder
             visiting.Remove(id);done.Add(id);result.Add(module);
         }
         foreach(var id in ids.Order())Visit(id);
+        if(game.Adapter=="SingularityGameAdapter")result=SingularityV7Settings.Apply(result,choices);
         var paths=result.SelectMany(x=>x.Files).Where(x=>x.Kind!="ini").Select(x=>x.Path).ToList();
         if(paths.Distinct(StringComparer.OrdinalIgnoreCase).Count()!=paths.Count)throw new InvalidDataException("Two modules own the same target");
         return new(game.Id,game.Modules.First(x=>x.Required).Version,location.Root,location.ExeHash,choices,result,game.Executable);

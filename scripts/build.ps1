@@ -9,6 +9,7 @@ $env:MSBuildEnableWorkloadResolver='false'
 $env:TRILEX_TEST_ROOT=Join-Path $PWD 'artifacts/test-fixtures'
 New-Item -ItemType Directory -Force artifacts | Out-Null
 & (Join-Path $PSScriptRoot 'build-decoder.ps1')
+& (Join-Path $PSScriptRoot 'build-ueviewer.ps1')
 & (Join-Path $PSScriptRoot 'build-asset-worker.ps1') -InstallDependencies
 & (Join-Path $PSScriptRoot 'build-recipe-maker.ps1')
 python tests/test_package_producers.py
@@ -57,7 +58,7 @@ if($Publish){
         }
     }
     $sha=(Get-FileHash -LiteralPath $file -Algorithm SHA256).Hash
-    "$sha  TrilexModInstaller.exe" | Set-Content artifacts/publish/SHA256SUMS.txt -Encoding utf8NoBOM
+    [IO.File]::WriteAllText((Join-Path $PWD "artifacts/publish/SHA256SUMS.txt"),"$sha  TrilexModInstaller.exe`n",(New-Object Text.UTF8Encoding($false)))
     & (Join-Path $PSScriptRoot 'package-portable.ps1')
     Write-Output "Self-contained RC: $file SHA256=$sha"
 }

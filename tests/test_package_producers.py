@@ -18,8 +18,18 @@ def load(name,path):
 pe=load('pe_dependencies','scripts/pe_dependencies.py')
 deltas=load('deltas','scripts/prepare-v7-deltas.py')
 composer=load('composer','scripts/compose-v7-candidate.py')
+payload_audit=load('payload_audit','scripts/audit-recipe-payloads.py')
 
 class ProducerTests(unittest.TestCase):
+    def test_recipe_payload_audit_counts_literals_and_rejects_corruption(self):
+        recipe=struct.pack('<4sIQI',b'SVRP',1,10,2)+b'\x00'+struct.pack('<QI',0,6)+b'\x01'+struct.pack('<I',4)+b'OggS'
+        result=payload_audit.inspect(recipe)
+        self.assertEqual(result['copiedBytes'],6)
+        self.assertEqual(result['literalBytes'],4)
+        self.assertEqual(result['literalOggPageMarkers'],1)
+        for bad in (recipe[:-1],recipe+b'x',recipe[:20]+b'\x02',b'bad'):
+            with self.subTest(data=bad),self.assertRaises(ValueError):payload_audit.inspect(bad)
+
     def test_composition_preserves_rights_gates_and_rejects_missing_inventory(self):
         with tempfile.TemporaryDirectory(dir=ROOT/'artifacts') as temp:
             root=Path(temp);inventory=json.loads((ROOT/'inventory/singularity-v7.json').read_text())

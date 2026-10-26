@@ -24,3 +24,4 @@ jobs:
             artifacts/publish/
             artifacts/test-fixtures/test-report.json
             artifacts/ui-smoke/
+            artifacts/portable-smoke/

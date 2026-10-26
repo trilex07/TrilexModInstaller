@@ -28,7 +28,29 @@ if($Publish){
     dotnet publish src/Trilex.Installer.Desktop -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=embedded -o artifacts/publish --nologo
     if($LASTEXITCODE){throw 'Self-contained publish failed'}
     $file=Join-Path $PWD 'artifacts/publish/TrilexModInstaller.exe'
+    if(!$SkipUi){
+        # Exercise the published bundle without using the machine's installed runtime.
+        # Keep native-library extraction inside the disposable build workspace.
+        $names=@('TRILEX_HOME','DOTNET_ROOT','DOTNET_MULTILEVEL_LOOKUP','DOTNET_BUNDLE_EXTRACT_BASE_DIR')
+        $saved=@{}
+        foreach($name in $names){$saved[$name]=[Environment]::GetEnvironmentVariable($name,'Process')}
+        try{
+            $env:TRILEX_HOME=Join-Path $PWD 'artifacts/portable-profile'
+            $env:DOTNET_ROOT=Join-Path $PWD 'artifacts/nonexistent-runtime'
+            $env:DOTNET_MULTILEVEL_LOOKUP='0'
+            $env:DOTNET_BUNDLE_EXTRACT_BASE_DIR=Join-Path $PWD '.build/bundle'
+            $out=Join-Path $PWD 'artifacts/portable-smoke'
+            New-Item -ItemType Directory -Force -Path $out,$env:DOTNET_BUNDLE_EXTRACT_BASE_DIR | Out-Null
+            $process=Start-Process -FilePath $file -ArgumentList @('--render-smoke',('"'+$out+'"')) -PassThru -WindowStyle Hidden -Wait -RedirectStandardOutput (Join-Path $out 'stdout.txt') -RedirectStandardError (Join-Path $out 'stderr.txt')
+            if($process.ExitCode -ne 0){throw 'Published bundle smoke failed; see artifacts/portable-smoke'}
+            $report=Get-Content (Join-Path $out 'ui-report.json') -Raw | ConvertFrom-Json
+            if($report.status -ne 'PASS' -or $report.rows.Count -ne 8){throw 'Incomplete published bundle smoke'}
+        }finally{
+            foreach($name in $names){[Environment]::SetEnvironmentVariable($name,$saved[$name],'Process')}
+        }
+    }
     $sha=(Get-FileHash -LiteralPath $file -Algorithm SHA256).Hash
     "$sha  TrilexModInstaller.exe" | Set-Content artifacts/publish/SHA256SUMS.txt -Encoding utf8NoBOM
+    & (Join-Path $PSScriptRoot 'package-portable.ps1')
     Write-Output "Self-contained RC: $file SHA256=$sha"
 }

@@ -54,5 +54,7 @@ jobs:
           TAG: ${{ inputs.tag }}
         run: |
           if($env:TAG -notmatch '^installer-[0-9]+\.[0-9]+\.[0-9]+-rc\.[0-9]+$'){throw 'Explicit immutable installer RC tag required'}
-          gh release create $env:TAG artifacts/publish/TrilexModInstaller.exe artifacts/publish/SHA256SUMS.txt artifacts/publish/catalog.signed.json --draft --prerelease --target $env:GITHUB_SHA --title "Trilex Mod Installer $env:TAG" --notes-file docs/RELEASE-NOTES.md
+          $env:NUGET_PACKAGES=Join-Path $PWD '.build/nuget'
+          ./scripts/package-portable.ps1
+          gh release create $env:TAG artifacts/publish/TrilexModInstaller-win-x64.zip artifacts/publish/ZIP-SHA256SUMS.txt artifacts/publish/catalog.signed.json --draft --prerelease --target $env:GITHUB_SHA --title "Trilex Mod Installer $env:TAG" --notes-file docs/RELEASE-NOTES.md
           if($LASTEXITCODE){throw 'Release upload failed'}

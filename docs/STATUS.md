@@ -16,6 +16,10 @@ Core fixture suite: 37/37 PASS at initial delivery; actual child process termina
 
 These are offline fixture and own-app rendering results, not a real Steam installation, physical PSVR2 confirmation, real monitor DPI/input certification, complete Windows VM test or verification of GitHub Actions runs. Computer Use access to the app window timed out; no interactive PASS is claimed.
 
+The published single-file EXE also passed all 8 offscreen cases with `DOTNET_ROOT` pointing to a nonexistent runtime and multilevel lookup disabled. Both workspace-directed native extraction and the normal extraction location were exercised. This proves startup of the self-contained bundle on this machine, not clean-VM compatibility. The build now repeats this bundle smoke automatically. The first sandbox-only attempt failed before app startup; normal extraction outside that restriction passed without an application code change.
+
+GitHub Actions independently passed for source `144e9a6d76098bcda71566117f3c64f371f7415a`: [run 40346750583](https://github.com/trilex07/TrilexModInstaller/actions/runs/40346750583). Later commits require their own CI result; this receipt does not certify them implicitly.
+
 ## Release blockers
 
 1. **Public game packages**: all seven catalog modules remain unavailable. Reproducible local generation/reconstruction and per-asset rights review remain necessary. The installer app can transact real signed packs; a complete distributable accepted V7 pack is not yet authorized/prepared.

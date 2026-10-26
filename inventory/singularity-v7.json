@@ -411,9 +411,7 @@
       "module": "vr-core",
       "ownership": "mod-code-review-required",
       "version": "accepted-v7-20261026",
-      "dependencies": [
-        "vr-core"
-      ],
+      "dependencies": [],
       "source": "accepted-runtime-build",
       "beforeSha256": null,
       "distributionGate": "reproducible-build-and-notices",
@@ -426,9 +424,7 @@
       "module": "vr-core",
       "ownership": "mod-code-review-required",
       "version": "accepted-v7-20261026",
-      "dependencies": [
-        "vr-core"
-      ],
+      "dependencies": [],
       "source": "accepted-runtime-build",
       "beforeSha256": null,
       "distributionGate": "reproducible-build-and-notices",
@@ -557,9 +553,7 @@
       "module": "vr-core",
       "ownership": "original-derived",
       "version": "accepted-v7-20261026",
-      "dependencies": [
-        "vr-core"
-      ],
+      "dependencies": [],
       "source": "accepted-profile-dependency",
       "beforeSha256": null,
       "distributionGate": "verified-local-generation-required",
@@ -572,9 +566,7 @@
       "module": "vr-core",
       "ownership": "original-derived",
       "version": "accepted-v7-20261026",
-      "dependencies": [
-        "vr-core"
-      ],
+      "dependencies": [],
       "source": "accepted-profile-dependency",
       "beforeSha256": null,
       "distributionGate": "verified-local-generation-required",
@@ -587,9 +579,7 @@
       "module": "vr-core",
       "ownership": "original-derived",
       "version": "accepted-v7-20261026",
-      "dependencies": [
-        "vr-core"
-      ],
+      "dependencies": [],
       "source": "accepted-profile-dependency",
       "beforeSha256": null,
       "distributionGate": "verified-local-generation-required",
@@ -602,9 +592,7 @@
       "module": "vr-core",
       "ownership": "original-derived",
       "version": "accepted-v7-20261026",
-      "dependencies": [
-        "vr-core"
-      ],
+      "dependencies": [],
       "source": "accepted-profile-dependency",
       "beforeSha256": null,
       "distributionGate": "verified-local-generation-required",
@@ -617,9 +605,7 @@
       "module": "vr-core",
       "ownership": "original-derived",
       "version": "accepted-v7-20261026",
-      "dependencies": [
-        "vr-core"
-      ],
+      "dependencies": [],
       "source": "accepted-profile-dependency",
       "beforeSha256": null,
       "distributionGate": "verified-local-generation-required",
@@ -632,9 +618,7 @@
       "module": "vr-core",
       "ownership": "original-derived",
       "version": "accepted-v7-20261026",
-      "dependencies": [
-        "vr-core"
-      ],
+      "dependencies": [],
       "source": "accepted-profile-dependency",
       "beforeSha256": null,
       "distributionGate": "verified-local-generation-required",
@@ -647,9 +631,7 @@
       "module": "vr-core",
       "ownership": "original-derived",
       "version": "accepted-v7-20261026",
-      "dependencies": [
-        "vr-core"
-      ],
+      "dependencies": [],
       "source": "accepted-profile-dependency",
       "beforeSha256": null,
       "distributionGate": "verified-local-generation-required",
@@ -662,9 +644,7 @@
       "module": "vr-core",
       "ownership": "original-derived",
       "version": "accepted-v7-20261026",
-      "dependencies": [
-        "vr-core"
-      ],
+      "dependencies": [],
       "source": "accepted-profile-dependency",
       "beforeSha256": null,
       "distributionGate": "verified-local-generation-required",
@@ -677,9 +657,7 @@
       "module": "vr-core",
       "ownership": "original-derived",
       "version": "accepted-v7-20261026",
-      "dependencies": [
-        "vr-core"
-      ],
+      "dependencies": [],
       "source": "accepted-profile-dependency",
       "beforeSha256": null,
       "distributionGate": "verified-local-generation-required",
@@ -692,9 +670,7 @@
       "module": "vr-core",
       "ownership": "original-derived",
       "version": "accepted-v7-20261026",
-      "dependencies": [
-        "vr-core"
-      ],
+      "dependencies": [],
       "source": "accepted-profile-dependency",
       "beforeSha256": null,
       "distributionGate": "verified-local-generation-required",
@@ -707,9 +683,7 @@
       "module": "vr-core",
       "ownership": "original-derived",
       "version": "accepted-v7-20261026",
-      "dependencies": [
-        "vr-core"
-      ],
+      "dependencies": [],
       "source": "accepted-profile-dependency",
       "beforeSha256": null,
       "distributionGate": "verified-local-generation-required",
@@ -722,9 +696,7 @@
       "module": "vr-core",
       "ownership": "original-derived",
       "version": "accepted-v7-20261026",
-      "dependencies": [
-        "vr-core"
-      ],
+      "dependencies": [],
       "source": "accepted-profile-dependency",
       "beforeSha256": null,
       "distributionGate": "verified-local-generation-required",
@@ -737,9 +709,7 @@
       "module": "vr-core",
       "ownership": "original-derived",
       "version": "accepted-v7-20261026",
-      "dependencies": [
-        "vr-core"
-      ],
+      "dependencies": [],
       "source": "accepted-profile-dependency",
       "beforeSha256": null,
       "distributionGate": "verified-local-generation-required",

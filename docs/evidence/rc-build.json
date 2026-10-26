@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "status": "ENGINEERING_RC_GAME_PACKAGES_UNAVAILABLE",
+  "appSourceCommit": "144e9a6d76098bcda71566117f3c64f371f7415a",
+  "packagingSource": "scripts/package-portable.ps1 and scripts/build.ps1 in delivery commit",
+  "exeSha256": "4AD72D81DD982F6E4FCA0EAABD694070BD1649522B466539AFB673253D6BE260",
+  "exeBytes": 141965006,
+  "zipSha256": "20C8795DA53EA6A64F43D958F36A70D089499F64DC0E3428360C51DE35DB41F8",
+  "zipBytes": 62906191,
+  "authenticode": "UNSIGNED - certificate not supplied",
+  "coreTests": {
+    "pass": 37,
+    "fail": 0
+  },
+  "publishedExeUiCases": {
+    "pass": 8,
+    "fail": 0,
+    "bindingErrors": 0
+  },
+  "normalBundleExtraction": "PASS on development machine; no clean VM claim",
+  "steamAccess": "NONE",
+  "realGameInstall": "NOT RUN",
+  "physicalPSVR2": "NOT RUN",
+  "gameModulesAvailable": 0,
+  "gameModulesUnavailable": 7,
+  "distributionNoticeCheck": "PASS ZIP contains runtime license and third-party notices",
+  "ciEvidence": "https://github.com/trilex07/TrilexModInstaller/actions/runs/40346750583; original source commit only"
+}

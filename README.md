@@ -25,7 +25,7 @@ Windows x64 and .NET SDK 10.0.302 (or compatible newer 10.0 feature band):
 ./artifacts/publish/TrilexModInstaller.exe
 ```
 
-The publish is self-contained: the player does not need a separately installed .NET runtime. WPF trimming is disabled. The local RC executable is **not Authenticode signed**; no publisher certificate has been provided. Do not bypass Windows security warnings. Production workflow refuses to publish without signatures.
+The publish is self-contained: the player does not need a separately installed .NET runtime. WPF trimming is disabled. Distribute `artifacts/publish/TrilexModInstaller-win-x64.zip`, which retains the installer and embedded runtime license notices. The local RC executable is **not Authenticode signed**; no publisher certificate has been provided. Do not bypass Windows security warnings. Production workflow refuses to publish without signatures.
 
 App data: `%LOCALAPPDATA%/Trilex/ModInstaller`. Keep its `installations` folder: it contains original backups and recovery journals. Local logs contain no telemetry and replace the home path with a placeholder. `TRILEX_HOME` may redirect all installer state to a disposable test profile. No automatic writes to game directories occur on startup.
 

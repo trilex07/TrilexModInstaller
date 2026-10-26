@@ -11,13 +11,13 @@ delta={f['path'].lower():f for f in read(stage/'manifest.json')['files']}
 def classify(path):
     s=path.lower()
     if s.endswith('.exe') or s.endswith('/rvgame.xxx') or 'dinput8_orig' in s:return 'owned-game-prerequisite','original-game','verify-only',[]
-    if s.endswith('.dll'):return 'vr-core','mod-code-review-required','reproducible-build-and-notices',['vr-core']
+    if s.endswith('.dll'):return 'vr-core','mod-code-review-required','reproducible-build-and-notices',[]
     if s.endswith('.xxx'):
         module='polish-dubbing' if '_loc_' in s else 'ui-hud' if '/ui_' in s else 'audio-remaster'
         return module,'original-derived','verified-local-reconstruction-required',['vr-core']
     if 'texture-override' in s:return 'hd-textures','original-derived','source-rights-or-local-generation-required',['vr-core']
     if '/localization/' in s:return 'polish-text' if 'polish_text' in s else 'polish-dubbing','mixed-review-required','text-voice-rights-and-native-bank-review',['vr-core']
-    if any(x in s for x in ('glove-animation','/knife/')):return 'vr-core','original-derived','verified-local-generation-required',['vr-core']
+    if any(x in s for x in ('glove-animation','/knife/')):return 'vr-core','original-derived','verified-local-generation-required',[]
     if '/hud/' in s:return 'ui-hud','mixed-review-required','atlas-provenance-review',['vr-core']
     if s.endswith('.ini'):return 'configuration','mod-configuration','merge-keys-not-whole-user-file',['vr-core']
     return 'unclassified','review-required','release-blocked',['vr-core']

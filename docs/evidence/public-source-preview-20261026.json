@@ -1,0 +1,44 @@
+{
+  "date": "2026-10-26",
+  "releaseUrl": "https://github.com/trilex07/TrilexModInstaller/releases/tag/installer-0.1.0-source-preview.1",
+  "tag": "installer-0.1.0-source-preview.1",
+  "sourceCommit": "f7a48bdee1fe6317503ad7d1563559dce7856ff3",
+  "isDraft": false,
+  "isPrerelease": true,
+  "downloadVerification": "PASS all five assets byte-identical to reviewed uploads",
+  "assets": [
+    {
+      "name": "audio-remaster.module.preview.json",
+      "bytes": 5696,
+      "sha256": "E19E00B123597E6E9859A01BE3D39529EF44F1C0965040C094441A720BAF8BF7"
+    },
+    {
+      "name": "DISTRIBUTION-NOTICE.md",
+      "bytes": 3503,
+      "sha256": "EB2DA9555E230D68B2787519C4A8BD95C35301D7F7C270D914D293AE2B4DA203"
+    },
+    {
+      "name": "LICENSE.txt",
+      "bytes": 1191,
+      "sha256": "23809BE6C59D570431103B57C630D7C6EED6B24D9B9351BCBE91242D3BDB6AF5"
+    },
+    {
+      "name": "SHA256SUMS.txt",
+      "bytes": 385,
+      "sha256": "8AE77DBE8F18B0A3E64FD7EA0ABA1E5D915C7B00C721F22888765AE2822F1216"
+    },
+    {
+      "name": "Trilex-local-audio-recipes-0.1.0-preview.1.zip",
+      "bytes": 4641,
+      "sha256": "B065C7FB5D3CA4E35133EECDFD911872FA7F6D2AA0EE8D94831B5A09B764ABC9"
+    }
+  ],
+  "recipeRuntimeVerification": "PASS seven exact final banks from released metadata, offline owned fixture",
+  "sourceAudit": "PASS",
+  "moduleState": "preview",
+  "signedProductionCatalogPromoted": false,
+  "installerExePublished": false,
+  "gameRecordingsPublished": false,
+  "unverifiedDubbingPublished": false,
+  "steamWrites": false
+}

@@ -381,6 +381,9 @@ await Test("Optional extractor is not embedded and refuses missing offline cache
         Environment.SetEnvironmentVariable("TRILEX_UEVIEWER_ARCHIVE",bad);
         await Reject(()=>LocalExtractorTools.EnsureAsync(http,false,null,default));Assert(handler.Requests==0);
         await Reject(()=>Sync(()=>LocalExtractorTools.Resolve()));
+        Environment.SetEnvironmentVariable("TRILEX_UEVIEWER_ARCHIVE",null);
+        await Reject(()=>LocalExtractorTools.EnsureAsync(http,false,null,default));
+        Assert(handler.Requests==1&&handler.LastUserAgent=="TrilexModInstaller/1.0"&&handler.LastReferrer=="https://www.gildor.org/en/projects/umodel");
     }
     finally{Environment.SetEnvironmentVariable("TRILEX_HOME",priorHome);Environment.SetEnvironmentVariable("TRILEX_UEVIEWER_ARCHIVE",priorArchive);}
 });
@@ -419,10 +422,10 @@ sealed class TestFixture
 }
 sealed class FakeHttp(byte[] bytes) : HttpMessageHandler
 {
-    public int Requests;public long? LastRange;public string? Redirect;public bool FailFirst;
+    public int Requests;public long? LastRange;public string? Redirect;public bool FailFirst;public string? LastUserAgent,LastReferrer;
     protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,CancellationToken ct)
     {
-        ct.ThrowIfCancellationRequested();Requests++;if(FailFirst&&Requests==1)return Task.FromResult(new HttpResponseMessage(HttpStatusCode.ServiceUnavailable));if(Redirect is not null&&Requests==1){var r=new HttpResponseMessage(HttpStatusCode.Redirect);r.Headers.Location=new(Redirect);return Task.FromResult(r);}
+        ct.ThrowIfCancellationRequested();LastUserAgent=request.Headers.UserAgent.ToString();LastReferrer=request.Headers.Referrer?.AbsoluteUri;Requests++;if(FailFirst&&Requests==1)return Task.FromResult(new HttpResponseMessage(HttpStatusCode.ServiceUnavailable));if(Redirect is not null&&Requests==1){var r=new HttpResponseMessage(HttpStatusCode.Redirect);r.Headers.Location=new(Redirect);return Task.FromResult(r);}
         LastRange=request.Headers.Range?.Ranges.Single().From;var offset=(int)(LastRange??0);var response=new HttpResponseMessage(offset>0?HttpStatusCode.PartialContent:HttpStatusCode.OK){Content=new ByteArrayContent(bytes[offset..])};if(offset>0)response.Content.Headers.ContentRange=new(offset,bytes.Length-1,bytes.Length);return Task.FromResult(response);
     }
 }

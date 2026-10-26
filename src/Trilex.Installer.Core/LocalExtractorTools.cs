@@ -48,7 +48,7 @@ public static class LocalExtractorTools
         Directory.CreateDirectory(Cache);var part=Paths.Safe(Cache,"download-"+Guid.NewGuid().ToString("N")+".tmp");
         try
         {
-            using var request=new HttpRequestMessage(HttpMethod.Get,DownloadUrl);request.Headers.Referrer=new("https://www.gildor.org/en/projects/umodel");
+            using var request=new HttpRequestMessage(HttpMethod.Get,DownloadUrl);request.Headers.Referrer=new("https://www.gildor.org/en/projects/umodel");request.Headers.UserAgent.ParseAdd("TrilexModInstaller/1.0");
             using var response=await http.SendAsync(request,HttpCompletionOption.ResponseHeadersRead,ct);
             if(response.RequestMessage?.RequestUri?.AbsoluteUri!=DownloadUrl||(int)response.StatusCode is >=300 and <400)throw new InvalidDataException("UE Viewer redirect refused");
             response.EnsureSuccessStatusCode();const long maximum=32L*1024*1024;

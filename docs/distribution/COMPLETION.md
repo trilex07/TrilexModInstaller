@@ -1,3 +1,9 @@
+# First-edition completion update — 2026-10-26
+
+Complete local 1.0.0 RC1: 12 stable signed modules, 179 file declarations / 178 unique targets, full Polish preset, adjacent verified archives and embedded complete catalog. Optional fixed upstream exporter replaces embedded UE Viewer. Current Windows DirectInput is bound only from the protected x86 OS source. 59 core and 10 producer regressions pass; final bundle receipts identify exact source and binary hashes. Signed complete-catalog fixture lifecycle verifies installation, reinstallation, corruption detection, repair and restoration of 127 originals. Public unsigned binary upload and clean-PC interaction are not claimed. See FIRST-EDITION.md and ../INSTALL-V7.md.
+
+## Historical engineering tracker
+
 # Installer completion tracker
 
 Accepted game runtime: V7 source `38ca72f88112bfcbd26addb0d6aa4f76095aa15e`. No Steam deployment/game launch during installer development.

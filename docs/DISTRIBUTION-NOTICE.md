@@ -1,5 +1,11 @@
 # Trilex — fan project and distribution notice
 
+## Complete V7 candidate / Pełny kandydat V7
+
+Wersja 1.0.0 RC1 zawiera komplet 12 modułów, w tym dane zastępczego dubbingu w recepturach rekonstrukcji. Poniższy opis podglądu 0.1.0 dotyczy wyłącznie wcześniejszego wydania źródłowego. Uprawnienia do części materiałów osób trzecich pozostają niepotwierdzone; osobna decyzja wydawcy o dołączeniu treści fanowskich nie jest licencją od właściciela praw. Szczegóły: FIRST-EDITION.md. Wymagana własna zgodna kopia gry.
+
+Version 1.0.0 RC1 contains all 12 modules, including replacement voice data in reconstruction recipes. The 0.1.0 preview description below applies only to that earlier source release. Some third-party permissions remain unconfirmed; separate publisher approval to include fan content is not a rights-holder license. See FIRST-EDITION.md. A compatible owned game is required.
+
 ## Polski
 
 Trilex Mod Installer i SingularityVR to nieoficjalny, bezpłatny projekt fanowski.

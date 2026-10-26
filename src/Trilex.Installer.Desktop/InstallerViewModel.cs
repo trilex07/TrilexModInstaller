@@ -15,7 +15,7 @@ public sealed class ModuleViewModel(ModuleManifest manifest,Localization l) : IN
     public event PropertyChangedEventHandler? PropertyChanged;
     public ModuleManifest Manifest=>manifest;
     private bool selected=manifest.Required;
-    public bool Selected {get=>selected;set{selected=value;PropertyChanged?.Invoke(this,new(nameof(Selected)));}}
+    public bool Selected {get=>selected;set{if(selected==value)return;selected=value;PropertyChanged?.Invoke(this,new(nameof(Selected)));}}
     public bool Selectable=>manifest.State=="stable"&&!manifest.Required;
     public string Name=>manifest.Label(l.Language);
     public string Badge=>manifest.State!="stable"?l["Unavailable"]:manifest.Required?l["Required"]:l["Ready"];
@@ -42,8 +42,8 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
     private bool busy,offline,showReview;
     private double percent;
     public string UiLanguage{get=>ui;set{if(value is not("en"or"pl"))return;ui=value;L.Set(value);RefreshModules();Changed();Activity=L["Initial"];SavePreferences();}}
-    public string TextLanguage{get=>text;set{text=value;Invalidate();Changed();SavePreferences();}}
-    public string VoiceLanguage{get=>voice;set{voice=value;Invalidate();Changed();SavePreferences();}}
+    public string TextLanguage{get=>text;set{if(value is not("en"or"pl"))return;text=value;SyncLanguageModule("polish-text",value=="pl");Invalidate();Changed();SavePreferences();}}
+    public string VoiceLanguage{get=>voice;set{if(value is not("en"or"pl"))return;voice=value;SyncLanguageModule("polish-dubbing",value=="pl");Invalidate();Changed();SavePreferences();}}
     public string GameRoot{get=>root;set{root=value;location=null;Invalidate();Changed();Changed(nameof(CanManage));Changed(nameof(CanLaunch));}}
     public string Activity{get=>activity;private set{activity=value;Changed();}}
     public string DetectionStatus{get=>detection;private set{detection=value;Changed();}}
@@ -70,6 +70,10 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
         {
             try{catalog=catalogs.Verify(File.ReadAllBytes(Path.Combine(Home,"catalog.signed.json")));}catch(Exception e)when(e is IOException or InvalidDataException or CryptographicException or JsonException){Log("Cached catalog refused: "+e.Message);}
         }
+        // A complete portable bundle carries its signed catalog beside the EXE.
+        // Invalid sidecars fail visibly; never silently fall back to a different release.
+        var bundled=BundleSource.CatalogAt(AppContext.BaseDirectory,catalogs);
+        if(bundled is not null)catalog=bundled;
         installer=new(Path.Combine(Home,"installations"),new WindowsProcessGuard());
         if(File.Exists(Path.Combine(Home,"preferences.json")))
         {
@@ -78,7 +82,25 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
         L.Set(ui);RefreshModules();Activity=catalog.ExpiresUtc<=DateTimeOffset.UtcNow?"Catalog expired. Update catalog before installation; recovery remains available.":L["Initial"];TrustStatus=L["Trust"]+" · catalog "+catalog.Version;
     }
     private void SavePreferences(){if(string.IsNullOrEmpty(Home))return;Json.Write(Path.Combine(Home,"preferences.json"),new Dictionary<string,string>{{"ui",ui},{"text",text},{"voice",voice}});}
-    private void RefreshModules(){var selected=Modules.Where(x=>x.Selected).Select(x=>x.Manifest.Id).ToHashSet();Modules.Clear();foreach(var module in Game.Modules){var vm=new ModuleViewModel(module,L);if(vm.Selectable&&selected.Contains(module.Id))vm.Selected=true;vm.PropertyChanged+=(s,e)=>Invalidate();Modules.Add(vm);}}
+    public void SelectAcceptedPreset()
+    {
+        if(!Modules.Any(m=>m.Manifest.Id=="portable-settings"&&m.Manifest.State=="stable"))throw new InvalidOperationException("The complete V7 catalog is not loaded");
+        TextLanguage="pl";VoiceLanguage="pl";
+        foreach(var module in Modules.Where(m=>m.Manifest.State=="stable"))module.Selected=true;
+        Invalidate();Activity=L["ReviewHint"];
+    }
+    private void SyncLanguageModule(string id,bool selected){var module=Modules.SingleOrDefault(m=>m.Manifest.Id==id);if(module?.Selectable==true)module.Selected=selected;}
+    private void RefreshModules()
+    {
+        var selected=Modules.Where(x=>x.Selected).Select(x=>x.Manifest.Id).ToHashSet();Modules.Clear();
+        foreach(var module in Game.Modules)
+        {
+            var vm=new ModuleViewModel(module,L);
+            if(vm.Selectable)vm.Selected=module.Id switch{"polish-text"=>text=="pl","polish-dubbing"=>voice=="pl",_=>selected.Contains(module.Id)};
+            vm.PropertyChanged+=(s,e)=>{if(e.PropertyName==nameof(ModuleViewModel.Selected)){if(module.Id=="polish-text")TextLanguage=vm.Selected?"pl":"en";if(module.Id=="polish-dubbing")VoiceLanguage=vm.Selected?"pl":"en";}Invalidate();};
+            Modules.Add(vm);
+        }
+    }
     private void Invalidate(){plan=null;showReview=false;Changed(nameof(CanInstall));Changed(nameof(ReviewVisibility));}
     private void Log(string message)=>File.AppendAllText(Path.Combine(Home,"installer.log"),DateTimeOffset.Now.ToString("o")+" "+message.Replace(Home,"%INSTALLER_DATA%",StringComparison.OrdinalIgnoreCase).Replace(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),"%USERPROFILE%",StringComparison.OrdinalIgnoreCase)+Environment.NewLine);
     public async Task Run(Func<CancellationToken,Task> action)
@@ -110,6 +132,9 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
         plan=PlanBuilder.Build(Game,location!,choices);
         ReviewText=$"{plan.Root}\n\nv{plan.Version} · {plan.DownloadBytes/1048576.0:F1} MB download · {plan.ExpandedBytes/1048576.0:F1} MB payload\nText: {text} / Voice: {voice}\n\n"+string.Join("\n",plan.Modules.Select(x=>$"{x.Label(ui)} · {x.Version} · [{string.Join(", ",x.Dependencies)}]"));
         if(LocalAudioTools.Required(plan.Modules))ReviewText+="\n\n"+(ui=="pl"?"Remaster audio: przetwarzanie lokalne z własnej kopii gry. Dodatkowy kodek FFmpeg 9.0.2 (GPLv3), około 109 MB z gyan.dev; bez pobierania nagrań.":"Audio remaster: generated locally from your own game. Additional FFmpeg 9.0.2 codec (GPLv3), approximately 109 MB from gyan.dev; no recording download.");
+        if(LocalExtractorTools.Required(plan.Modules))ReviewText+="\n\n"+(ui=="pl"?"Zasoby Centuriona powstaną z własnej kopii gry. Instalator pobierze sprawdzoną wersję UE Viewer z gildor.org; nie pobiera modeli gry.":"Centurion assets are generated from your own game. The installer downloads a pinned UE Viewer from gildor.org; no game models are downloaded.");
+        var fanContent=plan.Modules.Where(m=>!m.RightsVerified&&m.PublisherReview is not null).ToList();
+        if(fanContent.Count>0)ReviewText+="\n\n"+(ui=="pl"?"Fanowskie dodatki zatwierdzone do paczki przez Trilexa. Prawa osób trzecich pozostają zastrzeżone; to nie jest potwierdzenie licencji ani poparcia wydawcy gry.":"Fan-made additions approved for this package by Trilex. Third-party rights remain reserved; this is not verification of licenses or endorsement by the game publisher.")+"\n"+string.Join("\n",fanContent.Select(m=>m.Label(ui)+": "+m.PublisherReview!.Notice));
         showReview=true;Changed(nameof(ReviewVisibility));Changed(nameof(CanInstall));Activity=L["ReviewHint"];
     }
     public async Task Execute(CancellationToken ct,bool repair=false)
@@ -118,8 +143,9 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
         if(plan is null)await Review(ct);var chosen=plan!;
         var progress=new Progress<ProgressInfo>(p=>{Activity=$"{p.Stage} · {p.Item}";Percent=p.Total==0?0:100.0*p.Completed/p.Total;});
         if(LocalAudioTools.Required(chosen.Modules))await LocalAudioTools.EnsureAsync(http,offline,progress,ct);
+        if(LocalExtractorTools.Required(chosen.Modules))await LocalExtractorTools.EnsureAsync(http,offline,progress,ct);
         var downloader=new PackageDownloader(http,Path.Combine(Home,"cache"));var packages=new Dictionary<string,string>();
-        foreach(var module in chosen.Modules)packages[module.Id]=await downloader.GetAsync(module,offline,progress,ct);
+        foreach(var module in chosen.Modules)packages[module.Id]=BundleSource.ArchiveAt(AppContext.BaseDirectory,module)??await downloader.GetAsync(module,offline,progress,ct);
         var result=await Task.Run(async()=>repair?await installer.RepairAsync(chosen,packages,progress,ct):await installer.InstallAsync(chosen,packages,progress,ct),ct);
         var failures=await Task.Run(()=>installer.Verify(chosen.Root),ct);if(failures.Count>0)throw new IOException("Post-install verification failed: "+string.Join(", ",failures));
         Activity=L["Done"]+" v"+result.Version;Percent=100;Log("Install verified "+result.Version);
@@ -138,8 +164,9 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
         var cache=Path.Combine(Home,"cache");Directory.CreateDirectory(cache);
         foreach(var file in files)
         {
-            var hash=Paths.Hash(file);var module=Game.Modules.SingleOrDefault(x=>Paths.Same(x.ArchiveSha256,hash))??throw new InvalidDataException("Archive is not in the signed catalog");
-            if(module.State!="stable" || new FileInfo(file).Length!=module.DownloadBytes)throw new InvalidDataException("Package is unavailable or has wrong size");
+            var hash=Paths.Hash(file);var modules=Game.Modules.Where(x=>Paths.Same(x.ArchiveSha256,hash)).ToList();
+            // Empty metadata/INI-only ZIPs can legitimately have the same digest.
+            if(modules.Count==0||!modules.Any(m=>m.State=="stable"&&new FileInfo(file).Length==m.DownloadBytes))throw new InvalidDataException("Package is unavailable or has wrong size");
             Paths.AtomicCopy(file,Paths.Safe(cache,hash.ToLowerInvariant()+".zip"));
         }
         Offline=true;Activity=L["Ready"];

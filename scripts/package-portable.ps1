@@ -22,7 +22,7 @@ New-Item -ItemType Directory -Force $imageNotices | Out-Null
 Copy-Item -Path '.build/asset-worker/licenses/*' -Destination $imageNotices -Recurse -Force
 $extractorNotices=Join-Path $notices 'ueviewer'
 New-Item -ItemType Directory -Force $extractorNotices | Out-Null
-Copy-Item -LiteralPath '.build/ueviewer/LICENSE.txt','.build/ueviewer/readme.txt','third_party/ueviewer/SDL2-COPYING.txt','docs/distribution/UEVIEWER.md' -Destination $extractorNotices -Force
+Copy-Item -LiteralPath 'third_party/ueviewer/SDL2-COPYING.txt','docs/distribution/UEVIEWER.md' -Destination $extractorNotices -Force
 $exe=Join-Path $publish 'TrilexModInstaller.exe'
 $sha=(Get-FileHash -LiteralPath $exe -Algorithm SHA256).Hash
 [IO.File]::WriteAllText((Join-Path $publish 'SHA256SUMS.txt'),"$sha  TrilexModInstaller.exe`n",(New-Object Text.UTF8Encoding($false)))

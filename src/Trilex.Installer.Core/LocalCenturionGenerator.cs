@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Security.Cryptography;
 namespace Trilex.Installer.Core;
 
 public static class LocalCenturionGenerator
@@ -10,14 +9,7 @@ public static class LocalCenturionGenerator
         if(!Paths.Same(Paths.Hash(source),Original))throw new InvalidDataException("Centurion original identity mismatch");
         var root=Path.GetFullPath(staging);while(root.Length>100)root=Path.GetDirectoryName(root)??throw new IOException("Short extractor workspace unavailable");
         var folder=Paths.Safe(root,"_local-centurion/"+Original[..16]);Directory.CreateDirectory(folder);
-        var bin=Path.Combine(folder,"bin");Directory.CreateDirectory(bin);
-        foreach(var (resource,name) in new[]{("Trilex.UEViewer.exe","umodel.exe"),("Trilex.SDL2.dll","SDL2.dll")})
-        {
-            using var data=typeof(LocalCenturionGenerator).Assembly.GetManifestResourceStream(resource)??throw new IOException("Reviewed local extractor missing");
-            using var memory=new MemoryStream();data.CopyTo(memory);var bytes=memory.ToArray();var target=Paths.Safe(bin,name);
-            if(!File.Exists(target))Paths.AtomicBytes(target,bytes);
-            if(!Paths.Same(Paths.Hash(target),Convert.ToHexString(SHA256.HashData(bytes))))throw new IOException("Local extractor was modified");
-        }
+        var extractor=LocalExtractorTools.Resolve();
         var input=Path.Combine(folder,"input");Directory.CreateDirectory(input);var owned=Path.Combine(input,"wp_SP_ARPistol_SF.xxx");
         if(!File.Exists(owned))Paths.AtomicCopy(source,owned);
         if(!Paths.Same(Paths.Hash(owned),Original))throw new IOException("Local extractor input changed");
@@ -26,7 +18,9 @@ public static class LocalCenturionGenerator
         {
             var expected=Paths.Safe(exports,"wp_SP_ARPistol_SF/"+relative);
             if(File.Exists(expected))continue;
-            var start=new ProcessStartInfo(Path.Combine(bin,"umodel.exe")){UseShellExecute=false,CreateNoWindow=true,RedirectStandardOutput=true,RedirectStandardError=true,WorkingDirectory=folder};
+            // Resolve again immediately before execution, never search PATH or a package executable.
+            extractor=LocalExtractorTools.Resolve();
+            var start=new ProcessStartInfo(extractor){UseShellExecute=false,CreateNoWindow=true,RedirectStandardOutput=true,RedirectStandardError=true,WorkingDirectory=folder};
             foreach(var arg in new[]{"-export","-notex","-path="+input,"-out="+exports,"wp_SP_ARPistol_SF",name,kind})start.ArgumentList.Add(arg);
             using var process=Process.Start(start)??throw new IOException("Cannot start local extractor");
             var stdout=process.StandardOutput.ReadToEndAsync();var stderr=process.StandardError.ReadToEndAsync();

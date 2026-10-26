@@ -22,8 +22,18 @@ pe=load('pe_dependencies','scripts/pe_dependencies.py')
 deltas=load('deltas','scripts/prepare-v7-deltas.py')
 composer=load('composer','scripts/compose-v7-candidate.py')
 payload_audit=load('payload_audit','scripts/audit-recipe-payloads.py')
+first_edition=load('first_edition','scripts/prepare-first-edition.py')
 
 class ProducerTests(unittest.TestCase):
+    def test_complete_bundle_requires_private_output_and_immutable_tag(self):
+        with self.assertRaisesRegex(ValueError,'artifacts'):
+            first_edition.prepare(ROOT/'missing-inputs',ROOT/'catalog/forbidden-output','installer-1.0.0-rc.1')
+        with tempfile.TemporaryDirectory(dir=ROOT/'artifacts') as temp:
+            with self.assertRaisesRegex(ValueError,'artifacts'):
+                first_edition.prepare(ROOT/'missing-inputs',Path(temp),'installer-1.0.0-rc.1')
+            with self.assertRaisesRegex(ValueError,'immutable'):
+                first_edition.prepare(ROOT/'missing-inputs',Path(temp)/'fresh','latest')
+            self.assertFalse((Path(temp)/'fresh').exists())
     def test_audio_rejects_unapproved_executable_before_processing(self):
         with tempfile.TemporaryDirectory(dir=ROOT/'artifacts') as temp:
             folder=Path(temp); codec=folder/'not-a-codec.exe'; codec.write_bytes(b'not executable')

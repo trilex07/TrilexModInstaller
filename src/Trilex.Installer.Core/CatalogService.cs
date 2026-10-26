@@ -51,6 +51,10 @@ public sealed class CatalogService(HttpClient http, string pinnedPublicKey, stri
 }
 public static class PlanBuilder
 {
+    public static bool HasDistributionReview(ModuleManifest module)=>
+        module.RightsVerified&&!string.IsNullOrWhiteSpace(module.RightsEvidence)||
+        module.PublisherReview is {Basis:"fan-mod-publisher-approved"} review&&
+        !string.IsNullOrWhiteSpace(review.Evidence)&&!string.IsNullOrWhiteSpace(review.Notice);
     public static void ValidateManifest(GameManifest game)
     {
         if(game.Modules.Select(x=>x.Id).Distinct(StringComparer.OrdinalIgnoreCase).Count()!=game.Modules.Count)throw new InvalidDataException("Duplicate module ID");
@@ -62,7 +66,7 @@ public static class PlanBuilder
                 Paths.Safe(Path.GetTempPath(),f.Path);Paths.AllowedTarget(f.Path);
                 LocalSources.Validate(f,Path.GetTempPath());
             }
-            if(m.State=="stable" && (!m.RightsVerified || string.IsNullOrWhiteSpace(m.RightsEvidence) || m.Files.Count==0 || !ValidHash(m.ArchiveSha256) || m.DownloadBytes==0 || m.DownloadUrl is null))throw new InvalidDataException("Stable module lacks rights, files or exact distribution identity");
+            if(m.State=="stable" && (!HasDistributionReview(m) || m.Files.Count==0 || !ValidHash(m.ArchiveSha256) || m.DownloadBytes==0 || m.DownloadUrl is null))throw new InvalidDataException("Stable module lacks explicit distribution review, files or exact distribution identity");
         }
     }
     public static bool ValidHash(string? hash)=>hash is not null && System.Text.RegularExpressions.Regex.IsMatch(hash,"^[0-9A-Fa-f]{64}$");
@@ -86,6 +90,7 @@ public static class PlanBuilder
         }
         foreach(var id in ids.Order())Visit(id);
         if(game.Adapter=="SingularityGameAdapter")result=SingularityV7Settings.Apply(result,choices);
+        result=LocalSources.BindCurrentSystem(result);
         var paths=result.SelectMany(x=>x.Files).Where(x=>x.Kind!="ini").Select(x=>x.Path).ToList();
         if(paths.Distinct(StringComparer.OrdinalIgnoreCase).Count()!=paths.Count)throw new InvalidDataException("Two modules own the same target");
         return new(game.Id,game.Modules.First(x=>x.Required).Version,location.Root,location.ExeHash,choices,result,game.Executable);

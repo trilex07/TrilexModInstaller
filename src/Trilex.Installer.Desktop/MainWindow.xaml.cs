@@ -17,6 +17,7 @@ public partial class MainWindow : Window
         var dialog=new OpenFolderDialog{Title=vm.L["Folder"],Multiselect=false};if(dialog.ShowDialog(this)==true){vm.GameRoot=dialog.FolderName;await vm.Run(vm.Validate);}
     }
     private async void Review_Click(object sender,RoutedEventArgs e)=>await vm.Run(vm.Review);
+    private async void FullPreset_Click(object sender,RoutedEventArgs e)=>await vm.Run(ct=>{vm.SelectAcceptedPreset();return Task.CompletedTask;});
     private async void Install_Click(object sender,RoutedEventArgs e)=>await vm.Run(ct=>vm.Execute(ct));
     private async void Repair_Click(object sender,RoutedEventArgs e)=>await vm.Run(ct=>vm.Execute(ct,true));
     private async void Verify_Click(object sender,RoutedEventArgs e)=>await vm.Run(vm.Verify);

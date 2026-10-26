@@ -22,8 +22,18 @@ internal static class UiSmoke
             var root=(FrameworkElement)window.Content;
             root.Measure(new Size(width,height));root.Arrange(new Rect(0,0,width,height));root.UpdateLayout();
             var labels=Descendants(root).OfType<TextBlock>().Select(x=>x.Text).ToList();
-            if(!labels.Contains("PSVR2") || !labels.Contains(vm.L["Modules"]))throw new InvalidDataException("Localized module content missing");
-            if(vm.Modules.Count!=7 || vm.Modules.Any(x=>x.Selectable))throw new InvalidDataException("Unapproved packs must remain unavailable");
+            if(!labels.Contains(vm.L["Options"]) || !labels.Contains(vm.L["Modules"]))throw new InvalidDataException("Localized module content missing");
+            if(vm.Modules.Any(m=>m.Manifest.Id=="portable-settings"&&m.Manifest.State=="stable"))
+            {
+                vm.SelectAcceptedPreset();
+                if(vm.Modules.Count!=12||vm.Modules.Any(m=>m.Manifest.State!="stable"||!m.Selected)||vm.TextLanguage!="pl"||vm.VoiceLanguage!="pl")throw new InvalidDataException("Complete preset incomplete");
+                vm.TextLanguage="en";vm.VoiceLanguage="en";
+                if(vm.Modules.Any(m=>(m.Manifest.Id is "polish-text" or "polish-dubbing")&&m.Selected))throw new InvalidDataException("Language selectors retained contradictory packs");
+                vm.Modules.Single(m=>m.Manifest.Id=="polish-dubbing").Selected=true;
+                if(vm.VoiceLanguage!="pl")throw new InvalidDataException("Dubbing checkbox failed to synchronize selector");
+                vm.SelectAcceptedPreset();
+            }
+            else if(vm.Modules.Count!=7 || vm.Modules.Any(x=>x.Selectable))throw new InvalidDataException("Unapproved packs must remain unavailable");
             if(Descendants(root).OfType<Button>().Any(b=>b.Content?.ToString()==vm.L["Launch"]&&b.IsEnabled))throw new InvalidDataException("Launch enabled without managed installation");
             var bmp=new RenderTargetBitmap((int)(width*dpi/96.0),(int)(height*dpi/96.0),dpi,dpi,PixelFormats.Pbgra32);bmp.Render(root);
             var file=$"installer-{language}-{width}x{height}-{dpi}dpi.png";using(var stream=File.Create(Path.Combine(output,file))){var encoder=new PngBitmapEncoder();encoder.Frames.Add(BitmapFrame.Create(bmp));encoder.Save(stream);}

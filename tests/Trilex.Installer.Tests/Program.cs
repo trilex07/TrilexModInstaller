@@ -69,6 +69,16 @@ await Test("missing packages and dependency cycles",async()=>
     await Reject(()=>Sync(()=>PlanBuilder.Build(f.Game(m with{State="unavailable"}),f.Location(),new("en","en","en",[]))));
 });
 await Test("rights-unapproved stable modules refused",async()=>{var f=Fixture();var m=Package(f);await Reject(()=>Sync(()=>PlanBuilder.ValidateManifest(f.Game(m with{RightsVerified=false}))));});
+await Test("Explicit signed publisher review preserves unverified rights and refuses incomplete approval",async()=>
+{
+    var f=Fixture();var m=Package(f) with{RightsVerified=false,PublisherReview=new("fan-mod-publisher-approved","docs/distribution/FIRST-EDITION.md","Third-party rights unverified; reserved to their owners")};
+    using var key=ECDsa.Create(ECCurve.NamedCurves.nistP256);using var http=new HttpClient();
+    var catalog=new CatalogService(http,key.ExportSubjectPublicKeyInfoPem()).Verify(Envelope(new(1,"fan-review",DateTimeOffset.UtcNow.AddHours(1),[f.Game(m)]),key));
+    Assert(!catalog.Games[0].Modules[0].RightsVerified);
+    Assert(PlanBuilder.Build(catalog.Games[0],f.Location(),new("en","en","en",[])).Modules.Count==1);
+    foreach(var review in new[]{new PublisherReview("unknown","evidence","notice"),new("fan-mod-publisher-approved","","notice"),new("fan-mod-publisher-approved","evidence","")})
+        await Reject(()=>Sync(()=>PlanBuilder.ValidateManifest(f.Game(m with{PublisherReview=review}))));
+});
 await Test("unsafe paths and Windows device names",async()=>
 {
     foreach(var p in new[]{"../outside","/absolute","C:/absolute","Binaries/a.dll:stream","Binaries/CON.dll","Binaries/a./x","Binaries//x","Binaries/../x"})await Reject(()=>Sync(()=>Paths.Safe(testRoot,p)));
@@ -357,6 +367,47 @@ await Test("Audio codec rejects arbitrary executable and offline missing cache w
     }
     finally{Environment.SetEnvironmentVariable("TRILEX_HOME",priorHome);Environment.SetEnvironmentVariable("TRILEX_AUDIO_CODEC",priorCodec);}
 });
+await Test("Optional extractor is not embedded and refuses missing offline cache or arbitrary import",async()=>
+{
+    var f=Fixture();var priorHome=Environment.GetEnvironmentVariable("TRILEX_HOME");var priorArchive=Environment.GetEnvironmentVariable("TRILEX_UEVIEWER_ARCHIVE");
+    try
+    {
+        Environment.SetEnvironmentVariable("TRILEX_HOME",f.Root);Environment.SetEnvironmentVariable("TRILEX_UEVIEWER_ARCHIVE",null);
+        Assert(!typeof(LocalCenturionGenerator).Assembly.GetManifestResourceNames().Any(n=>n.Contains("UEViewer")||n.Contains("SDL2")));
+        var handler=new FakeHttp([]);using var http=new HttpClient(handler);
+        await Reject(()=>LocalExtractorTools.EnsureAsync(http,true,null,default));Assert(handler.Requests==0);
+        var bad=Path.Combine(f.Root,"foreign.zip");File.WriteAllText(bad,"not the pinned archive");
+        await Reject(()=>Sync(()=>LocalExtractorTools.Import(bad)));
+        Environment.SetEnvironmentVariable("TRILEX_UEVIEWER_ARCHIVE",bad);
+        await Reject(()=>LocalExtractorTools.EnsureAsync(http,false,null,default));Assert(handler.Requests==0);
+        await Reject(()=>Sync(()=>LocalExtractorTools.Resolve()));
+        Environment.SetEnvironmentVariable("TRILEX_UEVIEWER_ARCHIVE",null);
+        await Reject(()=>LocalExtractorTools.EnsureAsync(http,false,null,default));
+        Assert(handler.Requests==1&&handler.LastUserAgent=="TrilexModInstaller/1.0"&&handler.LastReferrer=="https://www.gildor.org/en/projects/umodel");
+    }
+    finally{Environment.SetEnvironmentVariable("TRILEX_HOME",priorHome);Environment.SetEnvironmentVariable("TRILEX_UEVIEWER_ARCHIVE",priorArchive);}
+});
+await Test("Complete bundle uses pinned signed catalog and exact adjacent packages",async()=>
+{
+    var f=Fixture();var m=Package(f);using var key=ECDsa.Create(ECCurve.NamedCurves.nistP256);using var http=new HttpClient();var service=new CatalogService(http,key.ExportSubjectPublicKeyInfoPem());
+    Assert(BundleSource.CatalogAt(f.Root,service) is null&&BundleSource.ArchiveAt(f.Root,m) is null);
+    File.WriteAllBytes(Path.Combine(f.Root,"catalog.signed.json"),Envelope(new(1,"bundle",DateTimeOffset.UtcNow.AddHours(1),[f.Game(m)]),key));
+    Assert(BundleSource.CatalogAt(f.Root,service)!.Version=="bundle");
+    Directory.CreateDirectory(Path.Combine(f.Root,"packages"));var adjacent=Path.Combine(f.Root,"packages/vr-core.zip");File.Copy(Archives(f,m)[m.Id],adjacent);
+    Assert(Paths.Same(BundleSource.ArchiveAt(f.Root,m),Path.GetFullPath(adjacent)));
+    File.AppendAllText(adjacent,"tampered");await Reject(()=>Sync(()=>BundleSource.ArchiveAt(f.Root,m)));
+    await Reject(()=>Sync(()=>BundleSource.ArchiveAt(f.Root,m with{Id="../foreign"})));
+    File.WriteAllText(Path.Combine(f.Root,"catalog.signed.json"),"{\"algorithm\":\"untrusted\",\"payload\":\"\",\"signature\":\"\"}");await Reject(()=>Sync(()=>BundleSource.CatalogAt(f.Root,service)));
+});
+await Test("Windows dependency binds locally without changing pinned game assets or accepting arbitrary targets",async()=>
+{
+    var f=Fixture();var m=Package(f);var original=m.Files[0] with{Path="Binaries/dinput8_orig.dll",Kind="recipe",Ownership="local-transform",Entry="",SystemSource="windows-directinput8-x86",SourceSha256=new string('0',64),UseCurrentSystemVersion=true,Recipe=[new("original",0,1)]};
+    var bound=LocalSources.BindCurrentSystem([m with{Files=[original,m.Files[1]]}])[0];
+    var source=LocalSources.SystemPath("windows-directinput8-x86");Assert(bound.Files[0].Sha256==Paths.Hash(source)&&bound.Files[0].SourceSha256==Paths.Hash(source)&&bound.Files[0].Recipe![0].Length==new FileInfo(source).Length);
+    Assert(bound.Files[1]==m.Files[1]&&original.Sha256==m.Files[0].Sha256);
+    foreach(var wrong in new[]{original with{Path="Binaries/d3d9.dll"},original with{SourceCodec="ue3-whole-lzo"},original with{SourcePath="Binaries/foreign.dll"},original with{Recipe=[new("payload",0,1,"a")]}})
+        await Reject(()=>Sync(()=>LocalSources.Validate(wrong,f.Root)));
+});
 var report=new{time=DateTimeOffset.UtcNow,passed=results.Count-failed,failed,fixtureRoot=testRoot,steamAccess="NONE",results};
 Json.Write(Path.Combine(testRoot,"test-report.json"),report);Console.WriteLine(JsonSerializer.Serialize(new{passed=results.Count-failed,failed,report=Path.Combine(testRoot,"test-report.json")}));Environment.ExitCode=failed==0?0:1;
 
@@ -371,10 +422,10 @@ sealed class TestFixture
 }
 sealed class FakeHttp(byte[] bytes) : HttpMessageHandler
 {
-    public int Requests;public long? LastRange;public string? Redirect;public bool FailFirst;
+    public int Requests;public long? LastRange;public string? Redirect;public bool FailFirst;public string? LastUserAgent,LastReferrer;
     protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,CancellationToken ct)
     {
-        ct.ThrowIfCancellationRequested();Requests++;if(FailFirst&&Requests==1)return Task.FromResult(new HttpResponseMessage(HttpStatusCode.ServiceUnavailable));if(Redirect is not null&&Requests==1){var r=new HttpResponseMessage(HttpStatusCode.Redirect);r.Headers.Location=new(Redirect);return Task.FromResult(r);}
+        ct.ThrowIfCancellationRequested();LastUserAgent=request.Headers.UserAgent.ToString();LastReferrer=request.Headers.Referrer?.AbsoluteUri;Requests++;if(FailFirst&&Requests==1)return Task.FromResult(new HttpResponseMessage(HttpStatusCode.ServiceUnavailable));if(Redirect is not null&&Requests==1){var r=new HttpResponseMessage(HttpStatusCode.Redirect);r.Headers.Location=new(Redirect);return Task.FromResult(r);}
         LastRange=request.Headers.Range?.Ranges.Single().From;var offset=(int)(LastRange??0);var response=new HttpResponseMessage(offset>0?HttpStatusCode.PartialContent:HttpStatusCode.OK){Content=new ByteArrayContent(bytes[offset..])};if(offset>0)response.Content.Headers.ContentRange=new(offset,bytes.Length-1,bytes.Length);return Task.FromResult(response);
     }
 }

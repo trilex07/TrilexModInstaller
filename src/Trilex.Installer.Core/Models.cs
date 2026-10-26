@@ -11,12 +11,15 @@ public static class Json
 }
 public sealed record Catalog(int SchemaVersion, string Version, DateTimeOffset ExpiresUtc, List<GameManifest> Games);
 public sealed record GameManifest(string Id, string Name, string State, string Adapter, string SteamAppId, string Executable, List<string> ExeSha256, List<ModuleManifest> Modules);
-public sealed record ModuleManifest(string Id, Dictionary<string,string> Labels, string Version, string State, bool Required, List<string> Dependencies, long DownloadBytes, string? DownloadUrl, string? ArchiveSha256, long ExpandedBytes, bool RightsVerified, string RightsEvidence, List<PackageFile> Files, string Reason, Dictionary<string,string>? LocalizedReasons = null)
+public sealed record ModuleManifest(string Id, Dictionary<string,string> Labels, string Version, string State, bool Required, List<string> Dependencies, long DownloadBytes, string? DownloadUrl, string? ArchiveSha256, long ExpandedBytes, bool RightsVerified, string RightsEvidence, List<PackageFile> Files, string Reason, Dictionary<string,string>? LocalizedReasons = null, PublisherReview? PublisherReview = null)
 {
     public string Label(string language) => Labels.GetValueOrDefault(language, Labels.GetValueOrDefault("en", Id));
     public string ReasonFor(string language) => LocalizedReasons?.GetValueOrDefault(language,Reason)??Reason;
 }
-public sealed record PackageFile(string Path, string Entry, string Sha256, string Kind, string Ownership, string? BeforeSha256 = null, Dictionary<string,string>? IniValues = null, List<PatchPart>? Recipe = null, string? SourcePath = null, string? SourceSha256 = null, string? SystemSource = null, string? SourceCodec = null, string? DecodedSha256 = null, long? DecodedBytes = null, long? SourceOffset = null, long? SourceBytes = null);
+// A factual publisher decision is distinct from verification of third-party rights.
+// Only the pinned publisher can authorize this through a signed catalog.
+public sealed record PublisherReview(string Basis,string Evidence,string Notice);
+public sealed record PackageFile(string Path, string Entry, string Sha256, string Kind, string Ownership, string? BeforeSha256 = null, Dictionary<string,string>? IniValues = null, List<PatchPart>? Recipe = null, string? SourcePath = null, string? SourceSha256 = null, string? SystemSource = null, string? SourceCodec = null, string? DecodedSha256 = null, long? DecodedBytes = null, long? SourceOffset = null, long? SourceBytes = null, bool UseCurrentSystemVersion = false);
 public sealed record PatchPart(string Source, long Offset, int Length, string? Entry = null);
 public sealed record SignedEnvelope(string Algorithm, string Payload, string Signature);
 public sealed record InstallChoices(string TextLanguage, string VoiceLanguage, string UiLanguage, List<string> SelectedModules);

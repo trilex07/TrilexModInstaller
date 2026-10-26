@@ -64,7 +64,7 @@ public static class PackageExtractor
 {
     public static void Extract(string archive,string staging,ModuleManifest module)
     {
-        if(!module.RightsVerified || string.IsNullOrWhiteSpace(module.RightsEvidence) || !Paths.Same(Paths.Hash(archive),module.ArchiveSha256) || new FileInfo(archive).Length!=module.DownloadBytes)throw new InvalidDataException("Package provenance or checksum rejected");
+        if(!PlanBuilder.HasDistributionReview(module) || !Paths.Same(Paths.Hash(archive),module.ArchiveSha256) || new FileInfo(archive).Length!=module.DownloadBytes)throw new InvalidDataException("Package publisher review or checksum rejected");
         var allowed=module.Files.Where(x=>x.Kind=="copy").Select(x=>x.Entry)
             .Concat(module.Files.SelectMany(x=>x.Recipe??[]).Where(x=>x.Source is "payload" or "xor-original" or "instructions" or "image" or "knife" or "audio").Select(x=>x.Entry??""))
             .ToHashSet(StringComparer.OrdinalIgnoreCase);

@@ -12,7 +12,7 @@ Check updates reads GitHub's latest public non-prerelease release metadata only 
 
 ## Package identity and rights
 
-Every stable module requires ID, labels, version, dependencies, immutable download URL, archive SHA-256, exact download bytes, expanded-byte ceiling, reviewed `rightsVerified`, a concrete `rightsEvidence` reference and complete file list. `localizedReasons` optionally supplies PL/EN unavailable explanations. The publisher is responsible for the truth of provenance: the boolean is an explicit review gate, not automatic proof of copyright ownership.
+Every stable module requires ID, labels, version, dependencies, immutable download URL, archive SHA-256, exact download bytes, expanded-byte ceiling and complete file list. Distribution review is either verified rights plus `rightsEvidence`, or a separate signed `publisherReview` with exact basis `fan-mod-publisher-approved`, evidence and notice. The latter does not set `rightsVerified` true; it records the publisher's explicit fan-project decision and is disclosed by the review UI. Missing/incomplete/unknown reviews still fail. See FIRST-EDITION.md. `localizedReasons` supplies optional PL/EN unavailable explanations.
 
 Each file has a relative game `path`, archive `entry`, final `sha256`, `kind` and `ownership`. Paths are restricted to Binaries/RvGame; EXE writes, absolute paths, `..`, Windows devices, ADS and reparse ancestors are refused. All ZIP files must be enumerated, have no duplicate case-folded names or symlink entries, and fit the signed size ceiling. Nothing runs from the package.
 
@@ -20,7 +20,14 @@ Each file has a relative game `path`, archive `entry`, final `sha256`, `kind` an
 - **ini**: `iniValues` maps `Section/Key` to strings. No whole user INI overwrite. Compatible modules may merge distinct keys; conflicting values fail. Original per-key values and whole-file backups are retained. User changes survive update/uninstall. Untouched files restore byte-exact originals, including encoding.
 - **recipe**: ownership `local-transform`; mandatory exact `beforeSha256`; ordered `recipe` ranges `{source: original|payload, offset, length, entry?}`. `original` refers to the user's backed-up owned file. `payload` refers only to allowlisted mod data. Output is rebuilt into private disk staging and must match final `sha256`. Range length <=256 MiB, total output <=2 GiB; split packages as needed. No network scripts, arbitrary commands or executable patching.
 
-Whole cooked `.xxx` copy operations are categorically refused in this RC. A recipe is not a license loophole: inserted voice/texture data also requires rights and approval. A publisher must check that payload ranges do not secretly contain originals. Source-game compatibility and before hashes must be known; do not derive recipes from an unverified modded Steam directory.
+Whole cooked `.xxx` copy operations are categorically refused. A recipe is not a license loophole: inserted voice data remains voice data, with third-party rights reserved and unverified provenance disclosed where applicable. Source-game compatibility and before hashes must be known; do not derive recipes from an unverified modded Steam directory.
+
+`useCurrentSystemVersion=true` is permitted only for the complete local
+`windows-directinput8-x86` copy to `Binaries/dinput8_orig.dll`. The compiled planner
+binds it to the recipient's Windows SystemX86 file after PE32/x86 and Microsoft
+version-identity checks; records its actual hash/length in the plan and receipt;
+and the transaction verifies that exact hash again. It cannot redirect to another
+path, DLL, codec or package payload. Game/runtime hashes remain pinned.
 
 ## Maintainer commands
 

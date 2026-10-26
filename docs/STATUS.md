@@ -12,7 +12,7 @@
 
 ## Evidence
 
-Latest core fixture suite: 54/54 PASS; producer suite: 5/5 PASS. Actual child process termination/recovery, fixed Centurion generation gates and long Win32 paths are covered. WPF: 8 offscreen PL/EN layouts at 1024/1200/1440 logical widths and 96/144/192 DPI, binding diagnostics checked; refresh receipts identify which build they cover. Build script regenerates under ignored `artifacts/`.
+Latest core fixture suite: 59/59 PASS; producer suite: 10/10 PASS. Actual child process termination/recovery, fixed Centurion generation gates and long Win32 paths are covered. WPF: 8 offscreen PL/EN layouts at 1024/1200/1440 logical widths and 96/144/192 DPI, binding diagnostics checked; refresh receipts identify which build they cover. Build script regenerates under ignored `artifacts/`.
 
 These are offline fixture and own-app rendering results, not a real Steam installation, physical PSVR2 confirmation, real monitor DPI/input certification, complete Windows VM test or verification of GitHub Actions runs. Computer Use access to the app window timed out; no interactive PASS is claimed.
 
@@ -30,7 +30,7 @@ The complete local V7 fixture and exact unsigned RC hashes are recorded in
 
 ## Release blockers
 
-1. **Public game packages**: all seven catalog modules remain unavailable. Reproducible local generation/reconstruction and per-asset rights review remain necessary. The installer app can transact real signed packs; a complete distributable accepted V7 pack is not yet authorized/prepared.
+1. **Complete first-edition candidate**: all 12 V7 modules are prepared in the local complete bundle, with an embedded and adjacent signed catalog. The full Polish preset selects all modules. Public binary/package upload has not occurred. Unresolved third-party permission provenance is disclosed separately from signed publisher approval; see distribution/FIRST-EDITION.md.
 2. **Production publisher**: secure the local generated signing key, establish production custody and provide an Authenticode certificate. Pipeline requires these secrets; it will fail closed if absent.
 3. **Clean Windows + actual installer interaction**: verify keyboard/folder picker/scrolling, 100–200% real DPI and screen-reader behavior on a clean profile. Offscreen renders do not certify those interactions.
 4. **Release integration**: after package gates, exercise actual published CDN downloads, the three supported text/voice combinations plus explicit rejection of English-text/Polish-movie-voice, and managed install/update/repair/uninstall on a separate owned game copy. Only MAIN with explicit authorization may proceed to Steam. Never adopt the developer's untracked live installation implicitly.

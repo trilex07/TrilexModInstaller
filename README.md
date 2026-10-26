@@ -4,7 +4,7 @@ Windows launcher and modular installer by **Trilex / trilex07** for the [Singula
 
 ![Installer interface](docs/screenshots/installer-en.png)
 
-**Status: installer engineering RC, not a publicly installable Singularity mod bundle.** The real transaction engine and signed-package flow are tested against synthetic game directories. The embedded catalog deliberately marks all seven game packs unavailable until their distributable content and local asset reconstruction are reviewed. No game files are included. This app has not installed the real Steam game in this task.
+**Complete first-edition V7 candidate:** the full-bundle assembler produces a self-contained Windows installer, a pinned signed catalog and 12 local packages matching Trilex's accepted configuration. Choose **Full Trilex V7 (Polish)** to select the entire set. [Installation instructions, PL/EN](docs/INSTALL-V7.md). The candidate is unsigned and has not yet passed clean-PC/PSVR2 installer acceptance; the existing public release below remains a source preview until a complete binary release is explicitly published.
 
 ## Public fan-project preview
 
@@ -20,7 +20,8 @@ installer EXE, game recordings or a full installable mod catalog. See the
 
 - Trilex dark desktop interface, supplied logo and icons, English/Polish UI.
 - Steam library/appmanifest detection, manual folder validation, exact compatible EXE SHA-256.
-- Separate game text and dubbing selectors. Accepted V7 does not support complete Polish movie voice with English text; this combination fails before writing. VR Core, UI/HUD, HD textures, audio, localized assets and **PSVR2** modules remain distribution-gated.
+- Game text/dubbing selectors synchronized with their module checkboxes. Accepted V7 does not support complete Polish movie voice with English text; this combination fails before writing. The complete candidate includes VR Core, UI/HUD, HD textures, local audio remaster, Polish dubbing/text, original-derived hand/TMD and reload assets, and the accepted preset.
+- Full bundle: adjacent signed catalog and packages recognized automatically; no source checkout or external Python required. Windows DirectInput is sourced from the recipient's own x86 system directory, not redistributed or pinned to the developer's Windows patch level.
 - Signed ECDSA P256 catalogs, immutable GitHub Releases URLs, exact versions/dependencies/sizes, SHA-256 verification, resumable cache, cancellation and offline imports.
 - Strict ZIP allowlists; no archive links/traversal; local reconstruction recipes read verified owned originals. Downloaded scripts are never executed.
 - Install/update/repair/uninstall, original backups, durable rollback journal and recovery after process termination. Three-way INI merge retains user settings. Unrelated files/mods are preserved; collisions stop installation.
@@ -36,6 +37,12 @@ Windows x64 and .NET SDK 10.0.302 (or compatible newer 10.0 feature band):
 ```
 
 The publish is self-contained: the player does not need a separately installed .NET runtime. WPF trimming is disabled. Distribute `artifacts/publish/TrilexModInstaller-win-x64.zip`, which retains the installer and embedded runtime license notices. The local RC executable is **not Authenticode signed**; no publisher certificate has been provided. Do not bypass Windows security warnings. Production workflow refuses to publish without signatures.
+
+That command builds the default source-preview bootstrap. Maintainers with the
+reviewed private preparation inputs use `scripts/assemble-first-edition.ps1` for
+the **complete mod bundle**, embedding its verified complete catalog. Do not call
+the smaller engine-only ZIP the full V7 installation. Instructions and exact
+publisher-review distinction: [first-edition decision](docs/distribution/FIRST-EDITION.md).
 
 Building also requires Visual Studio C++ tools and the pinned Python dependencies
 installed by the build script. The Centurion exporter uses a hash-pinned official
@@ -70,4 +77,8 @@ Code copyright © 2026 Trilex, MIT. User-supplied branding/reference kit has sep
 
 Optional sound remaster can be generated locally from SHA-verified owned audio,
 without distributing recordings. See [local audio and voice provenance](docs/distribution/LOCAL-AUDIO.md).
-Dubbing references remain separately gated; local generation is not a license bypass.
+Dubbing reference permissions are not independently verified. The full candidate
+records Trilex's separate fan-mod publication approval while retaining
+`rightsVerified=false`, and discloses this before installation. MIT applies to our
+code, not the game's recordings or third-party materials. See the
+[publisher decision](docs/distribution/FIRST-EDITION.md).

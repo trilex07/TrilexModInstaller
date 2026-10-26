@@ -27,6 +27,12 @@ try
     {
         using var http=new HttpClient();var catalog=new CatalogService(http,File.ReadAllText(verifyKey)).Verify(File.ReadAllBytes(signedPath));Console.WriteLine("Verified catalog "+catalog.Version);
     }
+    else if(args is ["prepare-extractor-tools"])
+    {
+        using var http=new HttpClient(new HttpClientHandler{AllowAutoRedirect=false});
+        await LocalExtractorTools.EnsureAsync(http,false,null,default);
+        Console.WriteLine("Verified optional exporter: "+LocalExtractorTools.Resolve());
+    }
     else if(args is ["prepare-audio-tools"])
     {
         using var http=new HttpClient(new HttpClientHandler{AllowAutoRedirect=false});
@@ -36,7 +42,7 @@ try
     else if(args is ["pack",var modulePath,var stage,var output])
     {
         var module=Json.Read<ModuleManifest>(modulePath);
-        if(!module.RightsVerified || string.IsNullOrWhiteSpace(module.RightsEvidence))throw new InvalidDataException("Explicit file provenance review required");
+        if(!PlanBuilder.HasDistributionReview(module))throw new InvalidDataException("Explicit file provenance or publisher fan-mod review required");
         if(File.Exists(output))throw new IOException("Refusing package overwrite");
         var entries=module.Files.Where(x=>x.Kind=="copy").Select(x=>x.Entry).Concat(module.Files.SelectMany(x=>x.Recipe??[]).Where(x=>x.Source is "payload" or "xor-original" or "instructions" or "image" or "knife" or "audio").Select(x=>x.Entry??"")).Distinct(StringComparer.OrdinalIgnoreCase).Order().ToList();
         foreach(var f in module.Files){Paths.AllowedTarget(f.Path);if(f.Kind=="copy"&&f.Path.EndsWith(".xxx",StringComparison.OrdinalIgnoreCase))throw new InvalidDataException("Whole commercial packages forbidden");}
@@ -46,6 +52,12 @@ try
         var temp=output+".audit-"+Guid.NewGuid().ToString("N");
         try{PackageExtractor.Extract(output,temp,module);}finally{if(Directory.Exists(temp))Directory.Delete(temp,true);}
         Json.Write(output+".module.json",module);Console.WriteLine(module.ArchiveSha256);
+    }
+    else if(args is ["exercise-bundle",var bundle,var bundleKey,var bundleOriginals,var bundleFixture])
+    {
+        using var http=new HttpClient();var service=new CatalogService(http,File.ReadAllText(bundleKey));
+        var catalog=BundleSource.CatalogAt(bundle,service)??throw new InvalidDataException("Signed bundle catalog absent");
+        await FixtureExercise.RunBundle(catalog,bundle,bundleOriginals,bundleFixture);
     }
     else if(args is ["exercise-owned",var ownedInputs,var ownedSources,var ownedRoot])
         await FixtureExercise.RunOwned(ownedInputs,ownedSources,ownedRoot);

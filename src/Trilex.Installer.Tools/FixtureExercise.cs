@@ -2,6 +2,41 @@ using Trilex.Installer.Core;
 
 internal static class FixtureExercise
 {
+    public static async Task RunBundle(Catalog catalog,string bundle,string originals,string folder)
+    {
+        var root=Path.GetFullPath(folder);var allowed=Path.GetFullPath("artifacts")+Path.DirectorySeparatorChar;
+        if(!root.StartsWith(allowed,StringComparison.OrdinalIgnoreCase)||Directory.Exists(root))throw new IOException("Fresh artifacts fixture required");
+        var game=catalog.Games.Single(g=>g.Id=="singularity");var archives=new Dictionary<string,string>();
+        foreach(var module in game.Modules)archives.Add(module.Id,BundleSource.ArchiveAt(bundle,module)??throw new FileNotFoundException("Missing bundled archive "+module.Id));
+        Directory.CreateDirectory(Path.Combine(root,"Binaries"));var exe=Path.Combine(root,"Binaries/Singularity.exe");File.WriteAllText(exe,Marker);
+        var before=new Dictionary<string,string>(StringComparer.OrdinalIgnoreCase);
+        foreach(var file in game.Modules.SelectMany(m=>m.Files).Where(f=>f.Kind=="recipe"&&f.SystemSource is null))
+        {
+            var relative=file.SourcePath??file.Path;var source=Paths.Safe(originals,relative);
+            if(!Paths.Same(Paths.Hash(source),file.SourceSha256??file.BeforeSha256))throw new InvalidDataException("Original mismatch "+relative);
+            if(before.TryAdd(relative,Paths.Hash(source)))Paths.AtomicCopy(source,Paths.Safe(root,relative));
+        }
+        // Only this marker-only fixture substitutes EXE identity. Signed modules, reviews,
+        // archives and final output hashes remain unchanged through the actual consumer.
+        var fixtureGame=game with{ExeSha256=[Paths.Hash(exe)]};
+        var choices=new InstallChoices("pl","pl","pl",game.Modules.Select(m=>m.Id).ToList());
+        var plan=PlanBuilder.Build(fixtureGame,new(root,"Frozen owned-source fixture",true,"Not a playable game",Paths.Hash(exe)),choices);
+        var installer=new TransactionInstaller(Path.Combine(root,"fixture-state"),new Guard());
+        await installer.InstallAsync(plan,archives,null,default);
+        if(installer.Verify(root).Count!=0)throw new IOException("Bundle installation failed exact verification");
+        Console.WriteLine("PASS complete bundle installation and exact output hashes");
+        await installer.InstallAsync(plan,archives,null,default);
+        var damage=plan.Modules.SelectMany(m=>m.Files).First(f=>f.Kind=="copy");File.WriteAllText(Paths.Safe(root,damage.Path),"SIMULATED DAMAGE");
+        if(installer.Verify(root).Count==0)throw new IOException("Bundle damage not detected");
+        await installer.RepairAsync(plan,archives,null,default);
+        if(installer.Verify(root).Count!=0)throw new IOException("Bundle repair failed");
+        var installed=plan.Modules.SelectMany(m=>m.Files).Where(f=>f.Kind!="ini").Select(f=>new{f.Path,sha256=Paths.Hash(Paths.Safe(root,f.Path)),expected=f.Sha256}).ToList();
+        installer.Uninstall(root,default);
+        foreach(var pair in before)if(!Paths.Same(Paths.Hash(Paths.Safe(root,pair.Key)),pair.Value))throw new IOException("Bundle original restoration failed "+pair.Key);
+        foreach(var file in plan.Modules.SelectMany(m=>m.Files))if(!before.ContainsKey(file.Path)&&File.Exists(Paths.Safe(root,file.Path)))throw new IOException("Bundle uninstall left "+file.Path);
+        Json.Write(Path.Combine(root,"exercise-report.json"),new{status="PASS",catalog=catalog.Version,modules=plan.Modules.Count,targets=plan.Modules.SelectMany(m=>m.Files).Select(f=>f.Path).Distinct(StringComparer.OrdinalIgnoreCase).Count(),fileDeclarations=plan.Modules.Sum(m=>m.Files.Count),originalsRestored=before.Count,signedModulesUnchanged=true,rightsFlagsUnchanged=true,installed,steps=new[]{"signed catalog","all bundled archive hashes","actual PL full preset planning","install","verify","reinstall","detect damage","repair","uninstall","byte-exact originals"},steamAccess="NONE",physicalAcceptance="NOT RUN"});
+        Console.WriteLine("PASS signed complete bundle lifecycle; originals restored: "+before.Count);
+    }
     public sealed record OwnedExerciseInput(string Module,string Stage);
     public static async Task RunOwned(string inputsPath,string originals,string folder)
     {

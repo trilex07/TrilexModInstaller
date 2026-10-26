@@ -39,7 +39,7 @@ public sealed class TransactionInstaller(string stateRoot, IProcessGuard process
         // Caller constructs this plan through signed catalog validation; repeat ownership, game and package checks here.
         processes.RequireIdle(plan.Root);Paths.AssertNoLinks(plan.Root);
         if(!Paths.Same(Paths.Hash(Paths.Safe(plan.Root,plan.Executable)),plan.ExeSha256))throw new InvalidDataException("Executable changed after review");
-        if(plan.Modules.Any(x=>x.State!="stable" || !x.RightsVerified))throw new InvalidDataException("Only approved stable modules can install");
+        if(plan.Modules.Any(x=>x.State!="stable" || !PlanBuilder.HasDistributionReview(x)))throw new InvalidDataException("Only explicitly reviewed stable modules can install");
         var state=StateDirectory(plan.Root);using var gate=Lock(state);RecoverLocked(plan.Root,state);
         var previous=Receipt(plan.Root);if(previous is not null && previous.GameId!=plan.GameId)throw new IOException("Adapter ownership mismatch");
         var id=Guid.NewGuid().ToString("N");var txn=Path.Combine(state,"transactions",id);Directory.CreateDirectory(txn);

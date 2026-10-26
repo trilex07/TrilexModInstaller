@@ -1,0 +1,78 @@
+{
+  "status": "PASS",
+  "bindingErrors": [],
+  "rows": [
+    {
+      "language": "en",
+      "width": 1440,
+      "height": 960,
+      "dpi": 96,
+      "file": "installer-en-1440x960-96dpi.png",
+      "status": "PASS",
+      "scope": "WPF layout/bindings/offscreen pixels; not physical DPI/input acceptance"
+    },
+    {
+      "language": "en",
+      "width": 1024,
+      "height": 740,
+      "dpi": 96,
+      "file": "installer-en-1024x740-96dpi.png",
+      "status": "PASS",
+      "scope": "WPF layout/bindings/offscreen pixels; not physical DPI/input acceptance"
+    },
+    {
+      "language": "en",
+      "width": 1200,
+      "height": 900,
+      "dpi": 144,
+      "file": "installer-en-1200x900-144dpi.png",
+      "status": "PASS",
+      "scope": "WPF layout/bindings/offscreen pixels; not physical DPI/input acceptance"
+    },
+    {
+      "language": "en",
+      "width": 1200,
+      "height": 900,
+      "dpi": 192,
+      "file": "installer-en-1200x900-192dpi.png",
+      "status": "PASS",
+      "scope": "WPF layout/bindings/offscreen pixels; not physical DPI/input acceptance"
+    },
+    {
+      "language": "pl",
+      "width": 1440,
+      "height": 960,
+      "dpi": 96,
+      "file": "installer-pl-1440x960-96dpi.png",
+      "status": "PASS",
+      "scope": "WPF layout/bindings/offscreen pixels; not physical DPI/input acceptance"
+    },
+    {
+      "language": "pl",
+      "width": 1024,
+      "height": 740,
+      "dpi": 96,
+      "file": "installer-pl-1024x740-96dpi.png",
+      "status": "PASS",
+      "scope": "WPF layout/bindings/offscreen pixels; not physical DPI/input acceptance"
+    },
+    {
+      "language": "pl",
+      "width": 1200,
+      "height": 900,
+      "dpi": 144,
+      "file": "installer-pl-1200x900-144dpi.png",
+      "status": "PASS",
+      "scope": "WPF layout/bindings/offscreen pixels; not physical DPI/input acceptance"
+    },
+    {
+      "language": "pl",
+      "width": 1200,
+      "height": 900,
+      "dpi": 192,
+      "file": "installer-pl-1200x900-192dpi.png",
+      "status": "PASS",
+      "scope": "WPF layout/bindings/offscreen pixels; not physical DPI/input acceptance"
+    }
+  ]
+}

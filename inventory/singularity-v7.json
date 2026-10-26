@@ -1,0 +1,2874 @@
+{
+  "schema": "trilex-v7-inventory-v1",
+  "runtimeSource": "38ca72f88112bfcbd26addb0d6aa4f76095aa15e",
+  "profileSha256": "895A8E845304F601F1DFCC37AF6DFD88E24D69F83656C04095207F25D7419E8D",
+  "acceptedPins": 164,
+  "iniDestination": "Binaries/SingularityVR.ini",
+  "iniValues": {
+    "Render/AdsMaskTailMs": "400",
+    "Input/WeaponSteady": "1",
+    "Render/CutsceneMenuPairFix": "0",
+    "Input/HipKnifeEnabled": "1",
+    "Diagnostic/LockerAvailabilityTrace": "0",
+    "Input/CutsceneStickTurn": "2",
+    "Render/VfxHost": "0",
+    "Diagnostic/DualWeaponTmdProbe": "1",
+    "Render/GloveRendererEnabled": "1",
+    "Input/GunAlign1Right": "10",
+    "Diagnostic/TmdRight": "-9",
+    "Input/CutsceneLockCamera": "0",
+    "Render/VfxMuzzleOrigin": "1",
+    "Render/GloveIsolate": "2",
+    "Input/GunAlign2PitchTenths": "0",
+    "Render/TextureBridgeOwned": "1",
+    "Input/CenturionManualReload": "1",
+    "Input/TmdYawTenths": "0",
+    "Input/TmdBoneLo0": "-1",
+    "Input/GunAlign3YawTenths": "43",
+    "Render/ShadowFirstPersonReceiverFix": "1",
+    "Diagnostic/TmdArmMesh0": "4818",
+    "Render/HideMuzzleFx": "0",
+    "Localization/PolishTextManifest": "localization/pl/polish_text.jsonl",
+    "Localization/PolishStoryAudioPath": "audio/polish/story",
+    "Input/CenturionTrackedCylinder": "1",
+    "Input/TmdArmFrom2": "0",
+    "Input/TmdArmMesh2": "0",
+    "Render/CinematicEventBridge": "0",
+    "Input/TmdArmFrom3": "0",
+    "Render/TmdTrackedBeam": "1",
+    "Input/ReloadRefillOnly": "1",
+    "Diagnostic/ForceDesktopVr": "0",
+    "Upscaling/RenderScale": "1.00",
+    "Diagnostic/GunAlign1PitchTenths": "0",
+    "Render/CutsceneMenuHandoffFix": "1",
+    "Input/CenturionShellEjection": "1",
+    "Diagnostic/GunSignYaw": "1",
+    "Render/ScopeDrawCensus": "0",
+    "Input/WeaponSteadyPrecision": "2",
+    "Diagnostic/IndependentHandsAudit": "0",
+    "Diagnostic/TmdBoneMesh0": "0",
+    "Diagnostic/GunAlign0Up": "-13",
+    "Input/StartupPrewarm": "1",
+    "Diagnostic/GunAlign1Right": "10",
+    "Input/GunAlign4Verts": "0",
+    "Render/StartupLoadingGate": "1",
+    "Input/HipKnifeGrabWindowMs": "800",
+    "Diagnostic/NativeMuzzleStereoMode": "1",
+    "Diagnostic/NativeMuzzleProbeGunVerts": "11387",
+    "Render/HideCrosshair": "1",
+    "Input/ValkyrieShoulderRadiusCm": "18",
+    "Render/ScriptedCameraFlat": "1",
+    "Render/ArmIKMode": "0",
+    "Render/DiegeticWeaponHud": "1",
+    "Upscaling/Mode": "Off",
+    "Diagnostic/TmdFwd": "40",
+    "Render/XrCaptureOpaqueAlpha": "1",
+    "Diagnostic/DesktopCapture": "0",
+    "Render/ShadowTest": "0",
+    "Diagnostic/TmdArmFrom0": "36",
+    "Diagnostic/GunAlign0Verts": "11387",
+    "Render/UiRemasterSettings": "1",
+    "Input/HolsterDrawRadius": "32",
+    "Input/ReloadSocketRadiusCm": "16",
+    "Render/DesktopMirrorEye": "2",
+    "Localization/PolishAudioFallback": "1",
+    "Render/CutsceneFlatMode": "1",
+    "Render/ExtraCamReg": "-1",
+    "Input/AimMethod": "11",
+    "Diagnostic/GunAnchorUp": "-13",
+    "Render/KnifeHandGripEnabled": "1",
+    "Render/AmmoPlateEnabled": "1",
+    "Input/HolsterFwd": "6",
+    "Render/FrontMenuCleanBackdrop": "1",
+    "Render/AdsConstDump": "0",
+    "Localization/ShowPolishLabels": "1",
+    "Input/CenturionNativeReloadTap": "1",
+    "PSVR2/TriggerSniper": "2,5,6",
+    "Input/ReloadShoulderBackCm": "18",
+    "Render/ShowControllerArms": "0",
+    "Input/GunAlign0Up": "-13",
+    "Render/KatorgaHudEnabled": "1",
+    "Render/NoTmdPaletteFix": "1",
+    "Diagnostic/NativeMuzzlePSBytes": "336",
+    "PSVR2/TriggerRifleFire": "3,7,40",
+    "Localization/UiNarratorEnabled": "0",
+    "Diagnostic/GunAlign2PitchTenths": "0",
+    "Diagnostic/NativeRifleMuzzleOrigin": "3",
+    "Input/SniperOpticalSlowTime": "1",
+    "Render/StationMenuDistanceMm": "1400",
+    "Render/UiElementDump": "0",
+    "Render/CutsceneCinemaMask": "1",
+    "Render/CutsceneWorldScreen": "1",
+    "Input/GunAlign5Verts": "0",
+    "Diagnostic/TmdBoneLo1": "7",
+    "Diagnostic/GunSignPosZ": "-1",
+    "Render/TmdTrackedMuzzle": "1",
+    "Diagnostic/TmdBoneHi0": "29",
+    "Input/LockerVrLoadout": "1",
+    "Diagnostic/GunAnchorRight": "9",
+    "Render/ShadowWorldReceiverFix": "1",
+    "Diagnostic/GunAlign1Verts": "8297",
+    "Render/ScopeQuadDump": "0",
+    "Input/HolsterTrimUpCm": "0",
+    "Input/ValkyrieManualReload": "1",
+    "Render/TmdTrackedAgeParticles": "1",
+    "Input/TmdNativeAim": "0",
+    "Input/TmdRight": "-9",
+    "Input/GunAlign1PitchTenths": "0",
+    "Input/SniperNearEyeScope": "1",
+    "Input/VrValkyrieSpreadPercent": "70",
+    "Input/GunAlign1Up": "-13",
+    "Input/HipKnifeIgnoreTMD": "0",
+    "Input/TmdArmFrom0": "0",
+    "Diagnostic/GunAlign2Verts": "5799",
+    "Input/ReloadShoulderLeftCm": "-22",
+    "PSVR2/AdaptiveTriggers": "1",
+    "Input/TmdBoneLo1": "-1",
+    "Render/CutsceneScreenDistanceMm": "2000",
+    "Input/TmdArmTo2": "1000",
+    "Diagnostic/GunAlign1Fwd": "30",
+    "Input/TmdHideVerts": "0",
+    "Input/InputEnumerationCache": "1",
+    "Input/TurnAngle": "30",
+    "Input/GunAlign0PitchTenths": "-28",
+    "Input/WalkDirection": "0",
+    "Input/TmdPitchTenths": "0",
+    "Render/ScopeOpticalCalibration": "1",
+    "Diagnostic/GunAlign1YawTenths": "30",
+    "Render/SteamCaptureBackbuffer": "0",
+    "Diagnostic/GunAlign3Up": "-13",
+    "Input/GunAlign3Verts": "11389",
+    "PSVR2/TriggerRifle": "3,5,5",
+    "Gameplay/GoreChancePct": "100",
+    "Render/VfxScreenFlash": "0",
+    "Diagnostic/NativeRifleTracerOrigin": "1",
+    "Input/LeftHanded": "0",
+    "Diagnostic/GunAlign3YawTenths": "43",
+    "Diagnostic/GunAlign6Verts": "0",
+    "Render/KnifeTrackedMelee": "1",
+    "Input/TmdArmMode1": "0",
+    "Render/VfxMuzzleOffsetMm": "150",
+    "Render/WorldScalePct": "80",
+    "Diagnostic/GunAlign3Fwd": "30",
+    "Render/TmdSupportGauntlet": "1",
+    "Render/DesktopMirrorFill": "1",
+    "Diagnostic/TmdArmTo0": "90",
+    "Input/HolsterRight": "14",
+    "Upscaling/OutputScale": "1.00",
+    "Render/VideoStereo": "0",
+    "Render/FrontMenuDistanceMm": "1800",
+    "Input/VolkShoulderRadiusCm": "18",
+    "Localization/PolishLanguage": "1",
+    "Render/DesktopMirrorWindow": "1",
+    "Input/GunAlign0Fwd": "26",
+    "Input/VrVolkSpreadPercent": "85",
+    "Render/CutsceneNativeHands": "1",
+    "Render/OcclusionQueryMode": "2",
+    "Input/TraceFromGun": "1",
+    "Render/KnifeSceneLighting": "1",
+    "Input/TmdOnOffHand": "1",
+    "Render/VfxSmoke": "0",
+    "Input/TmdArmTo0": "1000",
+    "Render/WeaponFxRideGun": "1",
+    "Localization/PolishVoiceManifest": "localization/pl/polish_voice.jsonl",
+    "Render/CineMenuLoadClear": "1",
+    "Input/TmdBoneHi0": "-1",
+    "Render/AdsMaskAnim": "1",
+    "Input/GunAlign0YawTenths": "30",
+    "Render/NativeCinematicState": "1",
+    "Input/VolkAuthoredGrip": "1",
+    "Input/CenturionNativeReloadGuard": "2",
+    "Render/NoteInsetPct": "40",
+    "Gameplay/GoreDismemberment": "1",
+    "Render/NpcNameScalePct": "60",
+    "Diagnostic/VrSettingsSessionOnly": "1",
+    "Input/GunAlign6Verts": "0",
+    "Input/CenturionPhysicalPolish": "1",
+    "Input/TurnSign": "1",
+    "Input/GunScalePct": "75",
+    "Render/HandAnchorProbe": "0",
+    "Input/VolkShoulderExtendLeftCm": "18",
+    "Input/SupportGripNearZone": "1",
+    "Input/TurnMode": "2",
+    "Input/GunAlign2YawTenths": "10",
+    "Input/LockerVirtualOrdinary": "1",
+    "Input/RecenterChord": "1",
+    "Diagnostic/GunAlign0PitchTenths": "-28",
+    "Localization/NativePolishSpeech": "1",
+    "Input/GunAlign2Fwd": "30",
+    "Render/DropPrimCount": "0",
+    "Input/TmdArmMode0": "0",
+    "Render/VrShadows": "1",
+    "Input/LockerVirtualApply": "0",
+    "Input/TmdArmStep": "50",
+    "Input/VolkGripReachMs": "1800",
+    "Input/VolkInsertRadiusCm": "20",
+    "Input/ReloadShoulderDownCm": "12",
+    "Render/AutoResY": "2876",
+    "Input/ReloadControlLayout": "1",
+    "Input/TmdUp": "-13",
+    "Render/VfxLook": "0",
+    "Input/KeepAcquiredWeapons": "1",
+    "Input/GunAlign2Up": "-13",
+    "Render/LaserSight": "1",
+    "Input/GunAlign1YawTenths": "30",
+    "Render/VrTranslationStabilization": "0",
+    "Diagnostic/GunSignPitch": "1",
+    "Input/ValkyrieGripReachMs": "1800",
+    "Haptics/TmdPulses": "1",
+    "Input/GunAlign3Fwd": "30",
+    "Render/MenuOverlay": "1",
+    "Input/CenturionReloadProbe": "1",
+    "Render/GloveStumpScale": "20",
+    "Input/GunAlign1Verts": "8297",
+    "Render/UiRemasterWheel": "1",
+    "Input/SeekerSupportGrip": "1",
+    "Render/GloveFaceFilter": "0",
+    "Input/CenturionVisualFollowup": "1",
+    "Input/WeaponWheelDirectSelect": "1",
+    "Localization/PolishStoryManifest": "localization/pl/polish_story_voice.jsonl",
+    "Input/DualWeaponTmdReady": "1",
+    "Diagnostic/NativeMuzzlePSHash": "2FEC493CD52D7D78",
+    "PSVR2/TriggerShotgun": "2,4,7",
+    "Input/KasimovManualReload": "1",
+    "Input/HipKnifeWithTMD": "0",
+    "Render/TrackedDepthPrimeFix": "1",
+    "Render/VrCameraShakeSuppression": "1",
+    "Input/TwoHandSpreadPercent": "100",
+    "Render/PropDumpPawn": "0",
+    "Input/TmdBoneMesh1": "0",
+    "Input/CenturionReloadMarkers": "0",
+    "Diagnostic/NativeMuzzleVSHash": "4FAEF2389750DBFC",
+    "Diagnostic/GunAlign0YawTenths": "30",
+    "Input/TmdArmTo1": "1000",
+    "Render/CinematicHandsOwnership": "1",
+    "Render/VrMenuDistanceMm": "950",
+    "Diagnostic/MenuAssetWitness": "1",
+    "Input/TurnSpeed": "120",
+    "Input/ReloadPalmGrip": "1",
+    "Input/TmdArmMesh3": "0",
+    "Render/VrSettingsMinimal": "1",
+    "Input/TmdBoneHi3": "-1",
+    "Input/TmdBoneMode": "0",
+    "Input/TmdArmTo3": "1000",
+    "Input/GunAlign3Up": "-13",
+    "Input/DualWeaponTmdGunPose": "1",
+    "Render/DropExtraTarget": "0",
+    "Diagnostic/ShoulderPickupProbe": "1",
+    "Input/TmdArmMode3": "0",
+    "Diagnostic/GunAlign5Verts": "0",
+    "Input/TmdArmMesh0": "0",
+    "Diagnostic/TmdArmMode0": "1",
+    "Input/TmdBoneLo2": "-1",
+    "Input/CenturionRefillOnly": "1",
+    "Input/HipKnifeLeftCm": "20",
+    "Render/NativeMuzzleParticleStereo": "1",
+    "Input/HolsterTrimFwdCm": "0",
+    "Diagnostic/GunAlign0Fwd": "26",
+    "Diagnostic/AmmoProbe": "0",
+    "Render/GloveNativeEnabled": "1",
+    "Diagnostic/GunAnchorFwd": "30",
+    "Diagnostic/NativeMuzzleVSBytes": "2908",
+    "Render/StationMenuScalePct": "50",
+    "Input/TmdBoneHi1": "-1",
+    "Input/GunAlign1Fwd": "30",
+    "Input/TmdBoneMesh2": "0",
+    "Input/DualHandActionPose": "1",
+    "Diagnostic/GunAlign7Verts": "0",
+    "Render/NoTmdWristAnchorFix": "1",
+    "Render/VrGameplayTextSafeArea": "1",
+    "Input/TmdArmMode2": "0",
+    "Render/AdsFreezeHi": "-1",
+    "Input/TmdBoneMesh3": "0",
+    "Input/WeaponWheelObservedSelection": "1",
+    "Input/GunAlign3Right": "13",
+    "Input/HolsterTrimRightCm": "0",
+    "Render/ScopeMeasuredPose": "1",
+    "Render/IndependentHandsPrototype": "1",
+    "Render/AdsMaskHi": "22",
+    "Render/StartupLoadingMinMs": "3000",
+    "Render/NativeGloveCuffClosure": "1",
+    "Diagnostic/TmdBoneHi1": "8",
+    "Diagnostic/DesktopAutomation": "0",
+    "Input/GunAlign2Right": "9",
+    "Input/ValkyrieInsertRadiusCm": "20",
+    "Input/HolsterUp": "-36",
+    "Input/ReloadNativeMagazine": "1",
+    "Render/Debug": "0",
+    "Input/WeaponNativeAxis": "1",
+    "Diagnostic/TmdUp": "-14",
+    "Diagnostic/GunAlign3PitchTenths": "0",
+    "Diagnostic/GunAlign2Up": "-13",
+    "Input/SniperOpticalAccuracy": "1",
+    "Input/TmdArmMesh1": "0",
+    "Input/VrVolkTwoHandPercent": "50",
+    "Input/ValkyrieSingleGrip": "1",
+    "Render/UiRemasterRuntime": "1",
+    "Diagnostic/TmdBoneLo0": "13",
+    "Render/HealthPlateEnabled": "1",
+    "Input/SwapSticks": "0",
+    "Diagnostic/GunSignCombo": "2",
+    "Input/DualWeaponTmdRightWrist": "1",
+    "Input/DualWeaponTmdGunScale": "1",
+    "Input/TmdFwd": "30",
+    "Input/TmdBoneLo3": "-1",
+    "Localization/PolishFallbackToEnglish": "1",
+    "Upscaling/Sharpness": "0.20",
+    "PSVR2/TriggerPistol": "1,5,8",
+    "Input/CenturionCylinderAnimation": "1",
+    "Input/SeekerProjectileAim": "1",
+    "Diagnostic/GunFollowPosition": "1",
+    "Input/CenturionClipPreview": "1",
+    "Input/ValkyrieShoulderExtendLeftCm": "18",
+    "Input/HipKnifeDownCm": "55",
+    "Input/CenturionCylinderGestures": "1",
+    "Input/HolsterRadius": "9",
+    "Input/LockerRetainOrdinary": "1",
+    "Diagnostic/TmdBoneMesh1": "4818",
+    "Diagnostic/GunAlign1Up": "-13",
+    "Input/KasimovAuthoredGrip": "1",
+    "Input/GunAlign0Right": "8",
+    "Input/LockerVrLoadoutPreviewOnly": "0",
+    "Input/TmdBoneMesh0": "0",
+    "Diagnostic/GunAlign3Right": "13",
+    "Render/TmdShortGauntlet": "1",
+    "Render/UiRemasterMenus": "1",
+    "Input/ReloadHints": "0",
+    "Render/ShadowForegroundClearFix": "1",
+    "Diagnostic/GunFollowsHeadOffset": "1",
+    "Diagnostic/LockerNativeTrace": "0",
+    "Input/HipKnifeRadiusCm": "18",
+    "Render/AdsFreezeLo": "-1",
+    "Diagnostic/GunAlign4Verts": "0",
+    "Input/TmdBoneHi2": "-1",
+    "Input/WeaponMeasuredAim": "1",
+    "Diagnostic/NativeMuzzleProbe": "0",
+    "Render/HolsterMarkerStyle": "1",
+    "Input/GunAlign7Verts": "0",
+    "Render/FrontMenuScalePct": "80",
+    "Input/TmdArmFrom1": "0",
+    "Input/SeekerBackSlot": "1",
+    "Input/AimModeParts": "3",
+    "Input/VrValkyrieTwoHandPercent": "50",
+    "Input/WeaponWheelRound": "1",
+    "Render/MenuWorldScreen": "0",
+    "Render/AutoResX": "5640",
+    "Render/StartInVr": "1",
+    "Render/HandThumbPoseFix": "1",
+    "Input/LockerOwnedDisplay": "0",
+    "Render/TrackedDepthSourcePose": "1",
+    "Diagnostic/GunSignRoll": "1",
+    "Input/LockerStationGrantOrdinary": "0",
+    "Render/VrHideLegacyPadPrompts": "1",
+    "Diagnostic/AdsPullbackUU": "10",
+    "Input/GunAlign2Verts": "5799",
+    "Render/GloveLeftShift": "12",
+    "Render/ShadowMode": "3",
+    "Diagnostic/GunAlign0Right": "8",
+    "Render/PauseMenuDiag": "0",
+    "Render/NativeRestraintHands": "1",
+    "Diagnostic/GunAlign3Verts": "11389",
+    "Diagnostic/GunAlign2Fwd": "30",
+    "Diagnostic/GunAlign2Right": "9",
+    "Input/WeaponWheelOwnedInventory": "1",
+    "Render/HudArmSticky": "0",
+    "Input/VolkManualReload": "1",
+    "Render/AdsMaskLo": "5",
+    "Input/WeaponTraceRigidOrigin": "1",
+    "Render/MenuInsetPct": "100",
+    "Render/VrPromptTokens": "1",
+    "Localization/PolishUiAudioPath": "audio/polish/ui",
+    "Input/GunAlign0Verts": "11387",
+    "Localization/LocalizationDebug": "0",
+    "Input/ValkyrieAuthoredGrip": "1",
+    "Render/SniperPictureInPicture": "1",
+    "Input/TmdRollTenths": "0",
+    "Input/GunAlign3PitchTenths": "0",
+    "Input/TriggerTouchGateGraceFrames": "120",
+    "Diagnostic/GunAlign2YawTenths": "10"
+  },
+  "ignoredIniKeys": [
+    "Render/AutoResX",
+    "Render/AutoResY"
+  ],
+  "physicalAcceptance": {
+    "status": "ACCEPTED_GENERAL_SESSION",
+    "session": "20261026-144635",
+    "feedback": "wszystko wydaje się dobrze",
+    "authorization": "User explicitly requested main integration, README attribution to Trilex and first-release baseline",
+    "scope": "Latest combined PSVR2 session. No invented per-feature or unvisited-content PASS.",
+    "not_established": [
+      "exhaustive campaign coverage",
+      "all dialogue listening/acting approval",
+      "specific Seeker retrieval/support/save-load results",
+      "universal 90 Hz performance"
+    ]
+  },
+  "files": [
+    {
+      "destination": "Binaries/d3d9.dll",
+      "sha256": "23A3A768C44F1C6EB5479D899141924C4C44D5C6A73A3175A2827241105370B1",
+      "module": "vr-core",
+      "ownership": "mod-code-review-required",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-runtime-build",
+      "beforeSha256": null,
+      "distributionGate": "reproducible-build-and-notices",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "Binaries/dinput8.dll",
+      "sha256": "F58CB3A805E46C3D3F7E88137BD605AF21A8A8106C289385132F677A968E95FD",
+      "module": "vr-core",
+      "ownership": "mod-code-review-required",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-runtime-build",
+      "beforeSha256": null,
+      "distributionGate": "reproducible-build-and-notices",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "Binaries/dinput8_orig.dll",
+      "sha256": "2A746CCF3922AECCED0387F3C6E21E55C6DF786DF8164C482F2A2E6165EDD395",
+      "module": "owned-game-prerequisite",
+      "ownership": "original-game",
+      "version": "accepted-v7-20261026",
+      "dependencies": [],
+      "source": "accepted-runtime-build",
+      "beforeSha256": null,
+      "distributionGate": "verify-only",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "Binaries/texture_override.ini",
+      "sha256": "CE081D774143BC247AF9AF4A4EF96DDE7C877FE0A0F1D5A2C4F08B7F3A2836C1",
+      "module": "configuration",
+      "ownership": "mod-configuration",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-profile-dependency",
+      "beforeSha256": null,
+      "distributionGate": "merge-keys-not-whole-user-file",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "Binaries/Singularity.exe",
+      "sha256": "BD459ACD87D4B82693928DEE4ED437C086D5928A8E0428F3AD54B6FC114C0F51",
+      "module": "owned-game-prerequisite",
+      "ownership": "original-game",
+      "version": "accepted-v7-20261026",
+      "dependencies": [],
+      "source": "accepted-profile-dependency",
+      "beforeSha256": null,
+      "distributionGate": "verify-only",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/UI_SinglePlayer_SF.xxx",
+      "sha256": "9482BCC00BA91377E5D7AECC18DC3EE35EA1ED37BBD0BEE4C696D19F7D8ACC9A",
+      "module": "ui-hud",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "51cdab5c892a7b682d89319721330aa3e78c7013d1c60e1476a0115431f01a1a",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/ui_GFx_fonts.xxx",
+      "sha256": "60E7287185300CAA2A8E64FBE14B741475D4D959944B6B0E51F84547841E8DB8",
+      "module": "ui-hud",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-profile-dependency",
+      "beforeSha256": null,
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "Binaries/vr-assets/localization/pl/polish_text.jsonl",
+      "sha256": "7C3875BC35422896979EF3AEE97A024D92373CB54FBEEB1F9D1D20D4270D2F40",
+      "module": "polish-text",
+      "ownership": "mixed-review-required",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-profile-dependency",
+      "beforeSha256": null,
+      "distributionGate": "text-voice-rights-and-native-bank-review",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "Binaries/vr-assets/localization/pl/polish_voice.jsonl",
+      "sha256": "0D632BF4D02440B9F577F3ECF60E0416096D4AC4D4C49D68980FD693E03D68F2",
+      "module": "polish-dubbing",
+      "ownership": "mixed-review-required",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-profile-dependency",
+      "beforeSha256": null,
+      "distributionGate": "text-voice-rights-and-native-bank-review",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "Binaries/vr-assets/localization/pl/polish_story_voice.jsonl",
+      "sha256": "579C82AE3C97DA76A5829E8E019FBEBBDD0454C99E0435C4B592E5159D8AF5BF",
+      "module": "polish-dubbing",
+      "ownership": "mixed-review-required",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-profile-dependency",
+      "beforeSha256": null,
+      "distributionGate": "text-voice-rights-and-native-bank-review",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "Binaries/vr-assets/hud/katorga/glove-animation/glove_left.svrg",
+      "sha256": "AC199AF21ACB45A2D80E0EAB527934BE6E2DE77E01F747D21F869B38ED59E1B9",
+      "module": "vr-core",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-profile-dependency",
+      "beforeSha256": null,
+      "distributionGate": "verified-local-generation-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "Binaries/vr-assets/hud/katorga/glove-animation/glove_right.svrg",
+      "sha256": "1942A834D0C4188A3D9BCD2C5A282AA868AB6DE53C6609FCD7CA0400840CEF82",
+      "module": "vr-core",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-profile-dependency",
+      "beforeSha256": null,
+      "distributionGate": "verified-local-generation-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "Binaries/vr-assets/hud/katorga/glove-animation/glove.svrt",
+      "sha256": "0F6A90BBEBEDE8CB80672F13F468DEFB0C3A1C5E758AA1459CCCBCD5A1DE442C",
+      "module": "vr-core",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-profile-dependency",
+      "beforeSha256": null,
+      "distributionGate": "verified-local-generation-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "Binaries/vr-assets/hud/katorga/glove-animation/hand_thumb.svnt",
+      "sha256": "E841FF6F5F482D6D687F0461EDBC7E2DD4F0F45703911FD8F39D1DA78F304A3F",
+      "module": "vr-core",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-profile-dependency",
+      "beforeSha256": null,
+      "distributionGate": "verified-local-generation-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "Binaries/vr-assets/hud/katorga/glove-animation/native_cuffs.svnc",
+      "sha256": "1C9E5F618B8C3688A619BC866F47F2C7F853CEBCA7C6F8DDA425C3F13942259B",
+      "module": "vr-core",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-profile-dependency",
+      "beforeSha256": null,
+      "distributionGate": "verified-local-generation-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "Binaries/vr-assets/hud/katorga/glove-animation/native_hands.svni",
+      "sha256": "B4564A69AF904DDE7BE9077EBBC96677D93B42E104DEDD93F94B6BF8ACE46C04",
+      "module": "vr-core",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-profile-dependency",
+      "beforeSha256": null,
+      "distributionGate": "verified-local-generation-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "Binaries/vr-assets/hud/katorga/glove-animation/tmd_short_gauntlet.svtg",
+      "sha256": "452EA0C0DDFB4721A7F9B9718629975CF021F9E079E1CD92235C076E9E376192",
+      "module": "vr-core",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-profile-dependency",
+      "beforeSha256": null,
+      "distributionGate": "verified-local-generation-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "Binaries/vr-assets/knife/knife_hand.svng",
+      "sha256": "891D8243843A72FBD2F0180CB1703DB33ACF1995C820FE2B538070173C974E9C",
+      "module": "vr-core",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-profile-dependency",
+      "beforeSha256": null,
+      "distributionGate": "verified-local-generation-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "Binaries/vr-assets/knife/knife_normal.svrt",
+      "sha256": "B711D8EC97744080F7A742782F8867043F5D19E6A4D02BBAD535309E1B9C99C1",
+      "module": "vr-core",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-profile-dependency",
+      "beforeSha256": null,
+      "distributionGate": "verified-local-generation-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "Binaries/vr-assets/knife/knife_specular.svrt",
+      "sha256": "BDC06EB79C91CC18FC8D9272A817C47E82380E33766588C0D46DAECE05822802",
+      "module": "vr-core",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-profile-dependency",
+      "beforeSha256": null,
+      "distributionGate": "verified-local-generation-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "Binaries/vr-assets/knife/knife.svnl",
+      "sha256": "DD2EDF6C661C6F03D71AAD57C68D5FA20A53774086180E38404642A01BE898D6",
+      "module": "vr-core",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-profile-dependency",
+      "beforeSha256": null,
+      "distributionGate": "verified-local-generation-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "Binaries/vr-assets/knife/knife.svrk",
+      "sha256": "1FDA9130A3DA3A2CBCCE3F1EC5F9CE45C0C7DD0948E5A46B8D2FD6126EF0F0AC",
+      "module": "vr-core",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-profile-dependency",
+      "beforeSha256": null,
+      "distributionGate": "verified-local-generation-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "Binaries/vr-assets/knife/knife.svrt",
+      "sha256": "D4686DE723CD4550C6387D274A08A3C88AFFB8C6B3F039165F6E6BCAAA4494F2",
+      "module": "vr-core",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-profile-dependency",
+      "beforeSha256": null,
+      "distributionGate": "verified-local-generation-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "Binaries/vr-assets/hud/katorga/atlas/atlas.json",
+      "sha256": "9940060185D487903F08A4353B13ACEA9E30F31E84FDBC7F5BC77223C34A0D1B",
+      "module": "ui-hud",
+      "ownership": "mixed-review-required",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-profile-dependency",
+      "beforeSha256": null,
+      "distributionGate": "atlas-provenance-review",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "Binaries/vr-assets/hud/katorga/atlas/katorga-hud-atlas.png",
+      "sha256": "E77799B6C52182D3330E5DBD726B1C762349D54E25A1213E0708CE7450214E33",
+      "module": "ui-hud",
+      "ownership": "mixed-review-required",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-profile-dependency",
+      "beforeSha256": null,
+      "distributionGate": "atlas-provenance-review",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "Binaries/vr-assets/hud/katorga/ammo/ammo-digits.png",
+      "sha256": "D0872891E6A677A956A1083AA0ACCFA35C923F2985979AAECF1A9A8B148C8EF0",
+      "module": "ui-hud",
+      "ownership": "mixed-review-required",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-profile-dependency",
+      "beforeSha256": null,
+      "distributionGate": "atlas-provenance-review",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "Binaries/vr-assets/hud/katorga/ammo/plate-centurion.png",
+      "sha256": "5F98FA833DAC826BCDBA21194698D2E0AF56B55776F57EDD7FF11CE8EE057D84",
+      "module": "ui-hud",
+      "ownership": "mixed-review-required",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-profile-dependency",
+      "beforeSha256": null,
+      "distributionGate": "atlas-provenance-review",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "Binaries/vr-assets/hud/katorga/ammo/plate-rifle.png",
+      "sha256": "038F6C287B08E38A159EA97808AAB559D6E265841F0291DA203C20DFB6C0E12D",
+      "module": "ui-hud",
+      "ownership": "mixed-review-required",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-profile-dependency",
+      "beforeSha256": null,
+      "distributionGate": "atlas-provenance-review",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "Binaries/vr-assets/hud/katorga/ammo/plate-shotgun.png",
+      "sha256": "69D9BD91A37F6E241EC0E718DB21FE4C10CBCCD96F1CBF3B0F1EC12DF3C721B4",
+      "module": "ui-hud",
+      "ownership": "mixed-review-required",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-profile-dependency",
+      "beforeSha256": null,
+      "distributionGate": "atlas-provenance-review",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "Binaries/vr-assets/hud/katorga/ammo/plate-sniper.png",
+      "sha256": "19CF686954BA9C02B4EB96E8AEE82617E47957E1713E8C1511DA5C40ED3E1070",
+      "module": "ui-hud",
+      "ownership": "mixed-review-required",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-profile-dependency",
+      "beforeSha256": null,
+      "distributionGate": "atlas-provenance-review",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_BT_A_zone01_LOC_INT.xxx",
+      "sha256": "D020C661EC0C10E130DBA8BF5C9ADFEE580A632BF4ED58393383F106CE5ECD54",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "28aa75dc8171edfd4066983097e6232930cb5ed541bfc6c6ec419f85e9e1df11",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_Freight_S_Captain_LOC_INT.xxx",
+      "sha256": "B3AE69CF04BEC421762EE4B4845205B2D9C09681C0C2E44A41891D14A0583096",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "c8235ec5b1ce78af4b1c9f604a2651ba78961d44489f71482a79f281fda4f9ba",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_Freight_Script_1950Dock_LOC_INT.xxx",
+      "sha256": "ECB133608F2198066B415638F292CFC3A88D9DE4360FA4EFAD84519CC0BB7D53",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "f1c16480e4980f447c3ff37b8f3c742ce6c5f008b5a7d3d8ecb580d10709d1da",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_Freight_Script_Bridge2_LOC_INT.xxx",
+      "sha256": "DB5C9A752195EEFC6D0590D72A61FE42E4CFE0382BFAD250DA9EF0F43006A366",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "63d204a7e4c01d367c42f506e0414ec062fbaf59187cc9054b8a53a1ea72ce4e",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_Freight_Script_Cargo1_LOC_INT.xxx",
+      "sha256": "1D78B289664C2CB64A6E5D358B455CD527DB35D0D2D6A9FF8C4B8155B5CB7177",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "d241d7ac4226d7be3aa9e44e9cd9c80e1219225d8177cf0b87c634edb4503679",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_Freight_Script_Cargo1B_LOC_INT.xxx",
+      "sha256": "C589196268DCBC06855B556803BDC70DB6ADA390342F648914FCE303FF6738E4",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "2b8b8b0801d5096cc296cc1189f4d76e8a6918b217b03754fac5c6778a8eccc1",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_Freight_Script_Cargo2_LOC_INT.xxx",
+      "sha256": "DCEF61C735E526D5E244BBA9EFE7CD4030C138C7AE7577BBE6EC80F762406020",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "dda76ade373e30dfc562e33503ce2f648baf3326ef144bf17f84cabda381c17c",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/sp_freight_script_cin_bink_LOC_INT.xxx",
+      "sha256": "7CD647D42DC17C28C7ABC74FDE1A70A4C1A17A93F76DD1FE4EF8A4DFEF83E0E7",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "5fe39779affb09173640532008517445786e447a19962f0b464a5a94a0661219",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_Freight_Script_Deck1_LOC_INT.xxx",
+      "sha256": "06F07B80A352BB8530FCCC109F1FE192A41B1B6B26BD3BB8F7A32AE318635D22",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "f77ccf2fb89ffd3c6828ae486e2d1000659f58699bc1da0459f99726b0518a26",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_Freight_Script_Dock_Subroom_LOC_INT.xxx",
+      "sha256": "9D0A2B441F058019BB6E8B8ECFB49B3EA7577F8DDC24C62C9CBE0192B7DC9C87",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "4b90557438446982e737fd2a77c3d476dbf638b2c8d26d634dc17e9c6dfbf79e",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/sp_freight_script_end_LOC_INT.xxx",
+      "sha256": "54D2D563DE70F2067B22981062774661727ADC462318A9D263A10765A3474467",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "d0395326a1ea529fce19153a84b6fec90625b999349ba8c41b7787c3927aca38",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_Freight_Script_StreamBridge_LOC_INT.xxx",
+      "sha256": "62F9B47B831E321385F7F806C584FC66DAF62B14F9F773887C4A474BE1DE75E3",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "1548de0f09e0419eb1133a3d029b01ccf32ab82e9c5c9188e52a0592b3528d10",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_Freight_Script_StreamCargo2_LOC_INT.xxx",
+      "sha256": "ADF18CDD05F0D4F44C880F37F731A1658794098CBD1FF6285B0FC0994DD6FD0C",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "f3b425fb16858ee98dc6a9c61ebc7ee27608448fad2a98690f729aad6589d185",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/sp_freight_script_train_intro_LOC_INT.xxx",
+      "sha256": "07A518897846BEC309117AE46B98B072274E364E876619BCD02EBE14ACCF65EB",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "7dc0885ac5fc50239fe9a630324786e6291411e9f6945912e29875e9635d26b4",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_RL1_kismet01_LOC_INT.xxx",
+      "sha256": "7476A07140B9BC9418233C6EA426C7CB8E41D52445C7065BDD86E674C4CB612A",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "7b011887b631fc88977d0671a35a3f327614cbc2446947f4fdc4c55bdd1da0cf",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_RL1_kismet02_LOC_INT.xxx",
+      "sha256": "B6D9B6D1FAE5E5054CB0A0277552CE37D96DFBE01E7BA46BBA23B79A9E1D6F0A",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "24ce277db1d9bfd81c484da07f2f30d45b22daefd625707a2e8fdb8e159b67c7",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_RL1_kismet03_LOC_INT.xxx",
+      "sha256": "058367D11323F59CF94FC964F1C34BAECAC80BC46BCD97818D75F2EED08CD992",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "41c0e6bd894ad9cf8a1366ec6486a884852142b7f550e445f23ca3545d1138a9",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_RL2_kismet_riftLab_LOC_INT.xxx",
+      "sha256": "0DDBF6233E22ED885CA5F049CAA9F48A4AE3E95EF2F18EDF31C249213C4D0AB9",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "9f81a9dbafb5e53c54ea1c89b7fb19d66ecbd3772d06d322d6cc7eec1031ca13",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_RL2_kismet01_LOC_INT.xxx",
+      "sha256": "BC1A0BA7EA91F293D2839F2D5217644A0A972C4A5F5F797DBE281557128A1876",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "e51b03190f5143a2c0ebf359f74a947ec820b220c6d6ef63df41492186ae9301",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_RL2_kismet02_1950_LOC_INT.xxx",
+      "sha256": "A8A6D72C0FE85F32FA1CBC6D1C46630E51CF04C836C6B791F740A96FFA800E0A",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "a0ca5667163c87a6bf9c595808a064fc4a9030410c0159f674d267e15115d0a5",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_RL2_kismet02_LOC_INT.xxx",
+      "sha256": "00F933A3C709B1B36094D8B8645BF3ABAE85448264F64C0A76D8ACB38044EBDB",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "34229ae81d35065a5c447acfac94512c85612cc7871a2f55bb7a7a4f1a4e42ec",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_RL2_kismet03_LOC_INT.xxx",
+      "sha256": "3BF6A6B4B6A21C2A58C16985F3BE148E2614FF0B2427B90B93F7EC9301823C9B",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "2d53f26615373441c3311ec3aabcea4e2e08565aa559add807ecfd926278ad1e",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_RL2_kismet04_LOC_INT.xxx",
+      "sha256": "976CCCCE01BB594723C8867D80CC83664365B71BAB8DBD6572585F66A02F55CF",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "f8506546fd0a863d7765662deea8da1a4004b2bd4dc09d0491fee67020793340",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_RL2_kismet05_1950_LOC_INT.xxx",
+      "sha256": "90C73A47E330805397A915FA9793F7158BAC03C27A887F9C31060F05814C3D37",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "31fbaba6011334cf914e4bdd5dfb0cd7bd16259b8a32ff5d4f48fe06f5b2b041",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_RL2_secret_door_LOC_INT.xxx",
+      "sha256": "D4407F59CC2FF7DA6FE9A95DE5BFB2BA5CD9D00FB950040602D313735F46F1BC",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "ac9bc4ce952ac92ee130436899a18a2ee50dd948fcc26e16a85e0f2779d0e5a3",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_RL3_kismet01_1950_LOC_INT.xxx",
+      "sha256": "D34D87F9213B68870415DDDE1A43A8ECD98CAFAEE60A22401891984DC7085547",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "c5a51a63303d38f6f2c59af9a283d50c406b80445ad12564e9ff8670712fc3f6",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_RL3_kismet03_LOC_INT.xxx",
+      "sha256": "54F4BC4F4E1037F40C6774E397FFE148B6C909EB81DC5FFCFFB9E6C8F7887878",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "dfce5800568c10cde2835e145c4657209d22bdcab28d799c2ecfeedb4dff7761",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_RL4_kismet01_LOC_INT.xxx",
+      "sha256": "43F6EC4D69A0E7E7A37F62F3759738D7DB342AC299A74D94BDC21E9C4F5B0F9A",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "88202d200ea079e3a7c2c3711dfb1e14a70f305b37ccb62d1e7e9de3c7df010b",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_RL4_kismet03_LOC_INT.xxx",
+      "sha256": "5833692C18AB015EF3BFD54222203965DFD6C2EE62B2324B75F0917767B0F54C",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "d477ca8dc24065f5c24d1db73bc90eb9c1ab82dac2a3b0c7cd50a896361ce5bf",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_RL5_audio01_LOC_INT.xxx",
+      "sha256": "866FB6CC095C50E58150AAB0ACB580210681A089985542CEA14DA30C6FFCD595",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "b04e39673f8f3ed26383613fbf6f34e4afe5455eeb768ee07124f1cdf54e7dbc",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_RL5_kismet01_LOC_INT.xxx",
+      "sha256": "E8B52828B202B8AEABD47F757F5347D8B86803B18D402ABA1B9308514BF4D121",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "5ba720b68f5deb8c178c4758431b0c967b689c9530664cd7599df53ec6c21b25",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_RL5_kismet02_LOC_INT.xxx",
+      "sha256": "B4CA1ABB05D30CC55A81CCE1333F2B240A1B7A01893C87689186BE9365B0FAE7",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "7f52e48876c3c7af1a4f8e51bad338288b35e2db3b28492fda68aac81c278a64",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_RL5_kismet03_LOC_INT.xxx",
+      "sha256": "9EAFA0D4F32F3F0FF3CC91B7A13B53FC0E59806CBE58F9A1CB9AB1D8E548ABA4",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "0981c128974010c21d8c78767ffd65b4cca4e619445496b3de3932fcf7c02614",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_RL6_katya_LOC_INT.xxx",
+      "sha256": "69FD88AC12592640267538674C8C85327DFAF28E3D43907B47D22421949D361A",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "a69743bf88c83314ed2edba642457214c2125a98eb78435803c816a3777aed6c",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_RL6_kismet01_LOC_INT.xxx",
+      "sha256": "9039EDA61098BDDE0022D64CC405B356B268C9BBB4A9C9F1E339D365392CE9AB",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "9027728121b644557cc1c19281f0dbf4e518837b9cebeb1ca2619a3de2f35373",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_RL6_kismet02_LOC_INT.xxx",
+      "sha256": "1DE34A0405743A482581F3E2C0F99893B266BD9358CFBD5F4F328EF200ACC17D",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "21d9c912af5bfa82cc9ae4bb0806072f579c454343c0b843cd9a420ae37f440b",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_RT1_Intro_LOC_INT.xxx",
+      "sha256": "135DC3463F1F43B191982FDA44E6E7825FF8DDF9F39311C9B4D12E9134D43C8C",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "547bc3852b6159e6c0b7a2bb28110714d096de3ec7f7a5cb93861c2fab937691",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_RT1_kismet_LOC_INT.xxx",
+      "sha256": "401E30C4105408EC0BA47CB53049DA1D41A8AFD366A12FD28A70EB0BE148E2E7",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "e75a7b91c63012b076fbcaeee9fe81639be3943734b70d5b217d316daefb8f26",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_RT1_kismet0_LOC_INT.xxx",
+      "sha256": "491DEA4E2811C2A154C65559FB2933F0857B45788F37F4745FBF2F64989F2638",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "4f25bb4d5b06c7294f0e664d744c2fbdf7fd51abcf8b10cf34ba55582333e372",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_RT1_zone0_BT_LOC_INT.xxx",
+      "sha256": "9A1AA6C8C1955F3EEBAB70746E8C5C1E217CF6FEC399E3676CF8C608289C6565",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "17c9b8fafca61a548f0422ee2b081221317fb7af89a3720eb04b450aea2d0bf9",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_RT2_kismet01_LOC_INT.xxx",
+      "sha256": "4D8CC7F2AAA4DA4AD92E6F30738B2E1BE048C1BADD6D65C72AE563E492B017D3",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "0ffcac161a08c9cdae44ff954ce671e9a1bc6e71352b25f5e77ac265ee17f18e",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_RT2_kismet02_LOC_INT.xxx",
+      "sha256": "9008F53726A60770FC4733D2BCEEC4D6B29962520B4D6EA98FAF4746E5FBF2B5",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "750ea10769d96ddbe9dce73c6906818c9395da4e4b47aa17137a302e5be46a56",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_RT2_zone03_LOC_INT.xxx",
+      "sha256": "102E016E81D44F9D1FF001331EB8D6D971B17C1B9C448F392DF6C4FD0C0E50D0",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "bbec55ec7d32d0c6510ded3f0ba3bd546e26ccf43c49b461ec570d19a6dc7a1a",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/sp_rt3_cistern_LOC_INT.xxx",
+      "sha256": "BA6A9D7A6883515E269CD91CC35623267D89EE271707ABFF029C17257D9BE928",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "3912d3e03af5bc8c0cad45fb85066431653ba6aa513390123bb0229cef6e6f78",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/sp_rt3_katya_LOC_INT.xxx",
+      "sha256": "0C3E7D236AD62C7F78FFD0BC4A409E90598171EE9733679A2456B2F0297EB58B",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "d7cf9eb7776eb5f1310e8ed2ca766093c524f01cf5482d4a4f09059841b0bc85",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_RT3_kismet01_LOC_INT.xxx",
+      "sha256": "AF3C3CB196E453320DFB3F952BC01A3A366C52E8B52DC0295EE7D17104B895DA",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "fc52a8c868c54ddf05c79d0efa91614987c6dddce7ab0a97987c418e5b8b9ffb",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_RT3_Vignette_LOC_INT.xxx",
+      "sha256": "484292E8CE09EF287E52E1C8E00D88721595BD3637755C2AC31C70AF9C292CD3",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "cc547bcb1044ba8cd70532ab3bc87a1a693934ab66a6b42a29862eaeebbbb59f",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_RT3_zone02_LOC_INT.xxx",
+      "sha256": "8BF13EF2D4BFCEEB0F73B17E3BA3BF6E35D9038371F581F09022C2ED63B464FC",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "fa90beaadc62161460d1bdb2b82180da8ed2037f34ce76b88efb0d38ea494ea3",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_RT3_zone04_LOC_INT.xxx",
+      "sha256": "4B856A289B75357A87C3C6EEEAA71B88B4614AF3D83E5E9CE82336C67BAE1784",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "53135574168ac494abac9ad01a18f4e25299e7ccaa618811bf1daa56eb898f6b",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_RT3_zone08_LOC_INT.xxx",
+      "sha256": "771FD5D317FAA7B0C113E7866C5F7216018333DE7BEDC580EA3DFBC20FAFAEF2",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "27cd7d44f1382f46833ac351669f3fa869c8e6354215dfed8a6b986558a078fa",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_RT4_kismet01_LOC_INT.xxx",
+      "sha256": "EB3B520B6F913AE5A84CD2DEEAD9735FEFF60892CBC8CEAA85A3C31DBB89323A",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "74a261901b5b1aa3b02f6a4464c5c7e8d3d379c49ed10544f40d842089c94f20",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_RT4_kismet02_LOC_INT.xxx",
+      "sha256": "E992A35A550B3E9BB59AE20FCE18866B4D048FAFB3DDC7D97826D69F9AEC2A12",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "6c5981d4dd13216b2c1df2d6a15c88dea5f257a47e42b04927cf39983c395ced",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_RT4_kismet03_LOC_INT.xxx",
+      "sha256": "A65E2CA08E6571AF55696D743BEA39ED2A84F4585FE8B94E44A08F82C1A15B51",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "4350f916dbefc613226e76531ad4fd255b3d6bbe83ba6be1df5f6304d6c7de62",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_RT5_kismet01_LOC_INT.xxx",
+      "sha256": "0CF5E017B2A21C76D8D7E1C6000BD5B8B984254CDFC2E735E2F2FD686D73480B",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "054c8d8140de46a291af57ca78e80ee0131d942a0422998bc0983ae064fc4ce1",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_RT5_zone04_LOC_INT.xxx",
+      "sha256": "0CB1538EA127E9690E57CEA2C54BC05995CA03B71E8BE2E50A9BFCED56348CD0",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "8075e30d44aa97eb0bae2870fcc9db34c54c3a49a2491857426af4f38539b3ab",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_RT6_kismet01_LOC_INT.xxx",
+      "sha256": "8D76AE822A44F71D24498A848573E59B3AFC5923AA35A2FB1EBB2F3EC45671CA",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "66f223bc9f954a803343c2a2c7331d8147c6c6e62a23a62127bcd3c2332e2018",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_VI_2010A_Echo_Event_LOC_INT.xxx",
+      "sha256": "A1C76E37A8B629C065D18177F6D3197F41211B717083CB4279DD52EFB9D521E9",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "5116b6357a2607b6cd1e407f53f647f8e19933f151edaaa7ef013c522e0ac17d",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_VI_intro_Kismet_LOC_INT.xxx",
+      "sha256": "522A48C5533C9A3D3996A81E8BE98BC25F98A293E96F21EE2BDEBDF86D2D2E2C",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "e0bec259b54f20e594cb712b3d34f1fe1abae2cded10ca55c5f3e09bbb58194f",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_VI2_kismet01_a_LOC_INT.xxx",
+      "sha256": "3D23F83D2332090F41C3A711C0F8D3E485CBE35A2ABDB474E19EFCAF5A6660CE",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "82f3636af087cacd8e7e47d11909f092b524243ac3c0fde1059eaa1e4a2db999",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_VI2_kismet01_b_LOC_INT.xxx",
+      "sha256": "CFA599F7F7814C9C0C36F9A161FDC96B58D5D21EE01D9E132BF49AE88A4A8771",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "9852e235b543a2fa55dd40dc0aed81176355aa9a2bf3f30fb5d1067b7cb0e750",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_VI2_kismet01_LOC_INT.xxx",
+      "sha256": "C2B3C4010339A1FCA4A879128024AFEBD743420A46A3F2FBA8E35E9AFDBA6E95",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "5fdb0a196ca2b6d2381407c1111ab91e7e13051a225d573fb8493419fad75ff0",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_VI2_kismet02_LOC_INT.xxx",
+      "sha256": "ED9068EAB0FDBA4EC107C78A24F3716EDB72953A674DD91C28254179D9170281",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "303d64d95e487ef7f96c48772af0b3eea651491f1d47e9b274a4c2987cfef978",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_VI2_kismet03_LOC_INT.xxx",
+      "sha256": "BAE8847582C17C384E972BD5024B03CBFC044FFEAD643EE99004A80A6FD17FEF",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "2e8249b5add197f84c080d18b15057e1897fd7c707fc4834e4a4f06de3dd65ca",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_VI2_kismet04_LOC_INT.xxx",
+      "sha256": "0A3033F875930AFB39A23B933A439F525F82BD7EB71DD7B35511B2CC2A79D55F",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "7d500b02f6bf47f2ccff4a8ecd08cd70d919dab208a1adcefd2b10f864f94694",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_VI2_zone02a_2010_LOC_INT.xxx",
+      "sha256": "B6CAE73536D1BB49B8D218389D517BFFAF987B8C54341620E23F8350532A9F80",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "de5837a3ad1699ae055ed22f85a7ea58a90aedbce5840317f1050be22db9bdd2",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_VI2_zone02a_LOC_INT.xxx",
+      "sha256": "7EEC2349B494088B4A5AC194CD25470ABA3FB536A4B293E2319211F77419293A",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "d148b36eba5b95ce1c41df2a2a8e4668af629c526eb512b9c51f4afb4e5954b2",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_VI2_zone03_LOC_INT.xxx",
+      "sha256": "43C1C691A60A7F14F141708A6C7A349BE110951DD381AAB3358A961DBA80A88F",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "9379fa07f5af2cc380327f3151acfb42ad46b89e381787a34e32184878b6128b",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_VI3_Ghost_Courtyard_LOC_INT.xxx",
+      "sha256": "7DB46AD137E5806229CE292B4806248DED973DED3A1267A28A99C99A8BE05C98",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "84ae187a8d6e5bf1f0d2b0e8586e990de50e17044dbbe60976e5c9e2dcfe9b3b",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_VI3_kismet01_LOC_INT.xxx",
+      "sha256": "E4B1AAFA1CAD474321170EF37D399E3B42688364A872982A64E8B73A94DD9E62",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "585cb37fa8bbc28929f3d6503329ecae11c8f173178aa5b7a9112c943bf002b4",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/Sp_vi3_kismet02_b_LOC_INT.xxx",
+      "sha256": "5B8D1256B0EE14B44E748EAC457E12456C645375BB4B41EAFB2BCC91003DEF37",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "798bc3c3bc26e906baafb402d53786f993db9243508209b22566b3d2c60e129a",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/Sp_vi3_kismet02_c_LOC_INT.xxx",
+      "sha256": "413ABE241A7AD46559D72784A92D3A1DD45ED7DA7C2B032129D92F80C4CD8CD4",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "a2262af546bb62f3e8c8a595915c5f84f1fc8baac276d4fb689f7eed0c23b3e1",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_VI3_kismet03_a_LOC_INT.xxx",
+      "sha256": "D2A3F88E58A53EE97DA8E6342F65A555AA806FB5835F48885B285D98E0EB51C5",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "53e722eabddb993b37cd03949ad35772efed13ecfb3c826722ae15028e9c3710",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_VI3_kismet03_LOC_INT.xxx",
+      "sha256": "CBC1AB4A86CE21B3FD608E4B4D934B4F718E97D9BEB1BF40654747B4C8F89C1F",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "b1ac1dd5b16a500eedbdcc9b33b74b4705c2ec3a4c7c616aeaa9868a04437dd0",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_VI3_zone01_LOC_INT.xxx",
+      "sha256": "150E2CA4FE268F95B7CEC4D74F07E33201E44D12B8A6D5F75D0AE3EE93DDE7F9",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "b65d36bece80a1281ae7a5e97bfa8f35a7568bbf676f1e450376bca63c3fc80f",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_VI3_zone01b_d1_LOC_INT.xxx",
+      "sha256": "C6B6398E46F8CCAA279EA7972DF5A6131A77CD2095D0C68F66F24E6BC4DD30E6",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "9c14263b32250cd69d9cd4003739d5cae18b97e11133a953903771924c3b6137",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_VI3_zone02b_d1_LOC_INT.xxx",
+      "sha256": "6D5EC3A75F4BEC13018AC3A3B86E0512BED2795B9FE135AB66C5168396E11BEF",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "c3f6d7522b774d46e6820e8a7d6c726eab82734c19469063ae4da855089ee9bd",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_VI3_zone02b_d2_LOC_INT.xxx",
+      "sha256": "8684CFB3A984F972C502ECD9E6EB6B2C0ED12A8F647386443C9635C25BA9450E",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "93096fda79f3f5dd80febda8f6c1d52e0caef5fd8f3f3d1ba5dd7bfccd3ae023",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_VI3_zone03_LOC_INT.xxx",
+      "sha256": "B799917AE8A17FD5725CE6E75AAFCE5D9B4097F50166E3D540D7BC76F507F32E",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "cdd5947fe1b100855f0328a13bd4c9c88ccfedc83ca4ceaf39de6f896d620734",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_VI3_zone05_d2_LOC_INT.xxx",
+      "sha256": "ACAF4266140AD8894B03A762D6228D93D4C4051B4B9AE83D1A805A9282C5F5F4",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "258d0c569a9bafa04a257403ef745a543a3eabd0d5465f1bf2541c7e4209bbfa",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_VI4_kismet01_a_LOC_INT.xxx",
+      "sha256": "323D1AED13579121F4CD451A8557443C232743F5D06DB2FD92FBAA8B74DBDADE",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "3f247463c84a7de395f101cb60f2dcc1483d80811b70c2f318ebc93a0042325e",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_VI4_kismet01_b_LOC_INT.xxx",
+      "sha256": "AEE0B28DBEDC4248104FDD13A10BA9977B3EDD04681C9D058A449DF130A29F5E",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "af91b5a73b97dd28f6dddadbb0ecc3c5e997d08da384df245103c28aebdf8e57",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_vi4_kismet01_c_LOC_INT.xxx",
+      "sha256": "AED25D02285E49BFB9E9E2AB1C8A10BDF0DE53F9EFF856B91C652B1005C72BE4",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "87f37635553276abc067e70c94e6578bb7d2da820295dd465e0e4a9931a5572c",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_VI4_kismet01_LOC_INT.xxx",
+      "sha256": "DBD172E65BEDBF1487F4496554DEEC7C25B59210312E5017CBD89B74A68CAFF3",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "c1a2163f146a72de2e784c80a16b27fd38e3486e04b63eb00d71902d328e082c",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_VI5_kismet01_LOC_INT.xxx",
+      "sha256": "AE50507C2193C089AC3974340DBA0189985F6A995EB72644E4E55501DD0BA524",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "77b8d0047ceacab513aa5bfd31a55da30a01a6aa300d5bba437595468ccfa657",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_VI5_kismet02_LOC_INT.xxx",
+      "sha256": "7E40624FD02EF9B1A387CC2C393CE5054F1D6C65B768D6A992E077B4FD4B5885",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "fe9ddf248feb2f1d2dd59dee4ab262c33cb3da21860927b441bb5b9c00977a54",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_VI5_kismet03_LOC_INT.xxx",
+      "sha256": "8BAFEE322DBF5646AF8EF1F08D24434915888CEBF21F9D7C06BA9E2753E6618D",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "3dd33cdf2d924f7e6d5d704c6be3e2e676aba155677ce5b63ca60d4b3bfb7a3b",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_VI6_kismet01_LOC_INT.xxx",
+      "sha256": "C823C27942F94127220C9FBA1379CBA94BF3C89199D815ECE84FAC0C4ABD439B",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "b554b252e4133560b933281b5d44a8d5aa321eab1023484e22e65c73f0717730",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_VI6_kismet05_LOC_INT.xxx",
+      "sha256": "A527068CC00E47E54A9CC2CF80B14BD05E7E1748BD966016E918B098EE2BA5E8",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "bd58bb29ef657a3f94f82e7bfce000ea9189950b3e14bc229ab544a29a5fc55e",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_WL1_kismet01_LOC_INT.xxx",
+      "sha256": "A18A85A7D02B1C2C98D3AAC113D0290FF20C1A8B089F9C6C13616F9AA2EB2972",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "c04b7d3acaba23cbcaf000cf5065ff88bff247867122914765d87806a0b14104",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_WL1_kismet03_LOC_INT.xxx",
+      "sha256": "068600F6465CA6798375657BB22CFDD8EB55679739509F81641224EB86B3F0FF",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "0965e6f682c289be2ec0da95a45c77bfff005917ce11e888efc38258d37b50d8",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_WL1_kismet04_LOC_INT.xxx",
+      "sha256": "F612E5CF8EBB8A7E59CAF146AEBD773403D36450FC528C6E9614435D1073A806",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "cfe966ca6ec984e5a09a45a11b96790313cbcca9cd190691e614e86017cfb9b4",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_WL1_zone01_LOC_INT.xxx",
+      "sha256": "0F3A3D15FD1E45815C57C2D3DC5018F358DBBBADE2910300D5B4B4862643C4B8",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "078da5f87d934fa99db3b9b9ab7bb487ddc020015bf0b7619fa2cd4a5e2c41f2",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_WL2_kismet01_LOC_INT.xxx",
+      "sha256": "6BB1B835D6EC0DC41E94C0ABABC61ADEE2FF736CB80894C077B57F651482212B",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "2abd14ba50a108079ae1c8a2b93b5cc5be4057b29a51223f34fa37159c3209b0",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_WL2_kismet03_LOC_INT.xxx",
+      "sha256": "879DCCF1CBE7A2892889B3C609795075A61A2D5FF10862D5715892BF0A1287C9",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "4466ac8e192c92c2d6b6c468ed528faa894d698ccf7bf58bbdf0f8c29037385e",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_WL2_kismet05_LOC_INT.xxx",
+      "sha256": "4D148A573D4231796AD7F69BF958DFCD69FA63E476733A7D37D9A4D99C608E91",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "7dea8bc79e859ce131c5dce8205bf920539dff958dca9f53f0517e36e7b41616",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_WL2_zone03_LOC_INT.xxx",
+      "sha256": "600977C99E2275EBADBF7A2A606EB66A31997FA9C278AD3E37891AB805D6302A",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "866045903f721e5482a2ef98582b2bb8771f94aec459edc1aae7cb4abd31ef23",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_WL3_kismet_p_LOC_INT.xxx",
+      "sha256": "18AC973A5DB70E5980165CA9F3A666299667C0BB40258B7590DAF09F02FB93A2",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "d1e7c97bf7e17eedbfdd03290785167951e4d73db84387096d94b77b91ccde42",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_WL3_kismet03_LOC_INT.xxx",
+      "sha256": "212A9AA52B781422CD1803D3ECB66696289678A7E0087D81AE6CF7463C3B2FD6",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "e1213e06034488df50b89984b2313693bb81a89632c31b47da2febdb92c71e34",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_WL4_kismet03_LOC_INT.xxx",
+      "sha256": "E86FC6758F91E1B3264DA417C0FAE7B3462E198EA29FAABCF67AB0EADF302E4F",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "4f36a87af327ba7d9b3096814a4300a8ca42ed3964bbe41581776da82cf43660",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_WL4_kismet04_LOC_INT.xxx",
+      "sha256": "4FDF9DC5F912F7502D6A5F8C72DBCEDA0AE881D619286C3745D0B7A32324FDF8",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "e4d98c4ba488952080c4de5568b9df54c5efc5e4c9d34e87d56c45e173f2b89b",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_WL4_kismet05_LOC_INT.xxx",
+      "sha256": "C592D0648CF77192C709FD52D7EBB4BEA85D5F1C8FED33302D93B8B387810387",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "81aea06d3689b0b38ce1b835448af8c4035e79413b73adf528718e92dd26b073",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_WL4_kismet06_LOC_INT.xxx",
+      "sha256": "48A38629F503ABF968DB5CB338BE3A255BA4FA27855D64E8D8DAA043C44570BF",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "b3b9af537a0ed3d4538d4d52308c556e21a9b61d63976dfc254bb02d69f7c92c",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_WL4_kismet07_LOC_INT.xxx",
+      "sha256": "4A480BA591DE681945CF5942D2CE8FA1DA0DBCA17302F195BBB30FCE515B1626",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "98a175177e52bd27c1711ab5bc068b834ac153f2a8084d329ea5feab4bc427d0",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_WL4_kismet08_LOC_INT.xxx",
+      "sha256": "329FAFCB6AE5721A6EBA11B3AB637AF62C768070243BEDDD7EF9240CB0CF6DDE",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "49846cd81342a886d14d9e0711c50bb972d7b4a948bc36add601a9ae40c3028f",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_WL4_kismet09_LOC_INT.xxx",
+      "sha256": "1CCC42662C6890A8077D9496D93D5A3348A0E9715B45EC36609E99DF195EFB46",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "725c64dbf484cf3dff82bea0f7978038bf22966b40ae663df52ed450945d1649",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_WL4_kismet10_LOC_INT.xxx",
+      "sha256": "C7667749FFCBA51CD61976C9EDBEA024EDF49C5065C275D6756F44684BEF000F",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "8b8522a33a430ce614953e910eaa46976d5450e4cc48c530289a65bca84dc79e",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_WL5_kismet01_LOC_INT.xxx",
+      "sha256": "8D1CCD50A2805A97CC1A4D4BBE1C5A1407167D8DCBA8A97803B66B4B1A06C8F4",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "a08920a78281680587ce288f6070c5db48dc5e78dd6c866b74eac4f89788756d",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_WL5_kismet03_LOC_INT.xxx",
+      "sha256": "0945439C2E094283BCA16EC7F0C87FA68F5E5FFA6F20EECB75CAEE4816F2BD49",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "c91d88ffe154862c5dbec569e62bce5fc9d5d32df057fe8bef916cd9d57578fc",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_WL6_kismet_1950_LOC_INT.xxx",
+      "sha256": "B1AF5903185E2BE47569DA565687664D90E78CE2DE61200737487A8BD0D91768",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "8ae31513b4c0a2c91b7e910eaeab039b4654bc1f719d5c9490d0f54f817b9687",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_WL6_kismet1_a_LOC_INT.xxx",
+      "sha256": "2569180102806D40CE6B9BB34F388BB40F116B06942E0E9195847D26EC53E860",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "807b052d5e425390144c1f6a93a08e69a02a0265bcada77a76073a1f97937235",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_WL6_zone1_2010_d1_LOC_INT.xxx",
+      "sha256": "4E586E9951097832B8AAFD716FDAD7848330FAE1E985AB71A7690740320555FF",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "02f6c01675671651d5cc0f3596c80e990024eca107b79523a39b8cf42c7e4614",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/wp_SP_ARPistol_SF.xxx",
+      "sha256": "A5FA0D72BB6B32D845E6D0FC89990F18D3A87A9FAC444D698689D74233756D39",
+      "module": "audio-remaster",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "b06d1516e5f4ae15bd9225a38e52ba706ec32d9c6d0e060320149a2f38da44af",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/wp_SP_ARSniperRifle_SF.xxx",
+      "sha256": "E2D5DCAE9FA7815D8EE944C4CE62C0FA2BBDE60A1303F45C61221C9CAB60362B",
+      "module": "audio-remaster",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "0f6b809bc25c35d871de7b8b8b66f4306db90a1acfcc9a0abde6cf7946cc6c98",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/RvGame.xxx",
+      "sha256": "4153C4889C90635069ED226D918CDB76BE618F46B1BAEA152AC10CFFDF59E9EF",
+      "module": "owned-game-prerequisite",
+      "ownership": "original-game",
+      "version": "accepted-v7-20261026",
+      "dependencies": [],
+      "source": "accepted-profile-dependency",
+      "beforeSha256": null,
+      "distributionGate": "verify-only",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/wp_SP_ARMachineGun_SF.xxx",
+      "sha256": "59E33F9950081E91916E07F3A86473B35826572E2DBDFA26D7749A4387D2618A",
+      "module": "audio-remaster",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "e1d4127893d568a5cbd92ec61a79477ecc4dd6305008a8d6125d15fbac159715",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/wp_SP_ARShotgun_SF.xxx",
+      "sha256": "57E8E5A37B667A4CB0A4EC4C2095DDDA3782063E92A7AA559CF314D4B84F33A4",
+      "module": "audio-remaster",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "50254fad1daa0b62d2d08740f22a447160691b5e6fc9058f83a3d6c4d3bebc9f",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/MUSIC_exploreDrone01_XSA.xxx",
+      "sha256": "20F4D520538691383A7E6FC9CCFE7B4DFF6682F978DB4CEE2EF5B8217806DA14",
+      "module": "audio-remaster",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "aca2b5f130e08d63eba8f749d3fec860af18df610eca0b984aae93d608261857",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/MUSIC_combatBossGrom01_XSA.xxx",
+      "sha256": "EEF7866EB2541EAD378FC0DE4A39BEA5E7517C7488952404E5B1925C80FD9133",
+      "module": "audio-remaster",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "582e8b56e92753af6847d8102b3e49a4ce4d2d64c83fc4fdf8ce47fe147d0b4e",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_Freight_Audio_2010_XSA.xxx",
+      "sha256": "5A8C5CF19C38E97E4A5C4C7FEF476385739978B6A1B0347767E42B194D3A2818",
+      "module": "audio-remaster",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "9a938d0fc31e3cfebfe9037db0a5241fc01e5a7852b2499bd67af39e3bcede70",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "Binaries/texture-override-remaster/AR_E99Rifle_alt_d.dds",
+      "sha256": "A0CDC3DD8528F6B278EF814C77C8F81E7EFA708A12C6D32A30C69B7DC3B59EE9",
+      "module": "hd-textures",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "a0cdc3dd8528f6b278ef814c77c8f81e7efa708a12c6d32a30c69b7dc3b59ee9",
+      "distributionGate": "source-rights-or-local-generation-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "Binaries/texture-override-remaster/AR_E99Rifle_n.dds",
+      "sha256": "54D47F3B7F15EE63410F321B945ACB310DBC95D94346CC006FFD2D7460D06FEE",
+      "module": "hd-textures",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "54d47f3b7f15ee63410f321b945acb310dbc95d94346cc006ffd2d7460d06fee",
+      "distributionGate": "source-rights-or-local-generation-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "Binaries/texture-override-remaster/AR_shotgun_d.dds",
+      "sha256": "D6A98EF03EC588A31FEFDB7393757738B19B86B9E9381029E47E5C26C0506237",
+      "module": "hd-textures",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "6340e3245854c8cfa9d32dc9df3b82e7ba41dcf035b0c37219c08fe9a9983c65",
+      "distributionGate": "source-rights-or-local-generation-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "Binaries/texture-override-remaster/AR_shotgun_n.dds",
+      "sha256": "83F64BFCE085107A4EC80F14D236EB1409A402B8D879BCF8691667C3F92CD798",
+      "module": "hd-textures",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "76a7d6ee4f44682880f28b7e1ed5c76130fe6015162d1af2cf0872401b770834",
+      "distributionGate": "source-rights-or-local-generation-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "Binaries/texture-override-remaster/ar_sniper_rifle_d.dds",
+      "sha256": "61E4CC32ED2DED5E369076C5E4CCF4F099D09EA52F63DEF76E9669B4ED40B7A8",
+      "module": "hd-textures",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": null,
+      "distributionGate": "source-rights-or-local-generation-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "Binaries/texture-override-remaster/ar_sniper_rifle_n.dds",
+      "sha256": "37EA2C1A3C368E1A2B7428490D5A36D9673AB0244DFC5AF013AC604C17DAED77",
+      "module": "hd-textures",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "37ea2c1a3c368e1a2b7428490d5a36d9673ab0244dfc5af013ac604c17daed77",
+      "distributionGate": "source-rights-or-local-generation-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "Binaries/texture-override-remaster/handgun_d.dds",
+      "sha256": "3590579EDF7F67ED49675B0104798EA6D66818E9B2663C5BCCCFFE3DFE618E9C",
+      "module": "hd-textures",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": null,
+      "distributionGate": "source-rights-or-local-generation-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "Binaries/texture-override-remaster/handgun_n.dds",
+      "sha256": "ED70B5EB67E85BCCA99B305865C574F7023DA622D0EC8E9A41DC1F352D67E255",
+      "module": "hd-textures",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": null,
+      "distributionGate": "source-rights-or-local-generation-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "Binaries/texture-override-remaster/inview_glove_d.dds",
+      "sha256": "D76D05B122A6C81B24B3560E88CF181167FAB3EE64A967A7017D21770F3D4754",
+      "module": "hd-textures",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "e702e96cbae6ae73b24bf8e01969d0af41f15bcf1e04ccab2b8508435faff026",
+      "distributionGate": "source-rights-or-local-generation-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "Binaries/texture-override-remaster/inview_glove_n.dds",
+      "sha256": "5F0A8E9E4C65763A58BC5E88CAFEEE238EF715935730065336CDFF2CA3D8E049",
+      "module": "hd-textures",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "754c1b0617db838421c6e4b85fe0a9fbdfccfd14b7dd886a8cf516497c2cf3ca",
+      "distributionGate": "source-rights-or-local-generation-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_Freight_S_StreamDock_LOC_INT.xxx",
+      "sha256": "C7EC0A5809ED150D091CF2CD45E34061C915D7FB5B51CCAA3122A263DA5E25E7",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "f5907a3b135ca67586a1940b580229a23cd03598ae1ae7276089b7cc286ae4db",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_RT1_fx01_LOC_INT.xxx",
+      "sha256": "BF6968D7FFF53846C5060CF7FC8A179EDB01CD572B771CEE593F8E287D4C085F",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "7b89abdf4759f23bcd3464d7f65b07351648190a496b6308864543b82476bfa3",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_VI6_kismet02_LOC_INT.xxx",
+      "sha256": "E4BE2C1B8C41888AA846BE69732E3D720D47AC8EBF531805FD7B33FC524B0F9D",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "52d4a24267f050fe088a1b9617c466a70b479c0c8ef428d57f3736bf00b66162",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_VI6_kismet03_LOC_INT.xxx",
+      "sha256": "CEC6D2AB6481C65DFCBEE23DA5147F5D4041243D8B61CE0F7F0E94A489BF04EE",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "597538d99dce40fa47b16e4d366405659e47c2a416218ff47c89ba9babbba537",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    },
+    {
+      "destination": "RvGame/CookedPC/SP_VI6_kismet04_LOC_INT.xxx",
+      "sha256": "76DC7FF13B74A784871895FEE459FAD9AF5EC69CC5893B4068698E2E3C895563",
+      "module": "polish-dubbing",
+      "ownership": "original-derived",
+      "version": "accepted-v7-20261026",
+      "dependencies": [
+        "vr-core"
+      ],
+      "source": "accepted-v7-payload",
+      "beforeSha256": "3a46f93159f47cf159e2dbc7f4abe52a9830d5abdc69844765689e43e8e3d51e",
+      "distributionGate": "verified-local-reconstruction-required",
+      "distributable": false,
+      "acceptance": "V7 general PSVR2 acceptance; individual asset rights not established"
+    }
+  ],
+  "withheld": [
+    "Original RvGame.xxx core remains unchanged; TMD impulse sound replacement withheld",
+    "No generated voice or original-derived texture rights inferred from runtime acceptance"
+  ],
+  "requirements": [
+    "Steam owned Singularity compatible fingerprint",
+    "Active OpenXR runtime and configured controllers",
+    "Per-asset redistribution or local reconstruction audit",
+    "OpenXR/MinHook and all bridge dependency license notices"
+  ],
+  "releaseStatus": "BLOCKED_FOR_PUBLIC_GAME_PACKAGES"
+}

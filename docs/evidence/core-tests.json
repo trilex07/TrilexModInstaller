@@ -1,0 +1,157 @@
+{
+  "time": "2026-10-26T15:09:08.2509034+00:00",
+  "passed": 37,
+  "failed": 0,
+  "fixtureRoot": "[disposable workspace fixtures]",
+  "steamAccess": "NONE",
+  "results": [
+    {
+      "name": "valid signature and independent language selections",
+      "status": "PASS"
+    },
+    {
+      "name": "tampered catalog signature fails",
+      "status": "PASS"
+    },
+    {
+      "name": "expired signed catalog fails",
+      "status": "PASS"
+    },
+    {
+      "name": "pinned repository and immutable release paths",
+      "status": "PASS"
+    },
+    {
+      "name": "multiple Steam libraries and nested VDF",
+      "status": "PASS"
+    },
+    {
+      "name": "manual location and executable mismatch",
+      "status": "PASS"
+    },
+    {
+      "name": "Darkness II remains unavailable",
+      "status": "PASS"
+    },
+    {
+      "name": "missing packages and dependency cycles",
+      "status": "PASS"
+    },
+    {
+      "name": "rights-unapproved stable modules refused",
+      "status": "PASS"
+    },
+    {
+      "name": "unsafe paths and Windows device names",
+      "status": "PASS"
+    },
+    {
+      "name": "corrupt ZIP and wrong SHA refused",
+      "status": "PASS"
+    },
+    {
+      "name": "zip slip refused without outside writes",
+      "status": "PASS"
+    },
+    {
+      "name": "duplicate ZIP names and symlinks refused",
+      "status": "PASS"
+    },
+    {
+      "name": "whole original cooked packages never distributed",
+      "status": "PASS"
+    },
+    {
+      "name": "install verify repeat and uninstall preserve originals",
+      "status": "PASS"
+    },
+    {
+      "name": "fault halfway rolls back exact preimages",
+      "status": "PASS"
+    },
+    {
+      "name": "upgrade and deselect restore original ownership",
+      "status": "PASS"
+    },
+    {
+      "name": "repair corrupt and missing file retains original backup",
+      "status": "PASS"
+    },
+    {
+      "name": "foreign mod and external edits preserved",
+      "status": "PASS"
+    },
+    {
+      "name": "user INI changes preserved across upgrade and uninstall",
+      "status": "PASS"
+    },
+    {
+      "name": "running game blocks writes and recovery",
+      "status": "PASS"
+    },
+    {
+      "name": "cancel before installation leaves no writes",
+      "status": "PASS"
+    },
+    {
+      "name": "local reconstruction reads owned originals and verifies output",
+      "status": "PASS"
+    },
+    {
+      "name": "download selection cache retries and resumed range",
+      "status": "PASS"
+    },
+    {
+      "name": "download wrong hash and unsafe redirects fail",
+      "status": "PASS"
+    },
+    {
+      "name": "hard process exit recovers durable journal",
+      "status": "PASS"
+    },
+    {
+      "name": "duplicate controlled INI keys fail closed",
+      "status": "PASS"
+    },
+    {
+      "name": "catalog follows trusted GitHub release redirect and verifies signature",
+      "status": "PASS"
+    },
+    {
+      "name": "transient HTTP failure retries only requested package",
+      "status": "PASS"
+    },
+    {
+      "name": "cancellation after applied write restores exact prior files",
+      "status": "PASS"
+    },
+    {
+      "name": "game started mid transaction defers recovery safely",
+      "status": "PASS"
+    },
+    {
+      "name": "executable changed after review is refused before writes",
+      "status": "PASS"
+    },
+    {
+      "name": "deselected module removes only its owned content",
+      "status": "PASS"
+    },
+    {
+      "name": "streamed local recipe installs and uninstalls exact owned original",
+      "status": "PASS"
+    },
+    {
+      "name": "untouched original UTF16 INI restores byte exact",
+      "status": "PASS"
+    },
+    {
+      "name": "corrupt original backup refuses uninstall without touching managed bytes",
+      "status": "PASS"
+    },
+    {
+      "name": "shared INI modules merge but conflicting values fail before game writes",
+      "status": "PASS"
+    }
+  ]
+}

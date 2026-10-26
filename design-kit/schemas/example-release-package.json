@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "gameId": "singularity",
+  "packageId": "vr-core",
+  "version": "0.1.0-example",
+  "releaseTag": "PLACEHOLDER-REQUIRES-REAL-PUBLISHED-TAG",
+  "assetName": "PLACEHOLDER.zip",
+  "assetSha256": "PLACEHOLDER-64-HEX-REQUIRED-BEFORE-PUBLISH",
+  "assetBytes": 0,
+  "minimumInstallerVersion": "0.1.0",
+  "supportedExeSha256": [],
+  "dependencies": [],
+  "files": [],
+  "distributionRightsVerified": false,
+  "releaseReady": false,
+  "notes": "Do not publish or consume this illustrative manifest unchanged."
+}

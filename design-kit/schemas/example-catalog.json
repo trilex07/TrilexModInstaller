@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "catalogVersion": "0.1.0-example",
+  "games": [
+    {
+      "id": "singularity",
+      "displayName": "Singularity VR",
+      "status": "preview",
+      "adapter": "SingularityGameAdapter",
+      "supportedGameBuilds": [],
+      "modules": [
+        {"id": "vr-core", "label": "VR Core", "required": true, "status": "pending_release_packaging"},
+        {"id": "ui", "label": "UI / HUD Remaster", "required": false, "status": "pending_release_packaging"},
+        {"id": "hd-textures", "label": "HD Textures", "required": false, "status": "pending_rights_and_packaging_review"},
+        {"id": "polish-text", "label": "Polski tekst", "required": false, "status": "pending_release_packaging"},
+        {"id": "polish-dubbing", "label": "Polski dubbing", "required": false, "status": "pending_voice_packaging_review"},
+        {"id": "audio-remaster", "label": "Audio Remaster", "required": false, "status": "coming_soon"},
+        {"id": "psvr2", "label": "PSVR2", "required": false, "status": "pending_release_packaging"}
+      ]
+    },
+    {"id": "darkness2", "displayName": "The Darkness II VR", "status": "coming_soon", "adapter": "Darkness2GameAdapter", "supportedGameBuilds": [], "modules": []}
+  ]
+}

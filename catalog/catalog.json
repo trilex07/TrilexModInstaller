@@ -1,0 +1,203 @@
+{
+  "schemaVersion": 1,
+  "version": "0.1.0-rc.1",
+  "expiresUtc": "2027-04-26T00:00:00Z",
+  "games": [
+    {
+      "id": "singularity",
+      "name": "Singularity VR",
+      "state": "preview",
+      "adapter": "SingularityGameAdapter",
+      "steamAppId": "42670",
+      "executable": "Binaries/Singularity.exe",
+      "exeSha256": [
+        "BD459ACD87D4B82693928DEE4ED437C086D5928A8E0428F3AD54B6FC114C0F51"
+      ],
+      "modules": [
+        {
+          "id": "vr-core",
+          "labels": {
+            "en": "VR Core",
+            "pl": "VR Core"
+          },
+          "version": "v7-20261026",
+          "state": "unavailable",
+          "required": true,
+          "dependencies": [],
+          "downloadBytes": 0,
+          "downloadUrl": null,
+          "archiveSha256": null,
+          "expandedBytes": 0,
+          "rightsVerified": false,
+          "rightsEvidence": "",
+          "files": [],
+          "reason": "Accepted V7 runtime inventoried; complete rights-safe hand/HUD reconstruction package not published.",
+          "localizedReasons": {
+            "en": "Accepted V7 runtime inventoried; complete rights-safe hand/HUD reconstruction package not published.",
+            "pl": "Wersja V7 zinwentaryzowana; pełny pakiet oraz lokalne generowanie rąk/HUD czekają na przegląd dystrybucji."
+          }
+        },
+        {
+          "id": "ui-hud",
+          "labels": {
+            "en": "UI / HUD Remaster",
+            "pl": "Remaster UI / HUD"
+          },
+          "version": "v7-20261026",
+          "state": "unavailable",
+          "required": false,
+          "dependencies": [
+            "vr-core"
+          ],
+          "downloadBytes": 0,
+          "downloadUrl": null,
+          "archiveSha256": null,
+          "expandedBytes": 0,
+          "rightsVerified": false,
+          "rightsEvidence": "",
+          "files": [],
+          "reason": "Native GFx package must be rebuilt locally; approved redistributable recipe pending.",
+          "localizedReasons": {
+            "en": "Native GFx package must be rebuilt locally; approved redistributable recipe pending.",
+            "pl": "Natywne menu GFx wymaga lokalnej przebudowy; pakiet instrukcji nie jest jeszcze opublikowany."
+          }
+        },
+        {
+          "id": "polish-text",
+          "labels": {
+            "en": "Polish Text",
+            "pl": "Polski tekst"
+          },
+          "version": "v7-20261026",
+          "state": "unavailable",
+          "required": false,
+          "dependencies": [
+            "vr-core"
+          ],
+          "downloadBytes": 0,
+          "downloadUrl": null,
+          "archiveSha256": null,
+          "expandedBytes": 0,
+          "rightsVerified": false,
+          "rightsEvidence": "",
+          "files": [],
+          "reason": "Font/localization assets require local reconstruction and distribution review.",
+          "localizedReasons": {
+            "en": "Font/localization assets require local reconstruction and distribution review.",
+            "pl": "Fonty i lokalizacja wymagają lokalnej przebudowy oraz przeglądu dystrybucji."
+          }
+        },
+        {
+          "id": "polish-dubbing",
+          "labels": {
+            "en": "Polish Dubbing",
+            "pl": "Polski dubbing"
+          },
+          "version": "v7-20261026",
+          "state": "unavailable",
+          "required": false,
+          "dependencies": [
+            "vr-core"
+          ],
+          "downloadBytes": 0,
+          "downloadUrl": null,
+          "archiveSha256": null,
+          "expandedBytes": 0,
+          "rightsVerified": false,
+          "rightsEvidence": "",
+          "files": [],
+          "reason": "Native bank integration accepted generally; voice rights and exhaustive content approval unresolved.",
+          "localizedReasons": {
+            "en": "Native bank integration accepted generally; voice rights and exhaustive content approval unresolved.",
+            "pl": "Banki zaakceptowane ogólnie; prawa do głosów i pełny odsłuch wymagają zatwierdzenia."
+          }
+        },
+        {
+          "id": "audio-remaster",
+          "labels": {
+            "en": "Audio Remaster",
+            "pl": "Remaster dĹşwiÄ™ku"
+          },
+          "version": "v7-20261026",
+          "state": "unavailable",
+          "required": false,
+          "dependencies": [
+            "vr-core"
+          ],
+          "downloadBytes": 0,
+          "downloadUrl": null,
+          "archiveSha256": null,
+          "expandedBytes": 0,
+          "rightsVerified": false,
+          "rightsEvidence": "",
+          "files": [],
+          "reason": "Seven sets integrated privately; original-derived sound redistribution not approved.",
+          "localizedReasons": {
+            "en": "Seven sets integrated privately; original-derived sound redistribution not approved.",
+            "pl": "Siedem zestawów zintegrowano prywatnie; dystrybucja dźwięków pochodnych nie jest zatwierdzona."
+          }
+        },
+        {
+          "id": "hd-textures",
+          "labels": {
+            "en": "HD Textures",
+            "pl": "Tekstury HD"
+          },
+          "version": "v7-20261026",
+          "state": "unavailable",
+          "required": false,
+          "dependencies": [
+            "vr-core"
+          ],
+          "downloadBytes": 0,
+          "downloadUrl": null,
+          "archiveSha256": null,
+          "expandedBytes": 0,
+          "rightsVerified": false,
+          "rightsEvidence": "",
+          "files": [],
+          "reason": "Original-derived DDS are private; rights-safe local reconstruction is required.",
+          "localizedReasons": {
+            "en": "Original-derived DDS are private; rights-safe local reconstruction is required.",
+            "pl": "Tekstury pochodne DDS pozostają prywatne; wymagane zatwierdzone generowanie lokalne."
+          }
+        },
+        {
+          "id": "psvr2",
+          "labels": {
+            "en": "PSVR2",
+            "pl": "PSVR2"
+          },
+          "version": "v7-20261026",
+          "state": "unavailable",
+          "required": false,
+          "dependencies": [
+            "vr-core"
+          ],
+          "downloadBytes": 0,
+          "downloadUrl": null,
+          "archiveSha256": null,
+          "expandedBytes": 0,
+          "rightsVerified": false,
+          "rightsEvidence": "",
+          "files": [],
+          "reason": "Verified Sense features inventoried; signed release package pending.",
+          "localizedReasons": {
+            "en": "Verified Sense features inventoried; signed release package pending.",
+            "pl": "Zweryfikowane funkcje Sense zinwentaryzowane; podpisany pakiet czeka na publikację."
+          }
+        }
+      ]
+    },
+    {
+      "id": "darkness2",
+      "name": "The Darkness II VR",
+      "state": "coming_soon",
+      "adapter": "Darkness2GameAdapter",
+      "steamAppId": "",
+      "executable": "",
+      "exeSha256": [],
+      "modules": []
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "version": "1.0.0-rc.2",
+  "sourceCommit": "476919f0d102094364407a470089a0ee79ab0dd2",
+  "provenCause": "Steam Running=1 for fpsVR app 908520 incorrectly classified as a game",
+  "correction": "Exact shared SteamVR/fpsVR app and path exemptions; actual target-root and other game guards retained",
+  "coreTests": {
+    "passed": 60,
+    "failed": 0
+  },
+  "actualWindowsGuard": {
+    "status": "PASS",
+    "steamRuntimeAppsStillRunning": [
+      "250820 SteamVR",
+      "908520 fpsVR"
+    ],
+    "gameWrites": false,
+    "receipt": "PASS: actual Windows process/Steam registry guard permits idle installation; no game writes"
+  },
+  "packages": "All 12 archive hashes and file recipes identical to RC1",
+  "zipSha256": "7942DA21944B1D10F08DC82B1274EF8516DA7911498EECDEFA7501A334A70565",
+  "exeSha256": "A1DE2CB1C2A4D17F4E0ACCAAC9F6CAFD58F1EF787B981A108D146C4D5E795604",
+  "catalogSha256": "B08172ACA829A426D90C4A04A85F212259700506E2DF277CE2F607C56C5BBADA",
+  "authenticode": "UNSIGNED; user explicitly approved unsigned RC distribution",
+  "physicalInstallerAcceptance": "PENDING",
+  "selfContainedUi": {
+    "status": "PASS",
+    "layouts": 8,
+    "bindingErrors": []
+  }
+}

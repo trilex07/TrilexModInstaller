@@ -16,6 +16,10 @@ $decoderSource=Join-Path $notices 'ue3decode-corresponding-source'
 New-Item -ItemType Directory -Force (Join-Path $decoderSource 'third_party/ue3decode'),(Join-Path $decoderSource 'scripts') | Out-Null
 Copy-Item -Path 'third_party/ue3decode/*' -Destination (Join-Path $decoderSource 'third_party/ue3decode') -Force
 Copy-Item -LiteralPath 'scripts/build-decoder.ps1' -Destination (Join-Path $decoderSource 'scripts') -Force
+$imageNotices=Join-Path $notices 'asset-worker'
+if(!(Test-Path '.build/asset-worker/licenses/Python-LICENSE.txt')){throw 'Missing bundled image-worker license audit'}
+New-Item -ItemType Directory -Force $imageNotices | Out-Null
+Copy-Item -Path '.build/asset-worker/licenses/*' -Destination $imageNotices -Recurse -Force
 $exe=Join-Path $publish 'TrilexModInstaller.exe'
 $sha=(Get-FileHash -LiteralPath $exe -Algorithm SHA256).Hash
 "$sha  TrilexModInstaller.exe" | Set-Content (Join-Path $publish 'SHA256SUMS.txt') -Encoding utf8NoBOM

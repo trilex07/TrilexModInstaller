@@ -46,11 +46,15 @@ static std::vector<uint8_t> Logical(const std::vector<uint8_t>& src) {
 int wmain(int argc,wchar_t** argv) {
     try {
         // Explicit source, fresh output and codec only. No default in-place operation.
-        Require(argc==4 && (std::wstring(argv[1])==L"ue3-whole-lzo"||std::wstring(argv[1])==L"ue3-logical-lzo"));
-        const auto size=std::filesystem::file_size(argv[2]);Require(size>=16&&size<=Limit);
-        FILE* f=nullptr;Require(_wfopen_s(&f,argv[2],L"rb")==0&&f);std::vector<uint8_t> src(size_t(size),0);const size_t got=fread(src.data(),1,src.size(),f);fclose(f);Require(got==src.size());
-        auto out=std::wstring(argv[1])==L"ue3-whole-lzo"?Decode(src.data(),src.size()):Logical(src);
-        Require(out.size()>=8 && RdU32(out.data())==kPackageTag);
+        const bool bulk=argc==6 && std::wstring(argv[1])==L"ue3-bulk-lzo";
+        Require(bulk || (argc==4 && (std::wstring(argv[1])==L"ue3-whole-lzo"||std::wstring(argv[1])==L"ue3-logical-lzo")));
+        const auto size=std::filesystem::file_size(argv[2]);uint64_t offset=0,length=size;
+        if(bulk){for(int arg=4;arg<=5;++arg)for(const wchar_t* p=argv[arg];*p;++p)Require(*p>=L'0'&&*p<=L'9');offset=std::stoull(argv[4]);length=std::stoull(argv[5]);}
+        Require(offset<=size && length>=16 && length<=Limit && length<=size-offset);
+        FILE* f=nullptr;Require(_wfopen_s(&f,argv[2],L"rb")==0&&f);Require(_fseeki64(f,static_cast<__int64>(offset),SEEK_SET)==0);
+        std::vector<uint8_t> src(size_t(length),0);const size_t got=fread(src.data(),1,src.size(),f);fclose(f);Require(got==src.size());
+        auto out=(bulk||std::wstring(argv[1])==L"ue3-whole-lzo")?Decode(src.data(),src.size()):Logical(src);
+        Require(bulk || (out.size()>=8 && RdU32(out.data())==kPackageTag));
         Require(_wfopen_s(&f,argv[3],L"wbx")==0&&f);const size_t written=fwrite(out.data(),1,out.size(),f);const int closed=fclose(f);Require(written==out.size()&&closed==0);
         puts("PASS bounded local UE3 decode");return 0;
     } catch(...) {fputs("REFUSED local UE3 decode\n",stderr);return 1;}

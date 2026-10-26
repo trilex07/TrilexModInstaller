@@ -12,3 +12,7 @@ No original extracted PSK/DDS/audio, cooked game package, accepted-profile paylo
 ## Bundled standalone UE3 decoder
 
 The embedded `Trilex.Ue3Decode.exe` helper is GPL-2.0-or-later, including miniLZO attribution by Markus F. X. J. Oberhumer and upstream decoder attribution to letsgosportsteam. It runs as a separate process; no decoder object code is linked into the MIT application or VR runtime. Full license and corresponding source, including the bounded wrapper and build script, accompany portable releases under `licenses/ue3decode-corresponding-source`. From that directory run `powershell -File scripts/build-decoder.ps1` with Visual Studio C++ tools installed. No proprietary assets are needed to rebuild it.
+
+## Frozen local image worker
+
+`Trilex.AssetWorker.exe` includes Python (PSF license), NumPy and bundled numerical-runtime notices, Pillow (HPND and bundled library notices), and the PyInstaller bootloader (GPL with its distribution exception). Portable releases retain full collected license trees under `licenses/asset-worker`. The DDS helper originates in SingularityVR, copyright 2026 letsgosportsteam, MIT; preserve the upstream MIT grant. The image worker runs only fixed local image operations and contains no commercial image data. Python is bundled; no player-side Python installation is required.

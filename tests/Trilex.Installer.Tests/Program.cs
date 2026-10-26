@@ -274,6 +274,31 @@ await Test("binary recipes preserve copies and literals and reject malformed ins
     File.WriteAllBytes(recipe,Make());using(var output=new MemoryStream()){BinaryRecipe.Apply(source,recipe,output,5);Assert(output.ToArray().SequenceEqual(new byte[]{20,30,50,60,70}));}
     foreach(var bad in new[]{Make(2),Make(offset:4),Make(trailing:true),Make()[..^1]}){File.WriteAllBytes(recipe,bad);await Reject(()=>Sync(()=>{using var output=new MemoryStream();BinaryRecipe.Apply(source,recipe,output,5);}));}
 });
+await Test("owned TFC bulk mip becomes exact local image without a Python installation",async()=>
+{
+    var f=Fixture();var source=Paths.Safe(f.Root,"RvGame/CookedPC/Textures_P0.tfc");
+    byte[] block=[0,248,31,0,0,0,0,0];
+    using(var data=new MemoryStream()){using(var w=new BinaryWriter(data,System.Text.Encoding.UTF8,true)){w.Write(new byte[16]);w.Write(0x9e2a83c1u);w.Write(131072u);w.Write(8u);w.Write(8u);w.Write(8u);w.Write(8u);w.Write(block);}File.WriteAllBytes(source,data.ToArray());}
+    var stage=Path.Combine(f.Root,"image-stage");Directory.CreateDirectory(stage);Json.Write(Path.Combine(stage,"image.json"),new ImageOperation(4,4,"svrt",1,"DXT1"));
+    byte[] expected;using(var m=new MemoryStream()){using(var w=new BinaryWriter(m,System.Text.Encoding.UTF8,true)){w.Write("SVRT"u8.ToArray());w.Write(1);w.Write(4);w.Write(4);for(var i=0;i<16;i++)w.Write(new byte[]{0,0,255,255});}expected=m.ToArray();}
+    var targetHash=Convert.ToHexString(SHA256.HashData(expected));
+    var file=new PackageFile("Binaries/vr-assets/test/texture.svrt","",targetHash,"recipe","local-transform",Recipe:[new("image",0,expected.Length,"image.json")],SourcePath:"RvGame/CookedPC/Textures_P0.tfc",SourceSha256:Paths.Hash(source),SourceCodec:"ue3-bulk-lzo",DecodedSha256:Convert.ToHexString(SHA256.HashData(block)),DecodedBytes:8,SourceOffset:16,SourceBytes:32);
+    Assert(PackageExtractor.Reconstruct(source,stage,file).SequenceEqual(expected));
+    foreach(var invalid in new[]{file with{SourceOffset=-1},file with{SourceBytes=536870913},file with{SourceCodec="ue3-whole-lzo"}})await Reject(()=>Sync(()=>LocalSources.Validate(invalid,stage)));
+    Json.Write(Path.Combine(stage,"bad.json"),new ImageOperation(8192,8192,"svrt",4,"DXT1"));await Reject(()=>Sync(()=>{using var o=new MemoryStream();LocalImageGenerator.Apply(source,stage,Path.Combine(stage,"bad.json"),o,4);}));
+});
+await Test("image metadata cannot redirect paired sources or run unsupported operations",async()=>
+{
+    var f=Fixture();var raw=Path.Combine(f.Root,"raw");File.WriteAllBytes(raw,new byte[8]);var stage=Path.Combine(f.Root,"stage");Directory.CreateDirectory(stage);
+    foreach(var op in new[]{new ImageOperation(4,4,"powershell",2,"DXT1"),new ImageOperation(4,4,"weapon-diffuse-v2",4,"DXT1"),new ImageOperation(4,4,"weapon-normal-v2",2,"DXT1"),new ImageOperation(4,4,"normal",2,"DXT1",new(0,32,new string('A',64))),new ImageOperation(4,4,"weapon-normal-v2",2,"DXT1",new(0,32,new string('A',64)))})
+    {var metadata=Path.Combine(stage,"operation.json");Json.Write(metadata,op);await Reject(()=>Sync(()=>{using var output=new MemoryStream();LocalImageGenerator.Apply(raw,stage,metadata,output,4);}));}
+});
+await Test("knife geometry references cannot escape decoded original or change fixed topology",async()=>
+{
+    var f=Fixture();var source=Path.Combine(f.Root,"core");File.WriteAllBytes(source,new byte[7000]);var stage=Path.Combine(f.Root,"stage");Directory.CreateDirectory(stage);
+    foreach(var op in new[]{new{kind="svrk",positions=new long[661],uvs=new long[662],indices=0L},new{kind="svrk",positions=Enumerable.Repeat(-1L,662).ToArray(),uvs=new long[662],indices=0L},new{kind="svnl",positions=new long[662],uvs=new long[662],indices=7000L}})
+    {var metadata=Path.Combine(stage,"knife.json");Json.Write(metadata,op);await Reject(()=>Sync(()=>{using var output=new MemoryStream();LocalImageGenerator.ApplyKnife(source,stage,metadata,output,16+662*24+6060);}));}
+});
 var report=new{time=DateTimeOffset.UtcNow,passed=results.Count-failed,failed,fixtureRoot=testRoot,steamAccess="NONE",results};
 Json.Write(Path.Combine(testRoot,"test-report.json"),report);Console.WriteLine(JsonSerializer.Serialize(new{passed=results.Count-failed,failed,report=Path.Combine(testRoot,"test-report.json")}));Environment.ExitCode=failed==0?0:1;
 

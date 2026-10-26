@@ -3,6 +3,8 @@ import hashlib
 import importlib.util
 import struct
 import tempfile
+import subprocess
+import random
 import unittest
 from pathlib import Path
 
@@ -37,6 +39,26 @@ class ProducerTests(unittest.TestCase):
         self.assertEqual(pe.inspect(image)['imports'],['d3dcompiler.dll','kernel32.dll'])
         image[768:781]=b'../evil.dll\0\0'
         with self.assertRaises(ValueError):pe.inspect(image)
+    def test_native_instruction_maker_roundtrips(self):
+        tool=ROOT/'.build/recipe-maker/recipe-maker.exe'
+        self.assertTrue(tool.is_file(), 'Run scripts/build-recipe-maker.ps1 first')
+        rng=random.Random(42)
+        block=bytes(rng.randrange(256) for _ in range(8192))
+        for before,after in [(b'',b'fresh'),(b'old',b''),(block,block[128:4096]+b'insert'+block[4096:]),(b'a'*16384,b'a'*5000+b'tail')]:
+            with tempfile.TemporaryDirectory(dir=ROOT/'artifacts') as temp:
+                root=Path(temp);old=root/'original';new=root/'target';tape=root/'recipe'
+                old.write_bytes(before);new.write_bytes(after)
+                subprocess.run([str(tool),str(old),str(new),str(tape)],check=True,capture_output=True)
+                data=tape.read_bytes();magic,version,size,count=struct.unpack_from('<4sIQI',data)
+                self.assertEqual((magic,version,size),(b'SVRP',1,len(after)))
+                cursor=20;result=bytearray()
+                for _ in range(count):
+                    opcode=data[cursor];cursor+=1
+                    if opcode==0:
+                        offset,length=struct.unpack_from('<QI',data,cursor);cursor+=12;result+=before[offset:offset+length]
+                    else:
+                        self.assertEqual(opcode,1);length=struct.unpack_from('<I',data,cursor)[0];cursor+=4;result+=data[cursor:cursor+length];cursor+=length
+                self.assertEqual(cursor,len(data));self.assertEqual(bytes(result),after)
     def test_reject_non_x86(self):
         for image in [b'',b'not an executable']:
             with self.assertRaises((ValueError,struct.error)):pe.inspect(image)

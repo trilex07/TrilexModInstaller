@@ -47,7 +47,7 @@ public sealed class TransactionInstaller(string stateRoot, IProcessGuard process
         var budgets=new Dictionary<string,long>(StringComparer.OrdinalIgnoreCase);
         void Reserve(string folder,long bytes){var drive=Path.GetPathRoot(Path.GetFullPath(folder))!;budgets[drive]=checked(budgets.GetValueOrDefault(drive)+bytes+16*1024*1024);}
         var decodedBytes=plan.Modules.Sum(m=>m.Files.Where(f=>f.SourceCodec is not null).GroupBy(f=>f.DecodedSha256).Sum(g=>g.Max(f=>f.DecodedBytes??0)));
-        Reserve(plan.Root,checked(plan.ExpandedBytes+existingBytes));Reserve(state,checked(plan.ExpandedBytes*2+existingBytes*3+decodedBytes+plan.Modules.Count*2L*1024*1024));
+        Reserve(plan.Root,checked(plan.ExpandedBytes+existingBytes));Reserve(state,checked(plan.ExpandedBytes*2+existingBytes*3+decodedBytes+plan.Modules.Count*64L*1024*1024));
         foreach(var (drive,bytes) in budgets)if(new DriveInfo(drive).AvailableFreeSpace<bytes)throw new IOException("Insufficient staging/backup space on "+drive);
         var files=new Dictionary<string,(PackageFile File,string Stage)>(StringComparer.OrdinalIgnoreCase);
         foreach(var module in plan.Modules)

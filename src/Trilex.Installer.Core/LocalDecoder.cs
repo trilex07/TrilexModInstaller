@@ -29,6 +29,13 @@ public static class LocalDecoder
         Directory.CreateDirectory(Path.GetDirectoryName(output)!);
         var start=new ProcessStartInfo(Extended(helper)){UseShellExecute=false,CreateNoWindow=true,RedirectStandardOutput=true,RedirectStandardError=true,WorkingDirectory=Path.GetPathRoot(helper)!};
         start.ArgumentList.Add(file.SourceCodec);start.ArgumentList.Add(Extended(source));start.ArgumentList.Add(Extended(output));
+        if(file.SourceCodec=="ue3-bulk-lzo")
+        {
+            var size=new FileInfo(source).Length;
+            if(file.SourceOffset>size-file.SourceBytes)throw new InvalidDataException("Bulk source range exceeds owned file");
+            start.ArgumentList.Add(file.SourceOffset!.Value.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            start.ArgumentList.Add(file.SourceBytes!.Value.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        }
         using var process=Process.Start(start)??throw new IOException("Cannot start bundled decoder");
         // Decoder receipts are bounded by the bundled implementation (not arbitrary package code).
         var stdout=process.StandardOutput.ReadToEndAsync();var stderr=process.StandardError.ReadToEndAsync();

@@ -44,3 +44,30 @@ Private first-install preparation against `SingularityVR-assets-local/cooked` re
 47 core regression tests PASS, including padded UE3 input, cross-file reconstruction, cache tampering, binary copy/literal output, malformed opcodes/ranges/truncation/trailing bytes and transactional original restoration. Build the decoder first with `scripts/build-decoder.ps1`; the offline recipe producer with `scripts/build-recipe-maker.ps1`. Prepare recipes with `scripts/prepare-v7-native.py --source ../SingularityVR-final-completion --cooked ../SingularityVR-assets-local/cooked --output artifacts/FRESH_NATIVE`.
 
 Remaining release gates above still apply: native glove/knife caches, HD image generation, portable settings and language combinations, complete catalog closure, creative-media provenance and human/clean-Windows verification. This package reconstruction milestone does not enable unavailable modules.
+
+### Native hand cache closure
+
+`scripts/prepare-native-hand-recipes.py` proves original PSK index streams occur uniquely in the exact decoded original core, then emits COPY operations for every retained original triangle. Only mod headers, generated cap triangles and authored finger-pose metadata are literals. The archive need not contain the original index streams or PSK exports. Python and the C# recipe consumer independently reproduced exact accepted hashes for SVNI (3694 original + 98 cap faces), SVNC (8360 original + 76 cap faces) and SVTG (7087 original + 23 cap faces). Source and decoded core identities remain mandatory. No PolyOne geometry is used.
+
+Private reproduction (inputs stay outside Git):
+
+```powershell
+python scripts/prepare-native-hand-recipes.py --source ../SingularityVR-final-completion --decoded artifacts/decoded-original-RvGame.u --original ../SingularityVR-assets-local/cooked/RvGame.xxx --psks ../research/native-hands-20261007/assets/RvGame/SkeletalMesh3 --output artifacts/FRESH_HAND_RECIPES
+```
+
+`verify-recipes` now safely supports an explicit cross-file source under the supplied original root, retaining preimage/decoded/final SHA checks. It never resolves an arbitrary system source. Native hand recipe validation is offline byte evidence, not another headset test.
+
+### Local image and knife generation
+
+The embedded fixed-operation image worker is built with Python 3.14.5, Pillow 12.3.0, NumPy 2.5.3 and PyInstaller 6.20.0. End users need no Python installation. Full dependency/license trees accompany portable builds; upstream MIT and the PyInstaller bootloader exception are retained. Downloaded packages contain data-only metadata, never executable Python.
+
+The UE3 decoder now also reads an explicitly bounded texture bulk range from an exact-hash owned TFC. Both the compressed cache identity and decoded mip identity are verified. Paired diffuse input for the accepted Valkyrie normal algorithm must come from that same verified cache, with its own exact bounded range and decoded SHA. Unsupported operations and dimensions fail closed.
+
+Private C# consumer evidence:
+- `artifacts/hd-texture-verified-v2/recipe-report.json`: all 10 accepted weapon/glove DDS hashes PASS from owned TFC, including original first-present Kasimov diffuse mip (not falsely called recovered mip0).
+- `artifacts/knife-verified-v2/recipe-report.json`: accepted knife geometry, tangent lighting and all three SVRT material maps PASS. Geometry recipes contain source offsets only. Original reflected cooked position/half-UV/index data are read from the owned core; accepted calibration and lighting math run locally.
+- `artifacts/image-pipeline-fixtures3/test-report.json`: 50 core regressions PASS, including real embedded worker execution from synthetic original texture bulk and invalid paired/geometry metadata rejection.
+
+Reproduce private metadata preparation with `prepare-hd-texture-recipes.py --source ../SingularityVR-final-completion --assets ../SingularityVR-assets-local --output artifacts/FRESH_HD` and `prepare-knife-recipes.py --source ../SingularityVR-final-completion --mesh <private-original-2010_knife.pskx> --output artifacts/FRESH_KNIFE`. Build the embedded worker before compiling C# using `scripts/build-asset-worker.ps1 -InstallDependencies`.
+
+These close local generation for three native hand caches, ten HD textures and five knife resources. They do not close authored UI/pose resources, portable preset/module integration, media provenance, production signing or clean-Windows acceptance. Bootstrap availability remains unchanged until full package closure.

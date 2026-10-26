@@ -20,6 +20,14 @@ The published single-file EXE also passed all 8 offscreen cases with `DOTNET_ROO
 
 GitHub Actions independently passed for source `144e9a6d76098bcda71566117f3c64f371f7415a`: [run 40346750583](https://github.com/trilex07/TrilexModInstaller/actions/runs/40346750583). Later commits require their own CI result; this receipt does not certify them implicitly.
 
+Latest clean hosted Windows CI also PASS for `01d26b3365285939c1f34c7689e7930f2750a560`:
+[run 40370378733](https://github.com/trilex07/TrilexModInstaller/actions/runs/40370378733).
+This includes 54 core tests, 5 producer tests, normal and self-contained WPF smoke
+and the portable build. It does not install an owned game or certify PSVR2.
+The complete local V7 fixture and exact unsigned RC hashes are recorded in
+`docs/evidence/v7-complete-local-integration.json`. Integration is reviewable at
+[draft PR #1](https://github.com/trilex07/TrilexModInstaller/pull/1).
+
 ## Release blockers
 
 1. **Public game packages**: all seven catalog modules remain unavailable. Reproducible local generation/reconstruction and per-asset rights review remain necessary. The installer app can transact real signed packs; a complete distributable accepted V7 pack is not yet authorized/prepared.

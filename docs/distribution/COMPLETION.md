@@ -30,6 +30,7 @@ External final gates:
 Evidence details: V7-PREPARATION.md. Private fixture outputs stay ignored; public source contains algorithms/metadata preparation, not extracted assets or signing keys.
 
 Latest exact receipt: `docs/evidence/v7-complete-local-integration.json`.
+Clean hosted Windows CI PASS for source `01d26b3`, run `40370378733`.
 Code commit `b6054ef41aad29c08ef5b2295af8488bd6649bca`.
 Portable EXE SHA256 `8FDA0EAAF77E56B92DBB64EA4DDE899AEFADA7B55395F60BF07E9C667D2C470B`.
 ZIP SHA256 `21B6A5A7510902C51F1E8CB434B867856D0E6AEB2220DFD8352B0486CFBE2428`.

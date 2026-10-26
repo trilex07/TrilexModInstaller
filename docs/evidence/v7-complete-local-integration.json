@@ -97,5 +97,11 @@
   "cleanWindows": "NOT RUN",
   "physicalPSVR2": "NOT RUN for installer",
   "creativeRightsApproved": false,
-  "englishTextPolishMovies": "BLOCKED before writes: accepted runtime coupling"
+  "englishTextPolishMovies": "BLOCKED before writes: accepted runtime coupling",
+  "cleanWindowsCi": {
+    "status": "PASS",
+    "sourceCommit": "01d26b3365285939c1f34c7689e7930f2750a560",
+    "url": "https://github.com/trilex07/TrilexModInstaller/actions/runs/40370378733",
+    "scope": "Clean hosted Windows build, core/producer tests, normal and published WPF smoke; no owned game or PSVR2"
+  }
 }

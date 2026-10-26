@@ -38,3 +38,7 @@ Existing SIDE records also identify Pocket-TTS Polish 6L output in later campaig
 deliveries. Do not label the entire final corpus XTTS or original studio Polish
 dialogue without per-file evidence. Original Bink Polish-track selection is a
 separate runtime feature and needs no redistributed movie/audio files.
+
+A replacement metadata-only DSP path for the seven accepted sound banks is now
+implemented; see LOCAL-AUDIO.md. The earlier literal-recipe finding remains valid
+for the old remaster package and existing dubbing recipes.

@@ -7,7 +7,10 @@ import subprocess
 import random
 import unittest
 import json
+import sys
 from pathlib import Path
+sys.path.insert(0,str(Path(__file__).resolve().parent.parent/"tools/asset-worker"))
+import audio_remaster as audio
 
 ROOT=Path(__file__).resolve().parent.parent
 
@@ -21,6 +24,32 @@ composer=load('composer','scripts/compose-v7-candidate.py')
 payload_audit=load('payload_audit','scripts/audit-recipe-payloads.py')
 
 class ProducerTests(unittest.TestCase):
+    def test_audio_rejects_unapproved_executable_before_processing(self):
+        with tempfile.TemporaryDirectory(dir=ROOT/'artifacts') as temp:
+            folder=Path(temp); codec=folder/'not-a-codec.exe'; codec.write_bytes(b'not executable')
+            with self.assertRaisesRegex(ValueError,'identity not approved'):
+                audio.generate(folder/'missing',folder/'out.xxx',folder/'missing.json',codec)
+            self.assertFalse((folder/'out.xxx').exists())
+
+    def test_audio_serial_rewrite_preserves_packet_and_valid_crc(self):
+        payload=b'owned synthetic packet'; header=bytearray(27)
+        header[:4]=b'OggS'; header[5]=6; header[26]=1
+        page=header+bytes([len(payload)])+payload
+        struct.pack_into('<I',page,22,audio.crc(page))
+        result=audio.canonical_serial(bytes(page),0x12345678)
+        self.assertEqual(result[28:],payload)
+        self.assertEqual(struct.unpack_from('<I',result,14)[0],0x12345678)
+        expected=struct.unpack_from('<I',result,22)[0]
+        cleared=bytearray(result);struct.pack_into('<I',cleared,22,0)
+        self.assertEqual(audio.crc(cleared),expected)
+
+    def test_audio_fixed_profiles_exclude_unaccepted_impulse(self):
+        self.assertEqual(len(audio.PROFILES),7)
+        self.assertFalse(any('impulse' in key.lower() for key in audio.PROFILES))
+        for filters in audio.PROFILES.values():
+            self.assertTrue(filters)
+            self.assertTrue(all(isinstance(f,str) and ';' not in f for f in filters))
+
     def test_recipe_payload_audit_counts_literals_and_rejects_corruption(self):
         recipe=struct.pack('<4sIQI',b'SVRP',1,10,2)+b'\x00'+struct.pack('<QI',0,6)+b'\x01'+struct.pack('<I',4)+b'OggS'
         result=payload_audit.inspect(recipe)

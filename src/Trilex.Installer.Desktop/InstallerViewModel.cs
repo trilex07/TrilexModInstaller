@@ -109,6 +109,7 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
         var choices=new InstallChoices(text,voice,ui,Modules.Where(x=>x.Selected).Select(x=>x.Manifest.Id).ToList());
         plan=PlanBuilder.Build(Game,location!,choices);
         ReviewText=$"{plan.Root}\n\nv{plan.Version} · {plan.DownloadBytes/1048576.0:F1} MB download · {plan.ExpandedBytes/1048576.0:F1} MB payload\nText: {text} / Voice: {voice}\n\n"+string.Join("\n",plan.Modules.Select(x=>$"{x.Label(ui)} · {x.Version} · [{string.Join(", ",x.Dependencies)}]"));
+        if(LocalAudioTools.Required(plan.Modules))ReviewText+="\n\n"+(ui=="pl"?"Remaster audio: przetwarzanie lokalne z własnej kopii gry. Dodatkowy kodek FFmpeg 9.0.2 (GPLv3), około 109 MB z gyan.dev; bez pobierania nagrań.":"Audio remaster: generated locally from your own game. Additional FFmpeg 9.0.2 codec (GPLv3), approximately 109 MB from gyan.dev; no recording download.");
         showReview=true;Changed(nameof(ReviewVisibility));Changed(nameof(CanInstall));Activity=L["ReviewHint"];
     }
     public async Task Execute(CancellationToken ct,bool repair=false)
@@ -116,6 +117,7 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
         if(catalog.ExpiresUtc<=DateTimeOffset.UtcNow)throw new InvalidDataException("Catalog expired; review again");
         if(plan is null)await Review(ct);var chosen=plan!;
         var progress=new Progress<ProgressInfo>(p=>{Activity=$"{p.Stage} · {p.Item}";Percent=p.Total==0?0:100.0*p.Completed/p.Total;});
+        if(LocalAudioTools.Required(chosen.Modules))await LocalAudioTools.EnsureAsync(http,offline,progress,ct);
         var downloader=new PackageDownloader(http,Path.Combine(Home,"cache"));var packages=new Dictionary<string,string>();
         foreach(var module in chosen.Modules)packages[module.Id]=await downloader.GetAsync(module,offline,progress,ct);
         var result=await Task.Run(async()=>repair?await installer.RepairAsync(chosen,packages,progress,ct):await installer.InstallAsync(chosen,packages,progress,ct),ct);

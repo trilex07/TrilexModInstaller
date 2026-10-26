@@ -57,3 +57,7 @@ Source is separate from release assets. CI builds/tests; the manually dispatched
 Commercial originals, extracted PSK/DDS/audio, cooked `.xxx` packages and private generation outputs are excluded. A native/encrypted format does not grant redistribution rights. See the inventory for per-component gates. General PSVR2 acceptance of V7 is preserved separately from distribution approval and exhaustive audio/level testing.
 
 Code copyright © 2026 Trilex, MIT. User-supplied branding/reference kit has separate provenance; game content and external runtime libraries retain their original licenses. See [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
+
+Optional sound remaster can be generated locally from SHA-verified owned audio,
+without distributing recordings. See [local audio and voice provenance](docs/distribution/LOCAL-AUDIO.md).
+Dubbing references remain separately gated; local generation is not a license bypass.

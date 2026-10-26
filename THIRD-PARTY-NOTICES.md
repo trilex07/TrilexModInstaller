@@ -24,3 +24,11 @@ SDL2 2.0.10 is copyright 1997-2019 Sam Lantinga, zlib license. Portable bundles 
 both upstream notices under `licenses/ueviewer`. See `docs/distribution/UEVIEWER.md`
 for exact archive pin and the remaining linked-codec audit gate. These tools do not
 grant distribution rights to original game models or animations.
+
+## Optional local audio codec
+FFmpeg is obtained separately from the pinned Gyan upstream build only when the
+local audio module is selected. It is GPLv3, not covered by this project's MIT
+license. Its upstream LICENSE, README and source notice remain in the tool cache.
+The native DSP/Vorbis allocation algorithms adapted from SingularityVR retain
+that project's MIT attribution in third_party/SingularityVR-MIT.txt. Audio source
+recordings and voice model weights are not bundled by this integration.

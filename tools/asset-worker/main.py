@@ -6,6 +6,7 @@ Final output identities are verified by the installer, independently of this wor
 import argparse, json, struct, sys
 from knife_geometry import generate as generate_knife
 from centurion_assets import generate as generate_centurion
+from audio_remaster import generate as generate_audio
 from pathlib import Path
 import numpy as np
 from PIL import Image, ImageFilter
@@ -52,6 +53,8 @@ def transform(source,output,role,factor,fourcc,diffuse=None):
         rgb=clean.convert('RGB').filter(ImageFilter.UnsharpMask(radius=1.0,percent=38,threshold=5))
         enlarged=rgb.convert('RGBA');enlarged.putalpha(clean.getchannel('A'));save_dds(output,enlarged,fourcc)
 if __name__=='__main__':
+    if len(sys.argv)==6 and sys.argv[1]=='--audio':
+        generate_audio(Path(sys.argv[2]),Path(sys.argv[3]),Path(sys.argv[4]),Path(sys.argv[5]));sys.exit(0)
     if len(sys.argv)==6 and sys.argv[1]=='--centurion':
         generate_centurion(Path(sys.argv[2]),Path(sys.argv[3]),sys.argv[4],Path(sys.argv[5]));sys.exit(0)
     if len(sys.argv)==5 and sys.argv[1]=='--knife':

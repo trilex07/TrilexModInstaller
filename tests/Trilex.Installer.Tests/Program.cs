@@ -342,6 +342,21 @@ await Test("Inline texture slices reject invalid ranges and non-SVRT operations"
         Json.Write(metadata,op);await Reject(()=>Sync(()=>LocalImageGenerator.Apply(raw,f.Root,metadata,new MemoryStream(),80)));
     }
 });
+await Test("Audio codec rejects arbitrary executable and offline missing cache without download",async()=>
+{
+    var f=Fixture();var priorHome=Environment.GetEnvironmentVariable("TRILEX_HOME");var priorCodec=Environment.GetEnvironmentVariable("TRILEX_AUDIO_CODEC");
+    try
+    {
+        Environment.SetEnvironmentVariable("TRILEX_HOME",f.Root);Environment.SetEnvironmentVariable("TRILEX_AUDIO_CODEC",null);
+        var handler=new FakeHttp([]);using var http=new HttpClient(handler);
+        await Reject(()=>LocalAudioTools.EnsureAsync(http,true,null,default));Assert(handler.Requests==0);
+        var bad=Path.Combine(f.Root,"foreign.exe");File.WriteAllText(bad,"not executable");
+        await Reject(()=>Sync(()=>LocalAudioTools.VerifyEncoder(bad)));
+        Environment.SetEnvironmentVariable("TRILEX_AUDIO_CODEC",bad);
+        await Reject(()=>LocalAudioTools.EnsureAsync(http,false,null,default));Assert(handler.Requests==0);
+    }
+    finally{Environment.SetEnvironmentVariable("TRILEX_HOME",priorHome);Environment.SetEnvironmentVariable("TRILEX_AUDIO_CODEC",priorCodec);}
+});
 var report=new{time=DateTimeOffset.UtcNow,passed=results.Count-failed,failed,fixtureRoot=testRoot,steamAccess="NONE",results};
 Json.Write(Path.Combine(testRoot,"test-report.json"),report);Console.WriteLine(JsonSerializer.Serialize(new{passed=results.Count-failed,failed,report=Path.Combine(testRoot,"test-report.json")}));Environment.ExitCode=failed==0?0:1;
 

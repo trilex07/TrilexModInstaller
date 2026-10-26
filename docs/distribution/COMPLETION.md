@@ -39,3 +39,8 @@ The local unsigned RC is not an approved public playable release. The production
 workflow still requires Authenticode and the pinned catalog key. A proposed
 optional-Authenticode change was rejected by automatic approval review and was
 not applied. Any such policy change requires explicit human authorization.
+
+Optional local audio worker: seven metadata-only recipes now reproduce accepted
+remaster banks from owned originals. No recordings are included in this path.
+See LOCAL-AUDIO.md for codec preparation and the separate unresolved dubbing
+reference provenance gate. This does not promote the public dubbing package.

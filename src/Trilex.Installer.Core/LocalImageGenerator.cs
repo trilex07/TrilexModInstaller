@@ -60,7 +60,7 @@ public static class LocalImageGenerator
         var folder=Paths.Safe(staging,"_local-images/"+Guid.NewGuid().ToString("N"));Directory.CreateDirectory(folder);var generated=Path.Combine(folder,"centurion.bin");
         Run(staging,generated,["--centurion",exports,generated,mode,decoded],output,expectedLength);
     }
-    private static void Run(string staging,string generated,IEnumerable<string> arguments,Stream output,int expectedLength)
+    internal static void Run(string staging,string generated,IEnumerable<string> arguments,Stream output,int expectedLength)
     {
         using var resource=typeof(LocalImageGenerator).Assembly.GetManifestResourceStream("Trilex.AssetWorker.exe")??throw new InvalidDataException("Bundled image worker unavailable");
         using var memory=new MemoryStream();resource.CopyTo(memory);var code=memory.ToArray();var hash=Convert.ToHexString(SHA256.HashData(code));

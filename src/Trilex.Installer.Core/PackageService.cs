@@ -66,7 +66,7 @@ public static class PackageExtractor
     {
         if(!module.RightsVerified || string.IsNullOrWhiteSpace(module.RightsEvidence) || !Paths.Same(Paths.Hash(archive),module.ArchiveSha256) || new FileInfo(archive).Length!=module.DownloadBytes)throw new InvalidDataException("Package provenance or checksum rejected");
         var allowed=module.Files.Where(x=>x.Kind=="copy").Select(x=>x.Entry)
-            .Concat(module.Files.SelectMany(x=>x.Recipe??[]).Where(x=>x.Source is "payload" or "xor-original" or "instructions" or "image" or "knife").Select(x=>x.Entry??""))
+            .Concat(module.Files.SelectMany(x=>x.Recipe??[]).Where(x=>x.Source is "payload" or "xor-original" or "instructions" or "image" or "knife" or "audio").Select(x=>x.Entry??""))
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
         using var zip=ZipFile.OpenRead(archive);long total=0;var seen=new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         if(zip.Entries.Count>10000)throw new InvalidDataException("Too many archive entries");
@@ -112,6 +112,7 @@ public static class PackageExtractor
             if(part.Source is "centurion-clip" or "centurion-shell" or "centurion-animation"){if(part.Offset!=0||part.Entry is not null)throw new InvalidDataException("Centurion operation accepts no package code");LocalImageGenerator.ApplyCenturion(original,ownedSource,staging,part.Source[10..],output,part.Length);continue;}
             if(part.Source=="knife"){if(part.Offset!=0)throw new InvalidDataException("Knife offset must be zero");LocalImageGenerator.ApplyKnife(original,staging,Paths.Safe(staging,part.Entry??""),output,part.Length);continue;}
             if(part.Source=="image"){if(part.Offset!=0)throw new InvalidDataException("Image offset must be zero");LocalImageGenerator.Apply(original,staging,Paths.Safe(staging,part.Entry??""),output,part.Length,ownedSource,file);continue;}
+            if(part.Source=="audio"){if(part.Offset!=0||file.SourceCodec is not ("ue3-whole-lzo" or "ue3-logical-lzo"))throw new InvalidDataException("Audio requires decoded owned package and zero operation offset");LocalAudioGenerator.Apply(original,staging,Paths.Safe(staging,part.Entry??""),output,part.Length);continue;}
             if(part.Source=="instructions"){if(part.Offset!=0)throw new InvalidDataException("Recipe offset must be zero");BinaryRecipe.Apply(original,Paths.Safe(staging,part.Entry??""),output,part.Length);continue;}
             var source=part.Source switch{"original" or "xor-original"=>original,"payload"=>Paths.Safe(staging,part.Entry??""),_=>throw new InvalidDataException("Unknown reconstruction source")};
             using var input=File.OpenRead(source);if(part.Offset>input.Length-part.Length)throw new InvalidDataException("Reconstruction range exceeds source");input.Position=part.Offset;

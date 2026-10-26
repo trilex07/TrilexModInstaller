@@ -1,0 +1,65 @@
+{
+  "schema": "trilex-first-edition-complete-v1",
+  "sourceCommit": "ab8b9429e6d7c5a365121ba979cdc54d3667d6b7",
+  "version": "1.0.0-rc.1",
+  "runtimeSource": "38ca72f88112bfcbd26addb0d6aa4f76095aa15e",
+  "runtimeDllSha256": "23A3A768C44F1C6EB5479D899141924C4C44D5C6A73A3175A2827241105370B1",
+  "zipName": "Trilex-SingularityVR-V7-complete-win-x64.zip",
+  "zipBytes": 136000170,
+  "zipSha256": "B6868F430B18D61A25360E4C8A0E5CB98359708C4AED5CF1C96BB335BE6F27F5",
+  "exeSha256": "FF585BE861ED682CFA92FD5472E9A338B828CB23827FC98377FFF0F07C70F911",
+  "catalogSha256": "53345E36F2F4CB3EC59771AFEC53F7B4F091F34E8C61072DF1123257B66F6F87",
+  "moduleCount": 12,
+  "fileDeclarations": 179,
+  "uniqueTargets": 178,
+  "coreTests": {
+    "passed": 59,
+    "failed": 0
+  },
+  "producerTests": {
+    "passed": 10,
+    "failed": 0
+  },
+  "bundleChecksums": "PASS",
+  "ownedSourceLifecycle": {
+    "status": "PASS",
+    "originalsRestored": 127,
+    "steps": [
+      "signed catalog",
+      "all bundled archive hashes",
+      "actual PL full preset planning",
+      "install",
+      "verify",
+      "reinstall",
+      "detect damage",
+      "repair",
+      "uninstall",
+      "byte-exact originals"
+    ],
+    "signedModulesUnchanged": true,
+    "rightsFlagsUnchanged": true,
+    "catalogReceipt": "A9DD0192AF85C0707A3E3543689A319D28BB95E5D686014BFF15B3981CDEE043",
+    "deliveryDifference": "Human-readable module labels only; archives and file recipes identical"
+  },
+  "acceptedPins": {
+    "matched": 158,
+    "semanticIni": 1,
+    "protectedOrInactiveExcluded": 5,
+    "mismatches": 0
+  },
+  "upstreamExporterFirstDownload": "PASS through actual C# consumer into empty cache after explicit client header correction; exact archive and x86 binary SHA256 verified",
+  "authenticode": "UNSIGNED",
+  "publicBinaryPublication": "NOT PERFORMED",
+  "steamAccess": "NONE",
+  "cleanPcInteraction": "PENDING",
+  "physicalInstallerAcceptance": "PENDING",
+  "thirdPartyPermissions": "Unresolved where explicitly disclosed; publisher review is not a rights-holder license",
+  "selfContainedEmbeddedCatalogUi": {
+    "status": "PASS",
+    "layouts": 8,
+    "bindingsErrors": 0,
+    "dotnetRoot": "nonexistent",
+    "sidecarCatalog": "absent",
+    "scope": "Own-app offscreen PL/EN rendering and full-preset bindings; not physical DPI/input acceptance"
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "version": "1.0.0-rc.3",
+  "sourceCommit": "12af03fb694166b6dde7a5c856dacbd189982e64",
+  "fixCommit": "a06fb3bf66539987e253ed51d568aa8c20fe2154",
+  "provenCause": "Fourteen signed image recipes named private extraction alias Textures_P0.tfc; clean Steam uses byte-identical coalesced.tfc. First refusal: centurion_clip.svrt, before apply.",
+  "correction": "Canonical stock source paths; migration accepts only verified kind/ownership/codec/hash; all preimage and output hashes still enforced.",
+  "stockCacheSha256": "6BE9134DF84D23B49089DA39B05594EE813B350949318A54684273104D865EE0",
+  "coreTests": {
+    "passed": 60,
+    "failed": 0
+  },
+  "producerTests": {
+    "passed": 11,
+    "failed": 0
+  },
+  "selfContainedUi": {
+    "status": "PASS",
+    "layouts": 8,
+    "bindingErrors": []
+  },
+  "cleanSourcePreflight": {
+    "status": "PASS",
+    "recipeDeclarations": 148,
+    "uniqueSources": 127,
+    "stockCacheRecipes": 14
+  },
+  "completeLifecycle": {
+    "status": "PASS",
+    "modules": 12,
+    "targets": 178,
+    "fileDeclarations": 179,
+    "originalsRestored": 127,
+    "steps": [
+      "signed catalog",
+      "all bundled archive hashes",
+      "actual PL full preset planning",
+      "install",
+      "verify",
+      "reinstall",
+      "detect damage",
+      "repair",
+      "uninstall",
+      "byte-exact originals"
+    ]
+  },
+  "realSteamPreservation": {
+    "status": "PASS",
+    "pathsChecked": 181,
+    "changed": [],
+    "steamWrites": false,
+    "gameLaunchedByAgent": false
+  },
+  "liveProcessGuard": "EXPECTED REFUSAL: actual Singularity running, no installation attempted",
+  "packages": "All 12 archive hashes and all target output hashes unchanged from RC2; exactly 14 source paths corrected",
+  "zipSha256": "67D2144767B735F6A957EE86C30B4EC8C3F68B523CDA59A001A8885D402907BE",
+  "exeSha256": "AC81F40B0439BB2D22D123E93817A2E1682101E1D8EBC1FEA674CCA7D27902B9",
+  "catalogSha256": "F2ADE86631502006F942139E17222EB4B67AC21D5FC42828A87932AD2D54CD50",
+  "authenticode": "UNSIGNED RC; user explicitly approved distribution",
+  "physicalInstallerAcceptance": "PENDING",
+  "gameplay": "NOT LAUNCHED BY AGENT"
+}

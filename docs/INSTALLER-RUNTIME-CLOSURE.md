@@ -70,6 +70,23 @@ The controlled upgrade exercise is `exercise-bundle-upgrade NEW KEY ORIGINALS
 FRESH_FIXTURE PREVIOUS`: both catalogs and all packages are verified, RC3 is
 installed first, then RC4 must update, verify, repair and restore stock files.
 
+## RC4 result
+
+The final signed bundle passed both complete lifecycle exercises: direct clean
+installation and managed RC3 upgrade. Each used all 12 real signed modules,
+verified 359 unique targets (357 non-INI output hashes plus two merged INIs),
+reinstalled, detected deliberate damage, repaired, uninstalled and restored
+132 original source files byte-for-byte. The marker-only EXE was never launched.
+The actual user backup and Steam installation were read only.
+
+Core regressions: **64 PASS**. Package-producer regressions: **14 PASS**.
+Final published EXE offscreen WPF tests: **8 PASS**, PL/EN, no binding errors.
+The packaged neutral atlas has the accepted `3EF1782696B4A5E1...` identity;
+offline inspection of its sprites and a reconstructed loading Bink frame passed.
+All 16 primary release assets matched GitHub's SHA256 digests and byte sizes.
+The exact source, binaries and evidence identities are in
+[`releases/installer-rc4-evidence.json`](releases/installer-rc4-evidence.json).
+
 Physical acceptance remains **PENDING**: custom startup/loading art, detailed
 wheel artwork and selecting each owned ordinary weapon in PSVR2. No new
 gameplay DLL, aim, tracking or input algorithm is introduced by this correction.

@@ -1,0 +1,190 @@
+{
+  "schema": "trilex-installer-rc4-evidence-v1",
+  "timestampUtc": "2026-10-26T22:47:26.234777+00:00",
+  "installerSource": "79eede9c86321b281826318b1c3feea76337058c",
+  "runtimeSource": "38ca72f88112bfcbd26addb0d6aa4f76095aa15e",
+  "gameplayDllSha256": "23A3A768C44F1C6EB5479D899141924C4C44D5C6A73A3175A2827241105370B1",
+  "installerExeSha256": "3D6D5AFE61DF67575ADDF202EB253E34698BCA04967E049A820B4322305E9C02",
+  "completeZipSha256": "4E0A7821967067FE2EA110C6306042C6E1C230B76BB2D50201F9927CFE1089C0",
+  "completeZipBytes": 1370537620,
+  "signedCatalogSha256": "54711E72B838C55CFB4E74EFF6C5202FD5D00E84499370161E7024AA87122D90",
+  "modules": 12,
+  "uniqueTargets": 359,
+  "runtimeResourcePins": 191,
+  "coreTests": {
+    "passed": 64,
+    "failed": 0
+  },
+  "producerTests": {
+    "passed": 14,
+    "failed": 0,
+    "command": "python -m unittest discover -s tests -p test_package_producers.py -v"
+  },
+  "wpfTests": {
+    "status": "PASS",
+    "layouts": 8,
+    "languages": [
+      "en",
+      "pl"
+    ],
+    "bindingErrors": 0
+  },
+  "lifecycleTests": {
+    "clean": {
+      "status": "PASS",
+      "catalog": "1.0.0-rc.4",
+      "predecessor": null,
+      "modules": 12,
+      "targets": 359,
+      "originalsRestored": 132,
+      "steps": [
+        "signed catalog",
+        "all bundled archive hashes",
+        "actual PL full preset planning",
+        "install or predecessor upgrade",
+        "verify",
+        "reinstall",
+        "detect damage",
+        "repair",
+        "uninstall",
+        "byte-exact originals"
+      ],
+      "evidence": "RC4-CLEAN-INSTALL-EVIDENCE.json",
+      "evidenceSha256": "E651024F7583FA50702DE17B8810DEC5246F213ED84A9C193FD83643EB09F0F7"
+    },
+    "upgrade": {
+      "status": "PASS",
+      "catalog": "1.0.0-rc.4",
+      "predecessor": "1.0.0-rc.3",
+      "modules": 12,
+      "targets": 359,
+      "originalsRestored": 132,
+      "steps": [
+        "signed catalog",
+        "all bundled archive hashes",
+        "actual PL full preset planning",
+        "install or predecessor upgrade",
+        "verify",
+        "reinstall",
+        "detect damage",
+        "repair",
+        "uninstall",
+        "byte-exact originals"
+      ],
+      "evidence": "RC4-UPGRADE-INSTALL-EVIDENCE.json",
+      "evidenceSha256": "D18B5F85D5544B2D53AD7401F1A5FE190E424DF4E404EFBA5B602AAFBFACF19A"
+    }
+  },
+  "uploadTests": {
+    "status": "PASS",
+    "assets": [
+      {
+        "name": "audio-remaster.zip",
+        "size": 4641,
+        "sha256": "ADED00D23905774DD58BD73EE7C7CF119F3ACCE0105556E4FB413911C1330050",
+        "status": "PASS"
+      },
+      {
+        "name": "authored-ui-assets.zip",
+        "size": 61893198,
+        "sha256": "F06E6384D67E5F793F4276D5FEB5DF067959F8146806450DD372404CA6CF97DF",
+        "status": "PASS"
+      },
+      {
+        "name": "catalog.signed.json",
+        "size": 492039,
+        "sha256": "54711E72B838C55CFB4E74EFF6C5202FD5D00E84499370161E7024AA87122D90",
+        "status": "PASS"
+      },
+      {
+        "name": "centurion-assets.zip",
+        "size": 449,
+        "sha256": "EC8CB53B041AF30E0F76EDE4B211EAD1D1A5F33D3D278B0A26642EDAF3C2B038",
+        "status": "PASS"
+      },
+      {
+        "name": "hd-textures.zip",
+        "size": 1181984474,
+        "sha256": "B562B89F08A750527850798FE2958E15DD73735A78A8DB1684585CC8B0664D00",
+        "status": "PASS"
+      },
+      {
+        "name": "knife-assets.zip",
+        "size": 7353,
+        "sha256": "BBAF47CA8071F791B267400ED04032E68CC092C137C4CE79DBF1980808B44C4E",
+        "status": "PASS"
+      },
+      {
+        "name": "native-font-assets.zip",
+        "size": 3977,
+        "sha256": "BC82C52BBA0B27A719A7DAE92DD15316859C23E8DC72D7FD11CBA29B8636A759",
+        "status": "PASS"
+      },
+      {
+        "name": "native-hand-assets.zip",
+        "size": 2964,
+        "sha256": "99E983184FFF09FE53DA84ED2527B0FD7BB7B1C2405779FD3D959EE35F34B465",
+        "status": "PASS"
+      },
+      {
+        "name": "polish-dubbing.zip",
+        "size": 29404083,
+        "sha256": "86D5193630F2C16597770FCD54F1B5157C995B80EF501F2999100A97DCB9F68C",
+        "status": "PASS"
+      },
+      {
+        "name": "polish-text.zip",
+        "size": 22,
+        "sha256": "8739C76E681F900923B900C9DF0EF75CF421D39CABB54650C4B9AD19B6A76D85",
+        "status": "PASS"
+      },
+      {
+        "name": "portable-settings.zip",
+        "size": 22,
+        "sha256": "8739C76E681F900923B900C9DF0EF75CF421D39CABB54650C4B9AD19B6A76D85",
+        "status": "PASS"
+      },
+      {
+        "name": "SHA256SUMS.txt",
+        "size": 7032,
+        "sha256": "0EA1C9FF53AF53E8FBB92D50D0790B00F8D991A2B05D76C0358098ED4A2D11A3",
+        "status": "PASS"
+      },
+      {
+        "name": "Trilex-SingularityVR-V7-complete-win-x64.zip",
+        "size": 1370537620,
+        "sha256": "4E0A7821967067FE2EA110C6306042C6E1C230B76BB2D50201F9927CFE1089C0",
+        "status": "PASS"
+      },
+      {
+        "name": "ui-hud.zip",
+        "size": 3780,
+        "sha256": "53234A7CF96F4A30FFF823BEAF1A5A745A2494C82F590BDBCCB60A631FDD6F86",
+        "status": "PASS"
+      },
+      {
+        "name": "vr-core.zip",
+        "size": 1053355,
+        "sha256": "C7AD3263BA05245A375841B151E36984B069185D6A13AB4B71EE26CFA9F3EA2C",
+        "status": "PASS"
+      },
+      {
+        "name": "ZIP-SHA256SUMS.txt",
+        "size": 111,
+        "sha256": "A47819574E39B40531DACB705945103E3905D7E2616D55F8E602316C0825E266",
+        "status": "PASS"
+      }
+    ]
+  },
+  "contentInspection": {
+    "loadingBink": "Reconstructed fixture frame shows Singularity VR artwork",
+    "wheelAtlas": "Packaged neutral atlas inspected; detailed sprites present",
+    "neutralAtlasSha256": "3EF1782696B4A5E1E9D93F409C5B0F6FF014B78CC42FAB06EC29110661981818"
+  },
+  "steamWrites": "NONE",
+  "gameLaunch": "NOT RUN",
+  "backupMutation": "NONE",
+  "physicalPsvr2Acceptance": "PENDING",
+  "authenticode": "UNSIGNED",
+  "catalogSignature": "ECDSA-P256 verified"
+}

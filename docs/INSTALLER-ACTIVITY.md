@@ -12,7 +12,7 @@ callbacks cannot overwrite the final result. Same-value language binding no
 longer resets the status to initial folder selection, and language/back controls
 are disabled while busy.
 
-Verification: 62 core regressions passed, including actual transaction phase
+Verification: 64 core regressions passed, including actual transaction phase
 ordering and cancellation before game writes. WPF tests cover installation
 status, busy navigation/cancel/indeterminate bindings, language rebinding, late
 progress after an error and cancellation in both languages and eight layouts.

@@ -286,17 +286,29 @@ await Test("binary recipes preserve copies and literals and reject malformed ins
 });
 await Test("owned TFC bulk mip becomes exact local image without a Python installation",async()=>
 {
-    var f=Fixture();var source=Paths.Safe(f.Root,"RvGame/CookedPC/Textures_P0.tfc");
+    var f=Fixture();var source=Paths.Safe(f.Root,"RvGame/CookedPC/coalesced.tfc");
     byte[] block=[0,248,31,0,0,0,0,0];
     using(var data=new MemoryStream()){using(var w=new BinaryWriter(data,System.Text.Encoding.UTF8,true)){w.Write(new byte[16]);w.Write(0x9e2a83c1u);w.Write(131072u);w.Write(8u);w.Write(8u);w.Write(8u);w.Write(8u);w.Write(block);}File.WriteAllBytes(source,data.ToArray());}
     var stage=Path.Combine(f.Root,"image-stage");Directory.CreateDirectory(stage);Json.Write(Path.Combine(stage,"image.json"),new ImageOperation(4,4,"svrt",1,"DXT1"));
     byte[] expected;using(var m=new MemoryStream()){using(var w=new BinaryWriter(m,System.Text.Encoding.UTF8,true)){w.Write("SVRT"u8.ToArray());w.Write(1);w.Write(4);w.Write(4);for(var i=0;i<16;i++)w.Write(new byte[]{0,0,255,255});}expected=m.ToArray();}
     var targetHash=Convert.ToHexString(SHA256.HashData(expected));
-    var file=new PackageFile("Binaries/vr-assets/test/texture.svrt","",targetHash,"recipe","local-transform",Recipe:[new("image",0,expected.Length,"image.json")],SourcePath:"RvGame/CookedPC/Textures_P0.tfc",SourceSha256:Paths.Hash(source),SourceCodec:"ue3-bulk-lzo",DecodedSha256:Convert.ToHexString(SHA256.HashData(block)),DecodedBytes:8,SourceOffset:16,SourceBytes:32);
+    var file=new PackageFile("Binaries/vr-assets/test/texture.svrt","",targetHash,"recipe","local-transform",Recipe:[new("image",0,expected.Length,"image.json")],SourcePath:"RvGame/CookedPC/coalesced.tfc",SourceSha256:Paths.Hash(source),SourceCodec:"ue3-bulk-lzo",DecodedSha256:Convert.ToHexString(SHA256.HashData(block)),DecodedBytes:8,SourceOffset:16,SourceBytes:32);
     Assert(PackageExtractor.Reconstruct(source,stage,file).SequenceEqual(expected));
     var deep=Path.Combine(stage,new string('a',75),new string('b',75),new string('c',75));Directory.CreateDirectory(deep);
     Json.Write(Path.Combine(deep,"image.json"),new ImageOperation(4,4,"svrt",1,"DXT1"));
     Assert(PackageExtractor.Reconstruct(source,deep,file).SequenceEqual(expected),"Full transaction long-path image failed");
+    // A clean Steam layout has coalesced.tfc only. Exercise the installer,
+    // rather than constructing a fixture with the developer's renamed cache.
+    var module=Package(f);var archive=Archives(f,module)[module.Id];
+    using(var zip=ZipFile.Open(archive,ZipArchiveMode.Update))zip.CreateEntryFromFile(Path.Combine(stage,"image.json"),"image.json");
+    module=module with{Files=[..module.Files,file],ArchiveSha256=Paths.Hash(archive),DownloadBytes=new FileInfo(archive).Length};
+    await f.Installer.InstallAsync(f.Plan(module),new(){{module.Id,archive}},null,default);
+    Assert(f.Installer.Verify(f.Root).Count==0&&Paths.Hash(Paths.Safe(f.Root,file.Path))==targetHash);
+    Assert(!File.Exists(Paths.Safe(f.Root,"RvGame/CookedPC/Textures_P0.tfc"))&&Paths.Hash(source)==file.SourceSha256);
+    f.Installer.Uninstall(f.Root,default);
+    Assert(!File.Exists(Paths.Safe(f.Root,file.Path))&&Paths.Hash(source)==file.SourceSha256);
+    try{PackageExtractor.Reconstruct(Paths.Safe(f.Root,"RvGame/CookedPC/Textures_P0.tfc"),stage,file);throw new Exception("Missing preimage accepted");}
+    catch(InvalidDataException e){Assert(e.Message.Contains(file.Path)&&e.Message.Contains(file.SourcePath!)&&e.Message.Contains("MISSING"));}
     foreach(var invalid in new[]{file with{SourceOffset=-1},file with{SourceBytes=536870913},file with{SourceCodec="ue3-whole-lzo"}})await Reject(()=>Sync(()=>LocalSources.Validate(invalid,stage)));
     Json.Write(Path.Combine(stage,"bad.json"),new ImageOperation(8192,8192,"svrt",4,"DXT1"));await Reject(()=>Sync(()=>{using var o=new MemoryStream();LocalImageGenerator.Apply(source,stage,Path.Combine(stage,"bad.json"),o,4);}));
 });

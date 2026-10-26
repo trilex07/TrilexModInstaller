@@ -25,6 +25,26 @@ payload_audit=load('payload_audit','scripts/audit-recipe-payloads.py')
 first_edition=load('first_edition','scripts/prepare-first-edition.py')
 
 class ProducerTests(unittest.TestCase):
+    def test_private_texture_cache_alias_binds_only_exact_owned_stock_bytes(self):
+        file=dict(path='Binaries/texture-override-remaster/test.dds',kind='recipe',
+            ownership='local-transform',sourceCodec='ue3-bulk-lzo',
+            sourcePath='RvGame/CookedPC/Textures_P0.tfc',
+            sourceSha256='6BE9134DF84D23B49089DA39B05594EE813B350949318A54684273104D865EE0',
+            sha256='A'*64,sourceOffset=128,sourceBytes=64,recipe=[dict(source='image',entry='test.json')])
+        module=dict(files=[dict(file)])
+        first_edition.bind_owned_texture_cache(module)
+        self.assertEqual(module['files'],[dict(file,sourcePath='RvGame/CookedPC/coalesced.tfc')])
+        first_edition.bind_owned_texture_cache(module)
+        self.assertEqual(module['files'][0]['sourceSha256'],file['sourceSha256'])
+        for key,value in [('sourceSha256','B'*64),('sourceCodec','ue3-whole-lzo'),
+                          ('kind','copy'),('ownership','mod-authored')]:
+            with self.subTest(key=key),self.assertRaisesRegex(ValueError,'Unsupported private'):
+                first_edition.bind_owned_texture_cache(dict(files=[dict(file,**{key:value})]))
+        other=dict(file,sourcePath='RvGame/CookedPC/another.tfc')
+        untouched=dict(files=[dict(other)])
+        first_edition.bind_owned_texture_cache(untouched)
+        self.assertEqual(untouched['files'],[other])
+
     def test_complete_bundle_requires_private_output_and_immutable_tag(self):
         with self.assertRaisesRegex(ValueError,'artifacts'):
             first_edition.prepare(ROOT/'missing-inputs',ROOT/'catalog/forbidden-output','installer-1.0.0-rc.1')

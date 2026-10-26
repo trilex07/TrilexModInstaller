@@ -103,7 +103,9 @@ public static class PackageExtractor
     }
     private static void WriteReconstruction(string original,string staging,PackageFile file,Stream output)
     {
-        if(file.Kind!="recipe" || file.Ownership!="local-transform" || !Paths.Same(Paths.HashOrNull(original),file.SourceSha256??file.BeforeSha256) || file.Recipe is not {Count:>0})throw new InvalidDataException("Local reconstruction preimage mismatch");
+        if(file.Kind!="recipe" || file.Ownership!="local-transform" || file.Recipe is not {Count:>0})throw new InvalidDataException("Invalid local reconstruction recipe: "+file.Path);
+        var expected=file.SourceSha256??file.BeforeSha256;var actual=Paths.HashOrNull(original);
+        if(!Paths.Same(actual,expected))throw new InvalidDataException($"Local reconstruction preimage mismatch: {file.Path}; source={file.SourcePath??file.SystemSource??file.Path}; expected SHA256={expected}; actual SHA256={actual??"MISSING"}");
         var ownedSource=original;
         original=LocalDecoder.Decode(original,staging,file);
         foreach(var part in file.Recipe)

@@ -4,7 +4,7 @@ Windows launcher and modular installer by **Trilex / trilex07** for the [Singula
 
 ![Installer interface](docs/screenshots/installer-en.png)
 
-**[Download the V7 installer RC4](https://github.com/trilex07/TrilexModInstaller/releases/tag/installer-1.0.0-rc.4):** self-contained Windows installer, pinned signed catalog and 12 local packages. RC4 supplies the missing wheel-selection catalog, custom startup/loading movies and splash, registered 2X/8K textures/effects and PSVR2 trigger helper. It also keeps installation status simple and stable. The accepted gameplay DLL is unchanged. Extract the entire ZIP and choose **Full Trilex V7 (Polish)**. Existing managed RC3 installations can update without reinstalling the game. [Installation instructions, PL/EN](docs/INSTALL-V7.md) · [Runtime closure and cause](docs/INSTALLER-RUNTIME-CLOSURE.md). The executable is unsigned; physical acceptance of this corrected clean-install package remains pending.
+**[Download the updated installer RC5](https://github.com/trilex07/TrilexModInstaller/releases/tag/installer-1.0.0-rc.5):** complete Windows bundle with the accepted October 30 runtime (`147C3297`), inner-wrist E99/health-pack HUD, corrected muzzle VFX, Seeker wheel selection, four HD weapon/reload resource sets and native first-menu button polish. Extract the entire ZIP and choose **Full Trilex V7 (Polish)**. The EXE is unsigned. Gameplay acceptance and clean installer verification are distinct; see [RC5 evidence](docs/releases/installer-rc5.md).
 
 ## Public fan-project preview
 

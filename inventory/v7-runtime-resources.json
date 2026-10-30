@@ -1,6 +1,6 @@
 {
   "schema": "trilex-v7-runtime-resource-closure-v1",
-  "runtimeSource": "38ca72f88112bfcbd26addb0d6aa4f76095aa15e",
+  "runtimeSource": "e814f137675b8ab075c4adb10c1fc9fb1eca5f4a",
   "evidence": "docs/INSTALLER-RUNTIME-CLOSURE.md",
   "files": [
     {
@@ -1080,14 +1080,14 @@
     {
       "path": "Binaries/texture-override-remaster/AR_E99Rifle_alt_d.dds",
       "module": "hd-textures",
-      "sha256": "A0CDC3DD8528F6B278EF814C77C8F81E7EFA708A12C6D32A30C69B7DC3B59EE9",
+      "sha256": "A2417F1463B20E507A317E54114B41DF5D30C7E9C287B8DFB4EC24DC1F11BD4D",
       "bytes": 11184976,
       "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
     },
     {
       "path": "Binaries/texture-override-remaster/AR_E99Rifle_n.dds",
       "module": "hd-textures",
-      "sha256": "54D47F3B7F15EE63410F321B945ACB310DBC95D94346CC006FFD2D7460D06FEE",
+      "sha256": "7B88B292C010A27A6152A5281EB5DEA659D19D17EB08E50027AB0E01FBF7E0F2",
       "bytes": 5592552,
       "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
     },
@@ -1108,28 +1108,28 @@
     {
       "path": "Binaries/texture-override-remaster/AR_shotgun_d.dds",
       "module": "hd-textures",
-      "sha256": "D6A98EF03EC588A31FEFDB7393757738B19B86B9E9381029E47E5C26C0506237",
-      "bytes": 5592560,
+      "sha256": "98CAC7AB6F68EA2BEEF6F160D138282BF32778F5B0FF0375CEF8775DCF8CFA24",
+      "bytes": 22369776,
       "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
     },
     {
       "path": "Binaries/texture-override-remaster/AR_shotgun_n.dds",
       "module": "hd-textures",
-      "sha256": "83F64BFCE085107A4EC80F14D236EB1409A402B8D879BCF8691667C3F92CD798",
-      "bytes": 2796344,
+      "sha256": "925D1753A984AEC8ED06B65CF881ABFFD64333B8B712A29057A34203716AD7B7",
+      "bytes": 11184952,
       "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
     },
     {
       "path": "Binaries/texture-override-remaster/ar_sniper_rifle_d.dds",
       "module": "hd-textures",
-      "sha256": "61E4CC32ED2DED5E369076C5E4CCF4F099D09EA52F63DEF76E9669B4ED40B7A8",
+      "sha256": "D4BFDDC881E456BD186CF6B575BDA13C88A69D8515344ED2E751D2BAD889C072",
       "bytes": 11184976,
       "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
     },
     {
       "path": "Binaries/texture-override-remaster/ar_sniper_rifle_n.dds",
       "module": "hd-textures",
-      "sha256": "37EA2C1A3C368E1A2B7428490D5A36D9673AB0244DFC5AF013AC604C17DAED77",
+      "sha256": "A6DC350CBE29487A1992A36D6766C4487FE9717452DF1E1A67F74949B4AE93A0",
       "bytes": 5592552,
       "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
     },
@@ -1206,15 +1206,15 @@
     {
       "path": "Binaries/texture-override-remaster/handgun_d.dds",
       "module": "hd-textures",
-      "sha256": "3590579EDF7F67ED49675B0104798EA6D66818E9B2663C5BCCCFFE3DFE618E9C",
-      "bytes": 5592560,
+      "sha256": "BD4F97AFAFBD06596288842EB7AB465C62725A42DBB4891C079387264E70BD6B",
+      "bytes": 22369776,
       "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
     },
     {
       "path": "Binaries/texture-override-remaster/handgun_n.dds",
       "module": "hd-textures",
-      "sha256": "ED70B5EB67E85BCCA99B305865C574F7023DA622D0EC8E9A41DC1F352D67E255",
-      "bytes": 2796344,
+      "sha256": "CF15FA5F26F9E5DC9A7C6CE324876E595DDDD6520C7F52C58FFE136B4ED77A5B",
+      "bytes": 11184952,
       "consumer": "D3D9Ex bridge target registry, active tier or remaster directory"
     },
     {
@@ -1349,6 +1349,97 @@
       "sha256": "22FB94D0B49ED21CDFD941CC89E6BDBE5F6894AF0F684DDFC07BB48D9BC3786D",
       "bytes": 22528,
       "consumer": "StartPsvr2TriggerClientOnce: adaptive trigger IPC helper, source-owned program"
+    },
+    {
+      "path": "Binaries/vr-assets/reload/centurion/centurion_hd.svct",
+      "module": "centurion-assets",
+      "sha256": "42460E79504D085F246191AC682DD50092B14B20C1AD40EB8B7E8741E01587C4",
+      "bytes": 305222,
+      "consumer": "Accepted native HD geometry / physical reload replay; source e814f137"
+    },
+    {
+      "path": "Binaries/vr-assets/reload/kasimov/kasimov_clip.svrk",
+      "module": "centurion-assets",
+      "sha256": "B9387A88E9BB50D898EF28A1FFBA1C9E4E59E474CA92F90120F252CF931191D1",
+      "bytes": 5176,
+      "consumer": "Accepted native HD geometry / physical reload replay; source e814f137"
+    },
+    {
+      "path": "Binaries/vr-assets/reload/kasimov/kasimov_clip.svrt",
+      "module": "centurion-assets",
+      "sha256": "99A9935447D0ECDF47E2A6211F4405CB445F8E768901A522D21F11D04918EF50",
+      "bytes": 2097168,
+      "consumer": "Accepted native HD geometry / physical reload replay; source e814f137"
+    },
+    {
+      "path": "Binaries/vr-assets/reload/kasimov/kasimov_hd.svks",
+      "module": "centurion-assets",
+      "sha256": "57CA2AB092101F3334E1C789DD667DDEA2DBD950D426A9E70FABBED637948D6E",
+      "bytes": 486744,
+      "consumer": "Accepted native HD geometry / physical reload replay; source e814f137"
+    },
+    {
+      "path": "Binaries/vr-assets/reload/kasimov/kasimov_reload.svwa",
+      "module": "centurion-assets",
+      "sha256": "112CEABEFE13A203094847DCB4FDD441EDAAD774F0BEF28EB6091B09E065E47F",
+      "bytes": 33932,
+      "consumer": "Accepted native HD geometry / physical reload replay; source e814f137"
+    },
+    {
+      "path": "Binaries/vr-assets/reload/valkyrie/valkyrie_clip.svrk",
+      "module": "centurion-assets",
+      "sha256": "C6420D9A1C96E09C73C23EC4FB86CB45F4F91C51FD37533F6B365DEA2D5756D0",
+      "bytes": 16720,
+      "consumer": "Accepted native HD geometry / physical reload replay; source e814f137"
+    },
+    {
+      "path": "Binaries/vr-assets/reload/valkyrie/valkyrie_clip.svrt",
+      "module": "centurion-assets",
+      "sha256": "248760B3A25DD51B02B0BC132DFF711315B44144BEA6A9D07629A0B5BD321155",
+      "bytes": 8388624,
+      "consumer": "Accepted native HD geometry / physical reload replay; source e814f137"
+    },
+    {
+      "path": "Binaries/vr-assets/reload/valkyrie/valkyrie_hd.svvk",
+      "module": "centurion-assets",
+      "sha256": "1AE4F536B1A82BA75AFB9FA9A5FB491910486117A18BFCAFCA7A927D67730364",
+      "bytes": 531604,
+      "consumer": "Accepted native HD geometry / physical reload replay; source e814f137"
+    },
+    {
+      "path": "Binaries/vr-assets/reload/valkyrie/valkyrie_reload.svwa",
+      "module": "centurion-assets",
+      "sha256": "97DE1B7B37C733DCB35A8B15EA5AE6FF778A1FB1917305ACF70322C32C30E9DD",
+      "bytes": 7752,
+      "consumer": "Accepted native HD geometry / physical reload replay; source e814f137"
+    },
+    {
+      "path": "Binaries/vr-assets/reload/volk/volk_clip.svrk",
+      "module": "centurion-assets",
+      "sha256": "9029FDA62D9179CDDC9D2DDA8C16F882FE69D03C43D2C016BE797FF854EBDAE6",
+      "bytes": 7012,
+      "consumer": "Accepted native HD geometry / physical reload replay; source e814f137"
+    },
+    {
+      "path": "Binaries/vr-assets/reload/volk/volk_clip.svrt",
+      "module": "centurion-assets",
+      "sha256": "87C6418A4D491A19BF00FBA2053194EA78D2AFCE3ECB768A8AAB8063D8211708",
+      "bytes": 4194320,
+      "consumer": "Accepted native HD geometry / physical reload replay; source e814f137"
+    },
+    {
+      "path": "Binaries/vr-assets/reload/volk/volk_hd.svvh",
+      "module": "centurion-assets",
+      "sha256": "1BE0338D0925FD9102FA6A0EB190CD5BAC5946F058DA9C85E8939E94C5025EBF",
+      "bytes": 463110,
+      "consumer": "Accepted native HD geometry / physical reload replay; source e814f137"
+    },
+    {
+      "path": "Binaries/vr-assets/reload/volk/volk_reload.svwa",
+      "module": "centurion-assets",
+      "sha256": "CDB998651DEA731CC552CB9C59836C0804A9678FCE2F20C18DAF792551D4D750",
+      "bytes": 12496,
+      "consumer": "Accepted native HD geometry / physical reload replay; source e814f137"
     }
   ],
   "excluded": {

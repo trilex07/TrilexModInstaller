@@ -26,3 +26,13 @@ Private accepted sources and hash-matching stock originals are required. No Stea
 3. Run actual signed-bundle clean/RC4-upgrade lifecycle tests with frozen originals, then published EXE PL/EN render smoke.
 
 Installer EXE remains unsigned; catalog is signed by the existing pinned publisher key. Gameplay user acceptance applies to installed build 147C3297. No new FPS or exhaustive level/audio acceptance is claimed. A recipient's physical clean-install PSVR2 acceptance remains separate.
+
+## Verification
+
+- Core: 64 PASS; package producers: 14 PASS.
+- Published self-contained EXE: 8 PL/EN layout smoke tests PASS, no binding errors.
+- Actual packed runtime/settings and all 204 resource identities PASS.
+- Clean signed-bundle lifecycle: 12 modules / 372 targets, reinstall, detect damage, repair, uninstall and 132 byte-exact stock restorations PASS.
+- All 15 uploaded primary assets matched GitHub SHA256 digests and sizes.
+
+Full evidence: `installer-rc5-evidence.json`.

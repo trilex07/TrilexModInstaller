@@ -163,7 +163,7 @@ class ProducerTests(unittest.TestCase):
             root=Path(temp);inventory=json.loads((ROOT/'inventory/singularity-v7.json').read_text())
             files=[dict(path=f['destination'],kind='copy') for f in inventory['files'] if f['destination'] not in composer.EXCLUDED]
             allfiles={f['path'].lower():f for f in files}
-            extra={'authored-ui-assets':[], 'hd-textures':[]}
+            extra={'authored-ui-assets':[], 'hd-textures':[], 'centurion-assets':[]}
             for row in resources.inventory()['files']:
                 f=dict(path=row['path'],kind='copy',sha256=row['sha256'],
                        **({'beforeSha256':row['beforeSha256']} if 'beforeSha256' in row else {}))

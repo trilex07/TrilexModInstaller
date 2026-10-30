@@ -36,3 +36,5 @@ Installer EXE remains unsigned; catalog is signed by the existing pinned publish
 - All 15 uploaded primary assets matched GitHub SHA256 digests and sizes.
 
 Full evidence: `installer-rc5-evidence.json`.
+
+RC4-to-RC5 full signed-bundle lifecycle also PASS: 12 modules / 372 targets; reinstall, detect damage, repair, uninstall and 132 byte-exact original restorations. No Steam writes or game launch.

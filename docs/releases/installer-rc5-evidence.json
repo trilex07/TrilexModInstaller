@@ -1,0 +1,62 @@
+{
+  "runtimeSource": "e814f137675b8ab075c4adb10c1fc9fb1eca5f4a",
+  "gameplayDllSha256": "147C3297211CFA6CA6B964E29FBBD79538B7EE69D7BC155861B66F67B24BDC96",
+  "zipSha256": "41905BCD88F3F89F57C9F871128CF74753D3A6F03351B0AC7926DAE73131C25C",
+  "exeSha256": "FE21D2F62598AFD425FB0FC4B0E86813E15A129EA88601113E19B5D6C4DC7A94",
+  "signedCatalogSha256": "10AABC40B6A53F6766C8052A5591E8DCD5DC91B23CF9AE2C422BB5230685F553",
+  "coreTests": "64 PASS",
+  "producerTests": "14 PASS",
+  "publishedExeLayouts": "8 PL/EN PASS",
+  "lifecycle": {
+    "clean": {
+      "status": "PASS",
+      "catalog": "1.0.0-rc.5",
+      "predecessor": null,
+      "modules": 12,
+      "targets": 372,
+      "originalsRestored": 132,
+      "steps": [
+        "signed catalog",
+        "all bundled archive hashes",
+        "actual PL full preset planning",
+        "install or predecessor upgrade",
+        "verify",
+        "reinstall",
+        "detect damage",
+        "repair",
+        "uninstall",
+        "byte-exact originals"
+      ],
+      "steamAccess": "NONE",
+      "physicalAcceptance": "NOT RUN"
+    },
+    "upgrade": {
+      "status": "PASS",
+      "catalog": "1.0.0-rc.5",
+      "predecessor": "1.0.0-rc.4",
+      "modules": 12,
+      "targets": 372,
+      "originalsRestored": 132,
+      "steps": [
+        "signed catalog",
+        "all bundled archive hashes",
+        "actual PL full preset planning",
+        "install or predecessor upgrade",
+        "verify",
+        "reinstall",
+        "detect damage",
+        "repair",
+        "uninstall",
+        "byte-exact originals"
+      ],
+      "steamAccess": "NONE",
+      "physicalAcceptance": "NOT RUN"
+    }
+  },
+  "resourcePins": 204,
+  "changedResources": 25,
+  "gameplayHudAcceptance": "USER CONFIRMED on 2026-10-30",
+  "cleanInstallHmdAcceptance": "PENDING",
+  "steamWrites": "NONE",
+  "authenticode": "UNSIGNED"
+}

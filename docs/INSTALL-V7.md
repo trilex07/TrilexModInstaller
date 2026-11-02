@@ -2,6 +2,11 @@
 
 ## Polski
 
+**RC7:** aktualny zaakceptowany silnik, kino stereo scen silnika, wybór broni
+wzrokiem, NIS ze śledzeniem wzroku i wibracje przy obrażeniach. Gaze wymaga
+zgodnego PSVR2 Toolkit na komputerze. Filmiki Bink pozostają mono. Tylko proces
+Singularity blokuje instalację. Wypakowanie na innym dysku jest dozwolone.
+
 1. Wypakuj **cały ZIP**, zachowując `packages`, katalog podpisany i EXE w jednym
    folderze. Nie kopiuj instalatora do katalogu gry. Potrzebujesz własnego
    Singularity ze Steam, zgodnej wersji Windows x64 i aktywnego OpenXR/SteamVR.

@@ -4,7 +4,7 @@ Windows launcher and modular installer by **Trilex / trilex07** for the [Singula
 
 ![Installer interface](docs/screenshots/installer-en.png)
 
-**[Download the updated installer RC6](https://github.com/trilex07/TrilexModInstaller/releases/tag/installer-1.0.0-rc.6):** complete Windows bundle with the accepted October 30 runtime (`147C3297`), inner-wrist E99/health-pack HUD, corrected muzzle VFX, Seeker wheel selection, four HD weapon/reload resource sets and native first-menu button polish. RC6 includes the pinned UE Viewer tool locally, fixing the gildor.org DNS download blocker. Separate module downloads and evidence JSON reports are not needed. Extract the entire ZIP and choose **Full Trilex V7 (Polish)**. The EXE is unsigned. Gameplay acceptance and clean installer verification are distinct; see [RC5 evidence](docs/releases/installer-rc5.md).
+**[Download the updated installer RC7](https://github.com/trilex07/TrilexModInstaller/releases/tag/installer-1.0.0-rc.7):** complete Windows bundle with accepted runtime `A16FC192` and the matching gaze bridge: engine-cutscene stereo cinema, gaze weapon selection/NIS sharpening, damage haptics and scripted mutant-shot assistance. It retains the inner-wrist E99/health-pack HUD, corrected muzzle VFX, Seeker wheel selection, four HD weapon/reload resource sets, Polish materials and native first-menu button polish. Only Singularity blocks installation; unrelated Steam apps/tools do not. The pinned UE Viewer is bundled, avoiding the gildor.org download blocker. Separate modules and evidence reports are optional. Extract the whole ZIP and choose **Full Trilex V7 (Polish)**. The EXE is unsigned. PSVR2 gaze requires a compatible Toolkit backend; Bink movies remain mono. See [RC7 scope and verification](docs/releases/installer-rc7.md).
 
 ## Public fan-project preview
 
@@ -17,6 +17,11 @@ installer EXE, game recordings or a full installable mod catalog. See the
 [source-preview notes](docs/SOURCE-PREVIEW-0.1.0.md) for the exact contents.
 
 ## Features
+
+- RC7 bundles the accepted A16FC192 runtime and matching x64 gaze bridge:
+  engine-cutscene stereo cinema, gaze weapon wheel/NIS and damage haptics enabled.
+  PSVR2 gaze requires a compatible Toolkit backend; Bink movies remain mono.
+  See [RC7 release notes](docs/releases/installer-rc7.md) for exact scope and limits.
 
 - Trilex dark desktop interface, supplied logo and icons, English/Polish UI.
 - Steam library/appmanifest detection, manual folder validation, exact compatible EXE SHA-256.

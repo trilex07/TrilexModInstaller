@@ -74,6 +74,12 @@ try
         var previous=BundleSource.CatalogAt(bundleOld,service)??throw new InvalidDataException("Previous signed catalog absent");
         await FixtureExercise.RunBundle(current,bundleNew,upgradeOriginals,upgradeFixture,previous,bundleOld);
     }
+    else if(args is ["finish-bundle-upgrade-fixture",var resumeBundle,var resumeKey,var resumeOriginals,var resumeRoot])
+    {
+        using var http=new HttpClient();var service=new CatalogService(http,File.ReadAllText(resumeKey));
+        var catalog=BundleSource.CatalogAt(resumeBundle,service)??throw new InvalidDataException("Signed resume catalog absent");
+        await FixtureExercise.FinishUpgradedBundle(catalog,resumeBundle,resumeOriginals,resumeRoot);
+    }
     else if(args is ["exercise-owned",var ownedInputs,var ownedSources,var ownedRoot])
         await FixtureExercise.RunOwned(ownedInputs,ownedSources,ownedRoot);
     else if(args is ["exercise",var exerciseModule,var exerciseArchive,var exerciseRoot])

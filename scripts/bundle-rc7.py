@@ -49,6 +49,8 @@ def archive():
         assert report['status']=='PASS' and report['catalog']=='1.0.0-rc.7'
         assert all(f['sha256']==f['expected'] for f in report['installed'])
         lifecycles[name] = {k: report[k] for k in ('status', 'catalog', 'predecessor', 'modules', 'targets', 'originalsRestored', 'steps')}
+        if 'recovery' in report:
+            lifecycles[name]['recovery'] = report['recovery']
     target = OUT/'Trilex-SingularityVR-V7-complete-win-x64.zip'
     with zipfile.ZipFile(target, 'x', zipfile.ZIP_DEFLATED, compresslevel=6) as z:
         for p in sorted(BUNDLE.rglob('*')):
@@ -57,7 +59,7 @@ def archive():
     with zipfile.ZipFile(target) as z:
         assert z.testzip() is None
     evidence = json.loads((OUT/'runtime-content-evidence.json').read_text())
-    evidence.update(status='PASS_RELEASE_READY', installerBuildSource='a56491c',
+    evidence.update(status='PASS_RELEASE_READY', installerBuildSource='a56491c1ac6fefe11c028f95f8fec7da1af9b379',
         exeSha256=sha(BUNDLE/'TrilexModInstaller.exe'), zipSha256=sha(target),
         zipBytes=target.stat().st_size, catalogSha256=sha(OUT/'catalog.signed.json'),
         lifecycle=lifecycles, coreTests='66 PASS / 0 FAIL',

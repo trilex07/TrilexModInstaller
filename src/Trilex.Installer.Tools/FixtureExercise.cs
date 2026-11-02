@@ -47,6 +47,48 @@ internal static class FixtureExercise
         Json.Write(Path.Combine(root,"exercise-report.json"),new{status="PASS",catalog=catalog.Version,predecessor=previousCatalog?.Version,modules=plan.Modules.Count,targets=plan.Modules.SelectMany(m=>m.Files).Select(f=>f.Path).Distinct(StringComparer.OrdinalIgnoreCase).Count(),fileDeclarations=plan.Modules.Sum(m=>m.Files.Count),originalsRestored=before.Count,signedModulesUnchanged=true,rightsFlagsUnchanged=true,installed,steps=new[]{"signed catalog","all bundled archive hashes","actual PL full preset planning","install or predecessor upgrade","verify","reinstall","detect damage","repair","uninstall","byte-exact originals"},steamAccess="NONE",physicalAcceptance="NOT RUN"});
         Console.WriteLine("PASS signed complete bundle lifecycle; originals restored: "+before.Count);
     }
+    // Continue a marker-only upgrade fixture after disk-space preflight refused
+    // the repair. Never run on a real game or manufacture prior PASS.
+    public static async Task FinishUpgradedBundle(Catalog catalog,string bundle,string originals,string folder)
+    {
+        var root=Path.GetFullPath(folder);var allowed=Path.GetFullPath("artifacts")+Path.DirectorySeparatorChar;
+        if(catalog.Version!="1.0.0-rc.7"||Path.GetFileName(root)!="rc7-upgrade-lifecycle"||
+           !root.StartsWith(allowed,StringComparison.OrdinalIgnoreCase)||!Directory.Exists(root)||
+           File.ReadAllText(Path.Combine(root,"Binaries/Singularity.exe"))!=Marker||
+           File.Exists(Path.Combine(root,"exercise-report.json")))throw new IOException("Existing marker-only fixture required");
+        var game=catalog.Games.Single(g=>g.Id=="singularity");
+        var archives=game.Modules.ToDictionary(m=>m.Id,m=>BundleSource.ArchiveAt(bundle,m)??throw new FileNotFoundException("Bundle archive missing: "+m.Id));
+        var before=new Dictionary<string,string>(StringComparer.OrdinalIgnoreCase);
+        foreach(var f in game.Modules.SelectMany(m=>m.Files).Where(f=>f.Kind=="recipe"&&f.SystemSource is null))
+        {
+            var relative=f.SourcePath??f.Path;var expected=f.SourceSha256??f.BeforeSha256;
+            if(expected is null||!Paths.Same(Paths.Hash(Paths.Safe(originals,relative)),expected))throw new InvalidDataException("Owned original mismatch: "+relative);
+            before[relative]=expected;
+        }
+        var installer=new TransactionInstaller(Path.Combine(root,"fixture-state"),new Guard());
+        var damage=game.Modules.SelectMany(m=>m.Files).First(f=>f.Kind=="copy");
+        var existingDamage=installer.Verify(root);
+        if(existingDamage.Count!=1||!Paths.Same(existingDamage[0],damage.Path)||
+           File.ReadAllText(Paths.Safe(root,damage.Path))!="SIMULATED DAMAGE")
+            throw new IOException("Only the intentional fixture damage may remain at resume");
+        foreach(var f in game.Modules.SelectMany(m=>m.Files).Where(f=>f.Kind!="ini"&&f.SystemSource is null))
+            if(!Paths.Same(f.Path,damage.Path)&&!Paths.Same(Paths.Hash(Paths.Safe(root,f.Path)),f.Sha256))throw new IOException("Upgrade is not requested signed catalog: "+f.Path);
+        var exeHash=Paths.Hash(Path.Combine(root,"Binaries/Singularity.exe"));
+        var fixtureGame=game with{ExeSha256=[exeHash]};
+        var choices=new InstallChoices("pl","pl","pl",game.Modules.Select(m=>m.Id).ToList());
+        var plan=PlanBuilder.Build(fixtureGame,new(root,"Resumed owned-source upgrade fixture",true,"Not a playable game",exeHash),choices);
+        Console.WriteLine("PASS resumed signed upgrade: only the intentional damage differs from the current catalog");
+        if(installer.Verify(root).Count==0)throw new IOException("Damage undetected");
+        await installer.RepairAsync(plan,archives,null,default);
+        if(installer.Verify(root).Count!=0)throw new IOException("Resumed upgrade repair failed");
+        var installed=plan.Modules.SelectMany(m=>m.Files).Where(f=>f.Kind!="ini").Select(f=>new{f.Path,sha256=Paths.Hash(Paths.Safe(root,f.Path)),expected=f.Sha256}).ToList();
+        installer.Uninstall(root,default);
+        foreach(var p in before)if(!Paths.Same(Paths.Hash(Paths.Safe(root,p.Key)),p.Value))throw new IOException("Original not restored: "+p.Key);
+        foreach(var f in plan.Modules.SelectMany(m=>m.Files))if(!before.ContainsKey(f.Path)&&File.Exists(Paths.Safe(root,f.Path)))throw new IOException("Uninstall left file: "+f.Path);
+        Json.Write(Path.Combine(root,"exercise-report.json"),new{status="PASS",catalog=catalog.Version,predecessor="1.0.0-rc.6",modules=plan.Modules.Count,targets=plan.Modules.SelectMany(m=>m.Files).Select(f=>f.Path).Distinct(StringComparer.OrdinalIgnoreCase).Count(),originalsRestored=before.Count,installed,steps=new[]{"RC6 signed install","RC7 signed upgrade","reinstall before intentional damage","exact current catalog hashes except deliberate damage","detect damage","repair","uninstall","byte-exact originals"},recovery="Repair preflight refused insufficient disk; only the deliberate fixture damage remained; repaired/uninstalled after freeing finished fixture copies",steamAccess="NONE",physicalAcceptance="NOT RUN"});
+        Console.WriteLine("PASS resumed upgrade repair/uninstall; originals restored: "+before.Count);
+    }
+
     public sealed record OwnedExerciseInput(string Module,string Stage);
     public static async Task RunOwned(string inputsPath,string originals,string folder)
     {

@@ -1,0 +1,72 @@
+{
+  "installerBuildSource": "583d2fd3cbf70c37e62148371f87d551b19cedd8",
+  "gameplayDllSha256": "147C3297211CFA6CA6B964E29FBBD79538B7EE69D7BC155861B66F67B24BDC96",
+  "zipSha256": "3E9D9E2F6D55F6560F8B99C25B216B11C5CB85E72812CEB743C2F23306E5F416",
+  "exeSha256": "C379F89E460097CCBEC443B8D9316E9A0604858DB84B083B42D2490CFE584DD2",
+  "signedCatalogSha256": "E8F31E42495FC9D708968B118EA8CA3C80B584ADA7FECEE4B55332D7702672A4",
+  "exporterArchiveSha256": "2CEAD261B360DBCC3E703F091837B415F868250DD6A73A154F4232D09E226EF8",
+  "coreTests": "65 PASS",
+  "producerTests": "14 PASS",
+  "publishedExeLayouts": "8 PL/EN PASS",
+  "bundledExporterOffline": "PASS, fresh tool cache; no network permitted",
+  "corruptExporter": "PASS, rejected before network and packaging writes",
+  "content": {
+    "status": "PASS",
+    "allBundledFilesVerified": true,
+    "unchangedRc5Modules": 12,
+    "gameplayDeclarations": "UNCHANGED",
+    "archiveSha256": "2CEAD261B360DBCC3E703F091837B415F868250DD6A73A154F4232D09E226EF8"
+  },
+  "lifecycle": {
+    "clean": {
+      "status": "PASS",
+      "catalog": "1.0.0-rc.6",
+      "predecessor": null,
+      "modules": 12,
+      "targets": 372,
+      "originalsRestored": 132,
+      "steps": [
+        "signed catalog",
+        "all bundled archive hashes",
+        "actual PL full preset planning",
+        "install or predecessor upgrade",
+        "verify",
+        "reinstall",
+        "detect damage",
+        "repair",
+        "uninstall",
+        "byte-exact originals"
+      ],
+      "steamAccess": "NONE",
+      "physicalAcceptance": "NOT RUN"
+    },
+    "upgrade": {
+      "status": "PASS",
+      "catalog": "1.0.0-rc.6",
+      "predecessor": "1.0.0-rc.5",
+      "modules": 12,
+      "targets": 372,
+      "originalsRestored": 132,
+      "steps": [
+        "signed catalog",
+        "all bundled archive hashes",
+        "actual PL full preset planning",
+        "install or predecessor upgrade",
+        "verify",
+        "reinstall",
+        "detect damage",
+        "repair",
+        "uninstall",
+        "byte-exact originals"
+      ],
+      "steamAccess": "NONE",
+      "physicalAcceptance": "NOT RUN"
+    }
+  },
+  "steamWrites": "NONE",
+  "gameLaunch": "NOT RUN",
+  "physicalAcceptance": "NOT RUN",
+  "discSpanishCompatibility": "UNVERIFIED",
+  "authenticode": "UNSIGNED",
+  "optionalAudioCodec": "Existing first-use download/cache requirement unchanged"
+}

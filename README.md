@@ -18,6 +18,11 @@ installer EXE, game recordings or a full installable mod catalog. See the
 
 ## Features
 
+- RC7 bundles the accepted A16FC192 runtime and matching x64 gaze bridge:
+  engine-cutscene stereo cinema, gaze weapon wheel/NIS and damage haptics enabled.
+  PSVR2 gaze requires a compatible Toolkit backend; Bink movies remain mono.
+  See [RC7 release notes](docs/releases/installer-rc7.md) for exact scope and limits.
+
 - Trilex dark desktop interface, supplied logo and icons, English/Polish UI.
 - Steam library/appmanifest detection, manual folder validation, exact compatible EXE SHA-256.
 - Game text/dubbing selectors synchronized with their module checkboxes. Accepted V7 does not support complete Polish movie voice with English text; this combination fails before writing. The complete candidate includes VR Core, UI/HUD, HD textures, local audio remaster, Polish dubbing/text, original-derived hand/TMD and reload assets, and the accepted preset.

@@ -93,13 +93,21 @@ public static class PackageExtractor
     }
     public static byte[] Reconstruct(string original,string staging,PackageFile file)
     {
-        using var output=new MemoryStream();WriteReconstruction(original,staging,file,output);var result=output.ToArray();if(!Paths.Same(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(result)),file.Sha256))throw new InvalidDataException("Locally reconstructed output hash mismatch");return result;
+        using var output=new MemoryStream();WriteReconstruction(original,staging,file,output);var result=output.ToArray();VerifyReconstruction(file,Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(result)),result.LongLength);return result;
     }
     public static void ReconstructTo(string original,string staging,PackageFile file,string target)
     {
         Paths.AssertNoLinks(target);Directory.CreateDirectory(Path.GetDirectoryName(target)!);
         using(var output=new FileStream(target,FileMode.CreateNew,FileAccess.Write,FileShare.None)){WriteReconstruction(original,staging,file,output);output.Flush(true);}
-        if(!Paths.Same(Paths.Hash(target),file.Sha256))throw new InvalidDataException("Locally reconstructed output hash mismatch");
+        VerifyReconstruction(file,Paths.Hash(target),new FileInfo(target).Length);
+    }
+    private static void VerifyReconstruction(PackageFile file,string actual,long bytes)
+    {
+        if(Paths.Same(actual,file.Sha256))return;
+        // Source identity was checked before running the recipe. Name the failed
+        // output and operation rather than incorrectly diagnosing a store edition.
+        var operations=string.Join(",",(file.Recipe??[]).Select(x=>x.Source).Distinct());
+        throw new InvalidDataException($"Locally reconstructed output hash mismatch: {file.Path}; source={file.SourcePath??file.SystemSource??file.Path}; codec={file.SourceCodec??"none"}; operations={operations}; bytes={bytes}; expected SHA256={file.Sha256}; actual SHA256={actual}");
     }
     private static void WriteReconstruction(string original,string staging,PackageFile file,Stream output)
     {

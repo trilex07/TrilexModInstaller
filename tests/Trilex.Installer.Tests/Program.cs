@@ -162,6 +162,30 @@ await Test("local reconstruction reads owned originals and verifies output",asyn
 {
     var f=Fixture();var source=Path.Combine(f.Root,"source.bin");File.WriteAllText(source,"ABCD1234");var stage=Path.Combine(f.Root,"stage");Directory.CreateDirectory(stage);File.WriteAllText(Path.Combine(stage,"new.bin"),"MOD");var expected=SHA256.HashData(Encoding.UTF8.GetBytes("ABMOD34"));var recipe=new PackageFile("RvGame/CookedPC/new.xxx","",Convert.ToHexString(expected),"recipe","local-transform",Paths.Hash(source),Recipe:[new("original",0,2),new("payload",0,3,"new.bin"),new("original",6,2)]);Assert(Encoding.UTF8.GetString(PackageExtractor.Reconstruct(source,stage,recipe))=="ABMOD34");await Reject(()=>Sync(()=>PackageExtractor.Reconstruct(source,stage,recipe with{BeforeSha256=new string('0',64)})));
 });
+await Test("reconstruction mismatch identifies output and operation in both output paths",async()=>
+{
+    var f=Fixture();var source=Path.Combine(f.Root,"source.bin");File.WriteAllText(source,"OWNED");
+    var stage=Path.Combine(f.Root,"stage");Directory.CreateDirectory(stage);
+    var actual=Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes("OWNED")));
+    var recipe=new PackageFile("Binaries/vr-assets/failing.bin","",new string('0',64),"recipe","local-transform",Paths.Hash(source),Recipe:[new("original",0,5)],SourcePath:"RvGame/CookedPC/owned.xxx");
+    foreach(var disk in new[]{false,true})
+    {
+        try
+        {
+            if(disk)PackageExtractor.ReconstructTo(source,stage,recipe,Path.Combine(stage,"out.bin"));
+            else PackageExtractor.Reconstruct(source,stage,recipe);
+            throw new Exception("Mismatched output was accepted");
+        }
+        catch(InvalidDataException e)
+        {
+            Assert(e.Message.Contains("Locally reconstructed output hash mismatch: "+recipe.Path));
+            Assert(e.Message.Contains("source="+recipe.SourcePath)&&e.Message.Contains("codec=none")&&e.Message.Contains("operations=original"));
+            Assert(e.Message.Contains("bytes=5")&&e.Message.Contains("expected SHA256="+recipe.Sha256)&&e.Message.Contains("actual SHA256="+actual));
+            Assert(!e.Message.Contains(f.Root));
+        }
+    }
+    await Task.CompletedTask;
+});
 await Test("download selection cache retries and resumed range",async()=>
 {
     var f=Fixture();var m=Package(f);var payload=File.ReadAllBytes(Archives(f,m)[m.Id]);var handler=new FakeHttp(payload);using var http=new HttpClient(handler);var cache=Path.Combine(f.Root,"cache");Directory.CreateDirectory(cache);File.WriteAllBytes(Path.Combine(cache,m.ArchiveSha256!.ToLowerInvariant()+".zip.part"),payload[..10]);var downloader=new PackageDownloader(http,cache);var path=await downloader.GetAsync(m,false,null,default);Assert(handler.Requests==1&&handler.LastRange==10&&Paths.Same(Paths.Hash(path),m.ArchiveSha256));await downloader.GetAsync(m,true,null,default);Assert(handler.Requests==1);await Reject(()=>downloader.GetAsync(m with{ArchiveSha256=new string('A',64)},true,null,default));

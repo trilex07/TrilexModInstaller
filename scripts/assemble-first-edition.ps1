@@ -27,6 +27,7 @@ if($LASTEXITCODE){throw 'Complete installer publish failed'}
 $bundle=Join-Path $full 'Trilex-SingularityVR-V7'
 New-Item -ItemType Directory -Path $bundle | Out-Null
 foreach($name in @('TrilexModInstaller.exe','LICENSE','THIRD-PARTY-NOTICES.md','licenses')){Copy-Item -LiteralPath (Join-Path $PWD "artifacts/publish/$name") -Destination $bundle -Recurse}
+& scripts/bundle-ueviewer.ps1 -Bundle $bundle
 Copy-Item -LiteralPath $catalog -Destination $bundle
 $bundlePackages=Join-Path $bundle 'packages'
 New-Item -ItemType Directory -Path $bundlePackages | Out-Null

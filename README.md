@@ -4,7 +4,7 @@ Windows launcher and modular installer by **Trilex / trilex07** for the [Singula
 
 ![Installer interface](docs/screenshots/installer-en.png)
 
-**[Download the updated installer RC5](https://github.com/trilex07/TrilexModInstaller/releases/tag/installer-1.0.0-rc.5):** complete Windows bundle with the accepted October 30 runtime (`147C3297`), inner-wrist E99/health-pack HUD, corrected muzzle VFX, Seeker wheel selection, four HD weapon/reload resource sets and native first-menu button polish. Extract the entire ZIP and choose **Full Trilex V7 (Polish)**. The EXE is unsigned. Gameplay acceptance and clean installer verification are distinct; see [RC5 evidence](docs/releases/installer-rc5.md).
+**[Download the updated installer RC6](https://github.com/trilex07/TrilexModInstaller/releases/tag/installer-1.0.0-rc.6):** complete Windows bundle with the accepted October 30 runtime (`147C3297`), inner-wrist E99/health-pack HUD, corrected muzzle VFX, Seeker wheel selection, four HD weapon/reload resource sets and native first-menu button polish. RC6 includes the pinned UE Viewer tool locally, fixing the gildor.org DNS download blocker. Separate module downloads and evidence JSON reports are not needed. Extract the entire ZIP and choose **Full Trilex V7 (Polish)**. The EXE is unsigned. Gameplay acceptance and clean installer verification are distinct; see [RC5 evidence](docs/releases/installer-rc5.md).
 
 ## Public fan-project preview
 

@@ -1,7 +1,8 @@
 # Fixed local Centurion exporter
 
-The installer does not embed UE Viewer or SDL2. The selected Centurion module
-downloads the exact upstream archive into its verified optional tool cache. The
+The installer EXE does not embed UE Viewer or SDL2. Starting with RC6, the
+complete ZIP carries the unchanged official archive at `tools/umodel_win32.zip`
+and imports it into its verified optional tool cache before any download. The
 x86 UE Viewer and SDL2 2.0.10 helpers run
 only against a hash-verified local copy of the owned pistol package, in an isolated
 workspace, with fixed object names and `-notex`. No game process is started.
@@ -21,9 +22,9 @@ Archive LICENSE.txt/readme identify MIT, copyright 2022 Konstantin Nosov.
 SDL2 binary version is 2.0.10; matching notice:
 https://github.com/libsdl-org/SDL/blob/release-2.0.10/COPYING.txt
 
-The downloaded cache retains the upstream notices. Portable installer packages
-do not redistribute this executable or its statically linked codecs. This does
-not label every upstream codec MIT. Original PSK/PSA output remains local and ignored.
+The cache and complete bundle retain the upstream LICENSE.txt/readme.txt and
+SDL2 zlib notice. The official archive is redistributed unchanged, under its
+included upstream notices; this does not relabel separate components as MIT. Original PSK/PSA output remains local and ignored.
 Only the pinned archive and two independently pinned binary hashes are accepted;
 the archive's unused x64 pair is not extracted. Missing offline tools fail before
 game writes. No PATH executable or package-provided exporter is executed.
@@ -35,7 +36,9 @@ www.gildor.org is independent of the game edition and the evidence report.
 The next installer accepts the unmodified pinned upstream archive at
 `tools/umodel_win32.zip` beside its EXE, before network access, including offline
 mode. A corrupt archive is rejected; there is no unverified fallback.
-This change does not itself redistribute the tool or publish a new release.
+RC6 assembly requires the verified archive and includes it and its notices.
+The smaller developer-only EXE without the tools directory still needs an
+existing verified cache, explicit archive override, or upstream access.
 The existing `TRILEX_UEVIEWER_ARCHIVE` override also works in RC5.
 
 `installer-rc5-evidence.json` is an optional test report, never an installation

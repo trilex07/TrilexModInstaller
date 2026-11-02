@@ -21,8 +21,9 @@ The embedded `Trilex.Ue3Decode.exe` helper is GPL-2.0-or-later, including miniLZ
 
 UE Viewer, copyright 2022 Konstantin Nosov, identifies MIT in its upstream archive.
 SDL2 2.0.10 is copyright 1997-2019 Sam Lantinga, zlib license. These binaries are
-downloaded directly from the pinned upstream archive, not bundled in the installer.
-Their upstream notices remain in the local tool cache. See `docs/distribution/UEVIEWER.md`
+included unchanged in the complete bundle as the pinned upstream archive.
+Upstream LICENSE.txt/readme.txt and the SDL2 zlib notice accompany the bundle
+and remain in the local tool cache. The installer EXE does not embed the exporter. See `docs/distribution/UEVIEWER.md`
 for exact archive and executable pins. These tools do not
 grant distribution rights to original game models or animations.
 

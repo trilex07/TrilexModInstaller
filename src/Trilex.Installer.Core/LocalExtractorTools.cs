@@ -2,7 +2,7 @@ using System.IO.Compression;
 
 namespace Trilex.Installer.Core;
 
-/// <summary>Optional upstream exporter. No exporter executable is bundled in the installer.</summary>
+/// <summary>Pinned upstream exporter. The complete bundle carries the original archive beside the installer.</summary>
 public static class LocalExtractorTools
 {
     public const string DownloadUrl="https://www.gildor.org/down/47/umodel/umodel_win32.zip";

@@ -27,6 +27,14 @@ try
     {
         using var http=new HttpClient();var catalog=new CatalogService(http,File.ReadAllText(verifyKey)).Verify(File.ReadAllBytes(signedPath));Console.WriteLine("Verified catalog "+catalog.Version);
     }
+    else if(args is ["prepare-extractor-tools",var extractorBundle])
+    {
+        // Release fixture: fail if the actual portable directory cannot prepare
+        // its pinned exporter with all network access disabled.
+        using var http=new HttpClient();
+        await LocalExtractorTools.EnsureAsync(http,true,null,default,extractorBundle);
+        Console.WriteLine("Verified bundled exporter offline: "+LocalExtractorTools.Resolve());
+    }
     else if(args is ["prepare-extractor-tools"])
     {
         using var http=new HttpClient(new HttpClientHandler{AllowAutoRedirect=false});

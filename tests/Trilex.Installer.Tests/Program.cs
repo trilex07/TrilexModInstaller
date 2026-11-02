@@ -502,6 +502,22 @@ await Test("SteamVR and fpsVR are tools, not running games; exact boundaries rem
     foreach(var name in new[]{"SteamVR","fpsVR"})Assert(SteamRuntimePolicy.IsRuntimePath(@"D:\SteamLibrary\steamapps\common\"+name+@"\bin\tool.exe"));
     foreach(var name in new[]{"Singularity","fpsVR-game","SteamVR2"})Assert(!SteamRuntimePolicy.IsRuntimePath(@"D:\SteamLibrary\steamapps\common\"+name+@"\game.exe"));
 }));
+await Test("process guard exempts only its own PID and identifies every refusal",()=>Sync(()=>
+{
+    const string root=@"D:\SteamLibrary\steamapps\common\Singularity";
+    string? Check(int pid,string name,string? path)=>ProcessGuardPolicy.Refusal(root,123,pid,name,path);
+    Assert(Check(123,"TrilexModInstaller",root+@"\installer\TrilexModInstaller.exe") is null);
+    Assert(Check(124,"TrilexModInstaller",root+@"\installer\TrilexModInstaller.exe") is not null);
+    Assert(Check(124,"Singularity",null)?.Contains("PID 124")==true);
+    Assert(Check(124,"Singularity",root+@"\Binaries\Singularity.exe")?.Contains(root)==true);
+    Assert(Check(124,"tool",@"D:\SteamLibrary\steamapps\common\OtherTool\tool.exe")?.Contains("process in a Steam application folder")==true);
+    Assert(Check(124,"vrserver",@"D:\SteamLibrary\steamapps\common\SteamVR\bin\vrserver.exe") is null);
+    Assert(Check(124,"fpsVR",@"D:\SteamLibrary\steamapps\common\fpsVR\fpsVR.exe") is null);
+    Assert(Check(124,"steam",@"D:\SteamLibrary\steam.exe") is null);
+    Assert(Check(124,"explorer",null) is null);
+    Assert(Check(124,"tool",@"C:\Downloads\tool.exe") is null);
+    Assert(Check(124,"tool",root+@"\Binaries\tool.exe")?.Contains("selected game folder")==true);
+}));
 var report=new{time=DateTimeOffset.UtcNow,passed=results.Count-failed,failed,fixtureRoot=testRoot,steamAccess="NONE",results};
 Json.Write(Path.Combine(testRoot,"test-report.json"),report);Console.WriteLine(JsonSerializer.Serialize(new{passed=results.Count-failed,failed,report=Path.Combine(testRoot,"test-report.json")}));Environment.ExitCode=failed==0?0:1;
 

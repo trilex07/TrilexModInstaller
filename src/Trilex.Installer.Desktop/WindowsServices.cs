@@ -13,10 +13,11 @@ public sealed class WindowsProcessGuard : IProcessGuard
         {
             using(process)
             {
-                if(process.ProcessName.Equals("Singularity",StringComparison.OrdinalIgnoreCase))throw new IOException("Singularity is running. Close it normally before installation.");
-                string? path;try{path=process.MainModule?.FileName;}catch(System.ComponentModel.Win32Exception){continue;}catch(InvalidOperationException){continue;}
-                var runtimeTool=path is not null&&SteamRuntimePolicy.IsRuntimePath(path);
-                if(path is not null && (path.StartsWith(Path.GetFullPath(root)+Path.DirectorySeparatorChar,StringComparison.OrdinalIgnoreCase) || !runtimeTool && path.Contains(@"\steamapps\common\",StringComparison.OrdinalIgnoreCase)))throw new IOException("A game is active. Installation is deferred until it exits.");
+                if(process.Id==Environment.ProcessId)continue;
+                string name;try{name=process.ProcessName;}catch(InvalidOperationException){continue;}
+                string? path=null;try{path=process.MainModule?.FileName;}catch(System.ComponentModel.Win32Exception){}catch(InvalidOperationException){continue;}
+                var refusal=ProcessGuardPolicy.Refusal(root,Environment.ProcessId,process.Id,name,path);
+                if(refusal is not null)throw new IOException(refusal);
             }
         }
     }

@@ -7,16 +7,17 @@ public sealed class WindowsProcessGuard : IProcessGuard
 {
     public void RequireIdle(string root)
     {
-        using var apps=Registry.CurrentUser.OpenSubKey(@"Software\Valve\Steam\Apps");
-        if(apps is not null)foreach(var id in apps.GetSubKeyNames()){if(SteamRuntimePolicy.IsRuntimeApp(id))continue;using var app=apps.OpenSubKey(id);if(Convert.ToInt32(app?.GetValue("Running",0))!=0)throw new IOException($"Steam reports an active game: {app?.GetValue("Name",id)} (App {id}). Close it normally; no process will be terminated.");}
+        // Installed/retail copies do not require Steam. Its Running registry
+        // values can describe unrelated tools or stale sessions, not this game.
         foreach(var process in Process.GetProcesses())
         {
             using(process)
             {
-                if(process.ProcessName.Equals("Singularity",StringComparison.OrdinalIgnoreCase))throw new IOException("Singularity is running. Close it normally before installation.");
-                string? path;try{path=process.MainModule?.FileName;}catch(System.ComponentModel.Win32Exception){continue;}catch(InvalidOperationException){continue;}
-                var runtimeTool=path is not null&&SteamRuntimePolicy.IsRuntimePath(path);
-                if(path is not null && (path.StartsWith(Path.GetFullPath(root)+Path.DirectorySeparatorChar,StringComparison.OrdinalIgnoreCase) || !runtimeTool && path.Contains(@"\steamapps\common\",StringComparison.OrdinalIgnoreCase)))throw new IOException("A game is active. Installation is deferred until it exits.");
+                if(process.Id==Environment.ProcessId)continue;
+                string name;try{name=process.ProcessName;}catch(InvalidOperationException){continue;}
+                string? path=null;try{path=process.MainModule?.FileName;}catch(System.ComponentModel.Win32Exception){}catch(InvalidOperationException){continue;}
+                var refusal=ProcessGuardPolicy.Refusal(root,Environment.ProcessId,process.Id,name,path);
+                if(refusal is not null)throw new IOException(refusal);
             }
         }
     }

@@ -219,7 +219,7 @@ await Test("streamed local recipe installs and uninstalls exact owned original",
 });
 await Test("untouched original UTF16 INI restores byte exact",async()=>
 {
-    var f=Fixture();var m=Package(f);var ini=Path.Combine(f.Root,"Binaries/SingularityVR.ini");File.WriteAllText(ini,"; ORIGINAL\r\n[User]\r\nKeep=żółć\r\n",Encoding.Unicode);var before=Paths.Hash(ini);
+    var f=Fixture();var m=Package(f);var ini=Path.Combine(f.Root,"Binaries/SingularityVR.ini");File.WriteAllText(ini,"; ORIGINAL\r\n[User]\r\nKeep=ĹĽĂłĹ‚Ä‡\r\n",Encoding.Unicode);var before=Paths.Hash(ini);
     await f.Installer.InstallAsync(f.Plan(m),Archives(f,m),null,default);f.Installer.Uninstall(f.Root,default);Assert(Paths.Hash(ini)==before);
 });
 await Test("corrupt original backup refuses uninstall without touching managed bytes",async()=>
@@ -451,6 +451,29 @@ await Test("Optional extractor is not embedded and refuses missing offline cache
     }
     finally{Environment.SetEnvironmentVariable("TRILEX_HOME",priorHome);Environment.SetEnvironmentVariable("TRILEX_UEVIEWER_ARCHIVE",priorArchive);}
 });
+await Test("Adjacent pinned exporter archive supports offline use and refuses tampering before network",async()=>
+{
+    var f=Fixture();var priorHome=Environment.GetEnvironmentVariable("TRILEX_HOME");var priorArchive=Environment.GetEnvironmentVariable("TRILEX_UEVIEWER_ARCHIVE");
+    try
+    {
+        Environment.SetEnvironmentVariable("TRILEX_HOME",f.Root);Environment.SetEnvironmentVariable("TRILEX_UEVIEWER_ARCHIVE",null);
+        var bundle=Path.Combine(f.Root,"bundle");Directory.CreateDirectory(Path.Combine(bundle,"tools"));
+        var adjacent=Path.Combine(bundle,"tools/umodel_win32.zip");File.WriteAllText(adjacent,"tampered");
+        var handler=new FakeHttp([]);using var http=new HttpClient(handler);
+        await Reject(()=>LocalExtractorTools.EnsureAsync(http,false,null,default,bundle));Assert(handler.Requests==0);
+        File.Delete(adjacent);handler.DnsFailure=true;
+        try{await LocalExtractorTools.EnsureAsync(http,false,null,default,bundle);throw new Exception("Expected download failure");}
+        catch(HttpRequestException e){Assert(e.Message.Contains("tools folder")&&e.Message.Contains("No game files"));}
+        var official=Environment.GetEnvironmentVariable("TRILEX_TEST_UEVIEWER_ARCHIVE");
+        if(!string.IsNullOrWhiteSpace(official))
+        {
+            File.Copy(official,adjacent);var requests=handler.Requests;
+            await LocalExtractorTools.EnsureAsync(http,true,null,default,bundle);
+            Assert(File.Exists(LocalExtractorTools.Resolve())&&handler.Requests==requests);
+        }
+    }
+    finally{Environment.SetEnvironmentVariable("TRILEX_HOME",priorHome);Environment.SetEnvironmentVariable("TRILEX_UEVIEWER_ARCHIVE",priorArchive);}
+});
 await Test("Complete bundle uses pinned signed catalog and exact adjacent packages",async()=>
 {
     var f=Fixture();var m=Package(f);using var key=ECDsa.Create(ECCurve.NamedCurves.nistP256);using var http=new HttpClient();var service=new CatalogService(http,key.ExportSubjectPublicKeyInfoPem());
@@ -479,6 +502,27 @@ await Test("SteamVR and fpsVR are tools, not running games; exact boundaries rem
     foreach(var name in new[]{"SteamVR","fpsVR"})Assert(SteamRuntimePolicy.IsRuntimePath(@"D:\SteamLibrary\steamapps\common\"+name+@"\bin\tool.exe"));
     foreach(var name in new[]{"Singularity","fpsVR-game","SteamVR2"})Assert(!SteamRuntimePolicy.IsRuntimePath(@"D:\SteamLibrary\steamapps\common\"+name+@"\game.exe"));
 }));
+await Test("process guard blocks only Singularity across Steam/retail drives and identifies PID",()=>Sync(()=>
+{
+    const string root=@"D:\SteamLibrary\steamapps\common\Singularity";
+    string? Check(int pid,string name,string? path)=>ProcessGuardPolicy.Refusal(root,123,pid,name,path);
+    Assert(Check(123,"TrilexModInstaller",root+@"\installer\TrilexModInstaller.exe") is null);
+    Assert(Check(124,"TrilexModInstaller",root+@"\installer\TrilexModInstaller.exe") is null);
+    Assert(Check(124,"Singularity",null)?.Contains("PID 124")==true);
+    Assert(Check(124,"Singularity",root+@"\Binaries\Singularity.exe")?.Contains(root)==true);
+    Assert(Check(124,"tool",@"D:\SteamLibrary\steamapps\common\OtherTool\tool.exe") is null);
+    Assert(Check(124,"vrserver",@"D:\SteamLibrary\steamapps\common\SteamVR\bin\vrserver.exe") is null);
+    Assert(Check(124,"fpsVR",@"D:\SteamLibrary\steamapps\common\fpsVR\fpsVR.exe") is null);
+    Assert(Check(124,"steam",@"D:\SteamLibrary\steam.exe") is null);
+    Assert(Check(124,"explorer",null) is null);
+    Assert(Check(124,"tool",@"C:\Downloads\tool.exe") is null);
+    Assert(Check(124,"tool",root+@"\Binaries\tool.exe") is null);
+    Assert(Check(124,"OtherGame",@"D:\SteamLibrary\steamapps\common\OtherGame\Game.exe") is null);
+    Assert(Check(124,"singularity",@"D:\Retail\Singularity\Binaries\Singularity.exe") is not null);
+    Assert(Check(124,"Singularity.exe",null) is not null);
+    Assert(Check(124,"unknown",@"C:\Retail\Singularity\Binaries\SINGULARITY.EXE") is not null);
+    Assert(Check(124,"SingularityLauncher",@"D:\Retail\SingularityLauncher.exe") is null);
+}));
 var report=new{time=DateTimeOffset.UtcNow,passed=results.Count-failed,failed,fixtureRoot=testRoot,steamAccess="NONE",results};
 Json.Write(Path.Combine(testRoot,"test-report.json"),report);Console.WriteLine(JsonSerializer.Serialize(new{passed=results.Count-failed,failed,report=Path.Combine(testRoot,"test-report.json")}));Environment.ExitCode=failed==0?0:1;
 
@@ -487,17 +531,17 @@ sealed class InlineProgress(Action<ProgressInfo> report) : IProgress<ProgressInf
 sealed class TestFixture
 {
     public string Root{get;}public string State{get;}public FakeGuard Guard{get;}=new();public TransactionInstaller Installer{get;}
-    public TestFixture(string root,string state){Root=root;State=state;Directory.CreateDirectory(Path.Combine(root,"Binaries"));Directory.CreateDirectory(Path.Combine(root,"RvGame","CookedPC"));var exe=Path.Combine(root,"Binaries","Singularity.exe");if(!File.Exists(exe))File.WriteAllText(exe,"SYNTHETIC OWNED GAME FIXTURE — NOT A GAME EXECUTABLE");Installer=new(state,Guard);}
+    public TestFixture(string root,string state){Root=root;State=state;Directory.CreateDirectory(Path.Combine(root,"Binaries"));Directory.CreateDirectory(Path.Combine(root,"RvGame","CookedPC"));var exe=Path.Combine(root,"Binaries","Singularity.exe");if(!File.Exists(exe))File.WriteAllText(exe,"SYNTHETIC OWNED GAME FIXTURE â€” NOT A GAME EXECUTABLE");Installer=new(state,Guard);}
     public GameLocation Location()=>new(Root,"Fixture",true,"Synthetic",Paths.Hash(Path.Combine(Root,"Binaries","Singularity.exe")));
     public GameManifest Game(params ModuleManifest[] modules)=>new("singularity","Synthetic Singularity","stable","SingularityGameAdapter","42670","Binaries/Singularity.exe",[Location().ExeHash!],[..modules]);
     public InstallPlan Plan(params ModuleManifest[] modules)=>new("singularity",modules[0].Version,Root,Location().ExeHash!,new("en","en","en",modules.Select(x=>x.Id).ToList()),[..modules]);
 }
 sealed class FakeHttp(byte[] bytes) : HttpMessageHandler
 {
-    public int Requests;public long? LastRange;public string? Redirect;public bool FailFirst;public string? LastUserAgent,LastReferrer;
+    public int Requests;public long? LastRange;public string? Redirect;public bool FailFirst;public bool DnsFailure;public string? LastUserAgent,LastReferrer;
     protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,CancellationToken ct)
     {
-        ct.ThrowIfCancellationRequested();LastUserAgent=request.Headers.UserAgent.ToString();LastReferrer=request.Headers.Referrer?.AbsoluteUri;Requests++;if(FailFirst&&Requests==1)return Task.FromResult(new HttpResponseMessage(HttpStatusCode.ServiceUnavailable));if(Redirect is not null&&Requests==1){var r=new HttpResponseMessage(HttpStatusCode.Redirect);r.Headers.Location=new(Redirect);return Task.FromResult(r);}
+        ct.ThrowIfCancellationRequested();LastUserAgent=request.Headers.UserAgent.ToString();LastReferrer=request.Headers.Referrer?.AbsoluteUri;Requests++;if(DnsFailure)throw new HttpRequestException("No such host is known. (www.gildor.org:443)");if(FailFirst&&Requests==1)return Task.FromResult(new HttpResponseMessage(HttpStatusCode.ServiceUnavailable));if(Redirect is not null&&Requests==1){var r=new HttpResponseMessage(HttpStatusCode.Redirect);r.Headers.Location=new(Redirect);return Task.FromResult(r);}
         LastRange=request.Headers.Range?.Ranges.Single().From;var offset=(int)(LastRange??0);var response=new HttpResponseMessage(offset>0?HttpStatusCode.PartialContent:HttpStatusCode.OK){Content=new ByteArrayContent(bytes[offset..])};if(offset>0)response.Content.Headers.ContentRange=new(offset,bytes.Length-1,bytes.Length);return Task.FromResult(response);
     }
 }

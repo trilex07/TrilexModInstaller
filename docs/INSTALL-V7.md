@@ -15,9 +15,9 @@
    polskiego tekstu w tej wersji V7; EN/EN i PL/EN są dostępne.
 4. Jeśli brakuje Visual C++ x86 lub x64, użyj odpowiedniego przycisku prowadzącego
    do oficjalnego pakietu Microsoft i wróć do sprawdzania. Gra wymaga x86,
-   helper spustów PSVR2 wymaga x64. Przy pierwszej instalacji kodek audio i
-   eksporter Centuriona są pobierane ze stałych adresów upstream i weryfikowane
-   hashem. Nie potrzebujesz Pythona, .NET SDK ani repozytorium.
+   helper spustów PSVR2 wymaga x64. RC6 zawiera eksporter Centuriona w folderze
+   `tools` — zachowaj go obok EXE. Kodek audio nadal jest pobierany przy pierwszej
+   instalacji z ustalonego adresu upstream i sprawdzany hashem. Nie potrzebujesz Pythona, .NET SDK ani repozytorium.
 5. Kliknij **Podsumowanie instalacji**, sprawdź folder, dodatki i informacje o
    materiałach fanowskich, następnie **Pobierz i zainstaluj**. Paczki z ZIP są
    rozpoznawane lokalnie. Poczekaj na komunikat o poprawnej weryfikacji.
@@ -56,8 +56,9 @@ to różne mechanizmy. Nie ma automatycznej instalacji sterowników ani emulator
    EN/EN and PL text/EN voice also work; the installer language is separate.
 4. Install the official Microsoft x86/x64 VC++ prerequisites if requested (x86
    for the game, x64 for the PSVR2 trigger helper).
-   On first use, pinned audio/exporter tools are obtained from their upstream
-   sites and hash-verified. No Python, .NET SDK or source checkout is needed.
+   RC6 includes the pinned Centurion exporter in `tools`; keep that directory
+   beside the EXE. The optional audio codec still downloads from its pinned
+   upstream site on first use and is hash-verified. No Python, .NET SDK or source checkout is needed.
 5. **Review installation**, check folder, modules and fan-content notice, then
    **Download & install**. Local bundled packages are recognized automatically.
    Wait for exact post-install verification before launching the game through Steam.
@@ -88,3 +89,16 @@ The build-specific evidence receipt records exact hashes and automated outcomes.
 Offline file installation and rendering of the installer interface are not proof
 of clean-PC or PSVR2 acceptance. The accepted V7 runtime is preserved unchanged.
 Game EXE fingerprint: `BD459ACD87D4B82693928DEE4ED437C086D5928A8E0428F3AD54B6FC114C0F51`.
+
+## RC6 download clarification / informacje o paczce
+
+Download and extract the complete ZIP into a new directory. Separate module ZIPs
+on the release page duplicate the bundled packages and are not required separately.
+`installer-rc6-evidence.json` is an optional test report, not an installation input.
+RC6 removes the gildor.org download requirement from the complete bundle only;
+it does not add verified retail-disc compatibility or remove the audio codec download.
+Keep your LocalAppData installation backups when updating RC5 to RC6.
+
+Wystarczy cały ZIP. Osobne moduły są już w paczce, a plik evidence.json jest tylko
+raportem testów. RC6 nie wymaga gildor.org przy instalacji z pełnej paczki.
+Wersja płytowa pozostaje nieprzetestowana; kodek audio nadal może wymagać pobrania.

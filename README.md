@@ -4,7 +4,7 @@ Windows launcher and modular installer by **Trilex / trilex07** for the [Singula
 
 ![Installer interface](docs/screenshots/installer-en.png)
 
-**[Download the updated installer RC5](https://github.com/trilex07/TrilexModInstaller/releases/tag/installer-1.0.0-rc.5):** complete Windows bundle with the accepted October 30 runtime (`147C3297`), inner-wrist E99/health-pack HUD, corrected muzzle VFX, Seeker wheel selection, four HD weapon/reload resource sets and native first-menu button polish. Extract the entire ZIP and choose **Full Trilex V7 (Polish)**. The EXE is unsigned. Gameplay acceptance and clean installer verification are distinct; see [RC5 evidence](docs/releases/installer-rc5.md).
+**[Download the updated installer RC6](https://github.com/trilex07/TrilexModInstaller/releases/tag/installer-1.0.0-rc.6):** complete Windows bundle with the accepted October 30 runtime (`147C3297`), inner-wrist E99/health-pack HUD, corrected muzzle VFX, Seeker wheel selection, four HD weapon/reload resource sets and native first-menu button polish. RC6 includes the pinned UE Viewer tool locally, fixing the gildor.org DNS download blocker. Separate module downloads and evidence JSON reports are not needed. Extract the entire ZIP and choose **Full Trilex V7 (Polish)**. The EXE is unsigned. Gameplay acceptance and clean installer verification are distinct; see [RC5 evidence](docs/releases/installer-rc5.md).
 
 ## Public fan-project preview
 
@@ -25,7 +25,7 @@ installer EXE, game recordings or a full installable mod catalog. See the
 - Signed ECDSA P256 catalogs, immutable GitHub Releases URLs, exact versions/dependencies/sizes, SHA-256 verification, resumable cache, cancellation and offline imports.
 - Strict ZIP allowlists; no archive links/traversal; local reconstruction recipes read verified owned originals. Downloaded scripts are never executed.
 - Install/update/repair/uninstall, original backups, durable rollback journal and recovery after process termination. Three-way INI merge retains user settings. Unrelated files/mods are preserved; collisions stop installation.
-- Process-in-use protection; the installer never terminates games. Steam launch is an explicit action available only for a managed compatible installation.
+- Process-in-use protection blocks Singularity itself, regardless of Steam/retail location or drive. Other games, SteamVR, fpsVR and unrelated tools do not block installation. The installer never terminates games; transaction/file-write protections remain active. Steam launch is an explicit action available only for a managed compatible installation.
 
 ## Build and run
 

@@ -3,6 +3,13 @@
 This release combines the installer process fix with the accepted SingularityVR
 runtime. It is not the earlier installer-only guard-fix ZIP.
 
+RC7 diagnostic refresh (2026-11-02): the installer now names the failed locally
+reconstructed output, source/operation, length and expected/actual SHA-256 in
+the error and local log. This is not a confirmed GOG compatibility fix. Send
+`installer.log` from **Open local logs**, installer version, game version and
+language if installation fails. Re-download the complete ZIP for this update;
+the signed catalog and all mod packages are unchanged.
+
 - x86 renderer: A16FC1927B215A1A306DBE56CE24B1CB03A042A541EC7C8C4A4CBA1BF6A4A75A.
 - Runtime build source: 6c38abea084023e8e5f7702385e21b37e71adc9f, integrated
   into SingularityVR main by 92fe119c187076defb2f5038e1678ec15c0da137.

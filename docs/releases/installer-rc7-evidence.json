@@ -28,10 +28,10 @@
     "Gaze requires compatible PSVR2 Toolkit installation; no driver bundled",
     "No FPS or 90Hz guarantee"
   ],
-  "installerBuildSource": "a56491c1ac6fefe11c028f95f8fec7da1af9b379",
-  "exeSha256": "FFE61E651D3088CF8B3C26B00FB3DA4A592F04FFC626E947005F1DCBB43611BE",
-  "zipSha256": "DCC42B822929316EEFD02BB5B5BE5C31BAE52469A0355834FA3BE0C98EA13CFB",
-  "zipBytes": 1464049742,
+  "installerBuildSource": "6820320e1a88c08c994d4c0e85cd308525e9ac31",
+  "exeSha256": "50E9D12D9D274C3777A950B0A89F301370DF25F9728948B6E3CCB9DCE0A7E137",
+  "zipSha256": "DB86CD84ED51A80492B6172B9F86FD96DFA13379B763CB4EBCAD696565E3FF07",
+  "zipBytes": 1464050070,
   "catalogSha256": "45D250973F7123DDF9971632427F56544F0533AFA756EBEA516919093379D184",
   "lifecycle": {
     "clean": {
@@ -74,9 +74,20 @@
       "recovery": "Repair preflight refused insufficient disk; only the deliberate fixture damage remained; repaired/uninstalled after freeing finished fixture copies"
     }
   },
-  "coreTests": "66 PASS / 0 FAIL",
+  "coreTests": "67 PASS / 0 FAIL, includes both reconstruction output paths",
   "archiveIntegrity": "PASS",
   "installerUi": "8 PL/EN layouts PASS, no binding errors",
   "bundledExporterOffline": "PASS, fresh isolated tool cache, network disabled",
-  "authenticode": "UNSIGNED"
+  "authenticode": "UNSIGNED",
+  "previousInstallerBuildSource": "a56491c1ac6fefe11c028f95f8fec7da1af9b379",
+  "previousExeSha256": "FFE61E651D3088CF8B3C26B00FB3DA4A592F04FFC626E947005F1DCBB43611BE",
+  "previousZipSha256": "DCC42B822929316EEFD02BB5B5BE5C31BAE52469A0355834FA3BE0C98EA13CFB",
+  "diagnosticRefresh": {
+    "date": "2026-11-02",
+    "scope": "Output mismatch context only; source checks and recipes unchanged",
+    "bundleComparison": "PASS: only installer EXE, release notes and checksum list differ",
+    "newExeUi": "8 PL/EN layouts PASS; no binding errors",
+    "lifecycle": "Prior RC7 lifecycle evidence retained; not rerun for error-message-only change",
+    "gogCompatibility": "UNVERIFIED; not claimed fixed"
+  }
 }

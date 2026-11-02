@@ -28,10 +28,10 @@
     "Gaze requires compatible PSVR2 Toolkit installation; no driver bundled",
     "No FPS or 90Hz guarantee"
   ],
-  "installerBuildSource": "6820320e1a88c08c994d4c0e85cd308525e9ac31",
-  "exeSha256": "50E9D12D9D274C3777A950B0A89F301370DF25F9728948B6E3CCB9DCE0A7E137",
-  "zipSha256": "DB86CD84ED51A80492B6172B9F86FD96DFA13379B763CB4EBCAD696565E3FF07",
-  "zipBytes": 1464050070,
+  "installerBuildSource": "8a5245d69ba66ce8a0a2fa75e68992656c6eb7f5",
+  "exeSha256": "71092DE52C593D0888F93A5D1B836C0AA594B75B7F4745E32D91EB620197897E",
+  "zipSha256": "74D5EDDE15BC2EBA5216FCB016711552355CA210753AB3ABD5CE5F5F95B96DCA",
+  "zipBytes": 1464057970,
   "catalogSha256": "45D250973F7123DDF9971632427F56544F0533AFA756EBEA516919093379D184",
   "lifecycle": {
     "clean": {
@@ -74,14 +74,14 @@
       "recovery": "Repair preflight refused insufficient disk; only the deliberate fixture damage remained; repaired/uninstalled after freeing finished fixture copies"
     }
   },
-  "coreTests": "67 PASS / 0 FAIL, includes both reconstruction output paths",
+  "coreTests": "72 PASS / 0 FAIL",
   "archiveIntegrity": "PASS",
   "installerUi": "8 PL/EN layouts PASS, no binding errors",
   "bundledExporterOffline": "PASS, fresh isolated tool cache, network disabled",
   "authenticode": "UNSIGNED",
-  "previousInstallerBuildSource": "a56491c1ac6fefe11c028f95f8fec7da1af9b379",
-  "previousExeSha256": "FFE61E651D3088CF8B3C26B00FB3DA4A592F04FFC626E947005F1DCBB43611BE",
-  "previousZipSha256": "DCC42B822929316EEFD02BB5B5BE5C31BAE52469A0355834FA3BE0C98EA13CFB",
+  "previousInstallerBuildSource": "6820320e1a88c08c994d4c0e85cd308525e9ac31",
+  "previousExeSha256": "50E9D12D9D274C3777A950B0A89F301370DF25F9728948B6E3CCB9DCE0A7E137",
+  "previousZipSha256": "DB86CD84ED51A80492B6172B9F86FD96DFA13379B763CB4EBCAD696565E3FF07",
   "diagnosticRefresh": {
     "date": "2026-11-02",
     "scope": "Output mismatch context only; source checks and recipes unchanged",
@@ -89,5 +89,17 @@
     "newExeUi": "8 PL/EN layouts PASS; no binding errors",
     "lifecycle": "Prior RC7 lifecycle evidence retained; not rerun for error-message-only change",
     "gogCompatibility": "UNVERIFIED; not claimed fixed"
+  },
+  "installerRevision": "rc7-explicit-output-exceptions-20261102",
+  "explicitOutputExceptions": {
+    "approval": "Per generated file, native Yes/No warning; No is default; no persistent global bypass",
+    "scope": "Only final local output mismatch; original/decoded sources, package, game and recipe checks remain strict",
+    "receipt": "Expected and actual hash + identity stored; installed hash is actual; exception completion/verify status",
+    "transactionTests": "PASS: approve/decline, reapproval for repair/reinstall, cancellation, later refusal before writes, rollback after accepted output was written, exact uninstall originals",
+    "publishedExeUi": "8 PL/EN layouts and warning/status producers PASS; native modal interaction not automated",
+    "bundleComparison": "PASS: only EXE, release notes and checksum list differ; catalog and all mod files unchanged",
+    "lifecycle": "Prior full RC7 lifecycle retained as historical evidence; new isolated real transaction fixtures passed; full 373-target lifecycle not repeated",
+    "gogSteamCompatibility": "Mismatch cause not established; accepting output does not prove game compatibility",
+    "steamAccess": "NONE"
   }
 }

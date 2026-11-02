@@ -7,8 +7,8 @@ public sealed class WindowsProcessGuard : IProcessGuard
 {
     public void RequireIdle(string root)
     {
-        using var apps=Registry.CurrentUser.OpenSubKey(@"Software\Valve\Steam\Apps");
-        if(apps is not null)foreach(var id in apps.GetSubKeyNames()){if(SteamRuntimePolicy.IsRuntimeApp(id))continue;using var app=apps.OpenSubKey(id);if(Convert.ToInt32(app?.GetValue("Running",0))!=0)throw new IOException($"Steam reports an active game: {app?.GetValue("Name",id)} (App {id}). Close it normally; no process will be terminated.");}
+        // Installed/retail copies do not require Steam. Its Running registry
+        // values can describe unrelated tools or stale sessions, not this game.
         foreach(var process in Process.GetProcesses())
         {
             using(process)

@@ -25,7 +25,7 @@ installer EXE, game recordings or a full installable mod catalog. See the
 - Signed ECDSA P256 catalogs, immutable GitHub Releases URLs, exact versions/dependencies/sizes, SHA-256 verification, resumable cache, cancellation and offline imports.
 - Strict ZIP allowlists; no archive links/traversal; local reconstruction recipes read verified owned originals. Downloaded scripts are never executed.
 - Install/update/repair/uninstall, original backups, durable rollback journal and recovery after process termination. Three-way INI merge retains user settings. Unrelated files/mods are preserved; collisions stop installation.
-- Process-in-use protection; the installer never terminates games. Steam launch is an explicit action available only for a managed compatible installation.
+- Process-in-use protection blocks Singularity itself, regardless of Steam/retail location or drive. Other games, SteamVR, fpsVR and unrelated tools do not block installation. The installer never terminates games; transaction/file-write protections remain active. Steam launch is an explicit action available only for a managed compatible installation.
 
 ## Build and run
 

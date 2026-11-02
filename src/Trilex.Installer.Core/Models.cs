@@ -31,7 +31,11 @@ public sealed record InstallPlan(string GameId, string Version, string Root, str
 public sealed record ProgressInfo(string Stage, string Item, long Completed, long Total);
 public sealed record GameLocation(string Root, string Source, bool Compatible, string Detail, string? ExeHash);
 public sealed record OwnedFile(string Path, string? OriginalHash, string Backup, string InstalledHash, string Kind, Dictionary<string,string>? IniValues, Dictionary<string,string?>? OriginalIniValues, bool CanRestoreWhole = false);
-public sealed record InstallReceipt(string Schema, string Root, string GameId, string Version, InstallChoices Choices, List<OwnedFile> Files, string TransactionId);
+public sealed record ReconstructionWarning(string Path,string Source,string Codec,string Operations,long Bytes,string ExpectedSha256,string ActualSha256)
+{
+    public string Describe()=>$"Locally reconstructed output hash mismatch: {Path}; source={Source}; codec={Codec}; operations={Operations}; bytes={Bytes}; expected SHA256={ExpectedSha256}; actual SHA256={ActualSha256}";
+}
+public sealed record InstallReceipt(string Schema, string Root, string GameId, string Version, InstallChoices Choices, List<OwnedFile> Files, string TransactionId,List<ReconstructionWarning>? ReconstructionWarnings=null);
 public sealed record Journal(string Schema, string Root, string Phase, string TransactionId, InstallReceipt? PreviousReceipt, List<JournalFile> Files);
 public sealed record JournalFile(string Path, string? BeforeHash, string? AfterHash, string Backup, bool Applied);
 

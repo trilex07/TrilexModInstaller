@@ -10,6 +10,16 @@ the error and local log. This is not a confirmed GOG compatibility fix. Send
 language if installation fails. Re-download the complete ZIP for this update;
 the signed catalog and all mod packages are unchanged.
 
+RC7 explicit exception follow-up: if a fully generated local file has a different
+output hash, the installer offers a per-file warning with **No** selected by
+default. **Yes** continues at the user's risk with that particular generated
+file; compatibility is unverified and crashes or missing content are possible.
+Expected/actual hashes are recorded and the result is shown as **installed with
+exceptions**. Originals, transactional rollback and uninstall remain protected;
+uninstall cannot undo save changes or prevent crashes. Original-source and
+downloaded-package checks cannot be bypassed. Approval is required again for
+regeneration. This is not a confirmed Steam/GOG compatibility fix.
+
 - x86 renderer: A16FC1927B215A1A306DBE56CE24B1CB03A042A541EC7C8C4A4CBA1BF6A4A75A.
 - Runtime build source: 6c38abea084023e8e5f7702385e21b37e71adc9f, integrated
   into SingularityVR main by 92fe119c187076defb2f5038e1678ec15c0da137.

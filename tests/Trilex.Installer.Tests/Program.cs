@@ -28,6 +28,16 @@ ModuleManifest Package(TestFixture f,string suffix="v1",string content="MOD-AUTH
     return new("vr-core",new(){{"en","VR Core"},{"pl","VR Core"}},suffix,"stable",true,[],new FileInfo(archive).Length,"https://github.com/trilex07/TrilexModInstaller/releases/download/test/"+suffix+".zip",Paths.Hash(archive),4096,true,"Synthetic newly authored fixture",[new("Binaries/trilex-test.dll","data/mod.bin",Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(content))),"copy","mod-authored"),new("Binaries/SingularityVR.ini","","","ini","mod-authored",IniValues:new(){{"Input/Test","1"}})],"");
 }
 Dictionary<string,string> Archives(TestFixture f,ModuleManifest m)=>new(){{m.Id,Path.Combine(f.Root,m.Version+".zip")}};
+ModuleManifest MismatchPackage(TestFixture f,bool second=false)
+{
+    var module=Package(f);var recipes=new List<PackageFile>();
+    foreach(var path in second?new[]{"RvGame/CookedPC/test.xxx","RvGame/CookedPC/test2.xxx"}:new[]{"RvGame/CookedPC/test.xxx"})
+    {
+        var target=Paths.Safe(f.Root,path);File.WriteAllText(target,"ORIGINAL");
+        recipes.Add(new(path,"",new string('0',64),"recipe","local-transform",Paths.Hash(target),Recipe:[new("payload",0,3,"data/mod.bin")]));
+    }
+    return module with{Files=[..module.Files,..recipes]};
+}
 byte[] Envelope(Catalog catalog,ECDsa key)
 {
     var payload=JsonSerializer.SerializeToUtf8Bytes(catalog,Json.Options);return JsonSerializer.SerializeToUtf8Bytes(new SignedEnvelope("ECDSA-P256-SHA256-P1363",Convert.ToBase64String(payload),Convert.ToBase64String(key.SignData(payload,HashAlgorithmName.SHA256,DSASignatureFormat.IeeeP1363FixedFieldConcatenation))),Json.Options);
@@ -185,6 +195,73 @@ await Test("reconstruction mismatch identifies output and operation in both outp
         }
     }
     await Task.CompletedTask;
+});
+await Test("output mismatch requires explicit approval and records actual bytes for verify and uninstall",async()=>
+{
+    var f=Fixture();var m=MismatchPackage(f);var path="RvGame/CookedPC/test.xxx";var target=Paths.Safe(f.Root,path);var original=Paths.Hash(target);
+    await Reject(()=>f.Installer.InstallAsync(f.Plan(m),Archives(f,m),null,default));
+    var calls=0;await Reject(()=>f.Installer.InstallAsync(f.Plan(m),Archives(f,m),null,default,confirmMismatch:w=>{calls++;return false;}));
+    Assert(calls==1&&Paths.Hash(target)==original&&f.Installer.Receipt(f.Root) is null);
+    var receipt=await f.Installer.InstallAsync(f.Plan(m),Archives(f,m),null,default,confirmMismatch:w=>{calls++;Assert(w.Path==path&&w.ExpectedSha256==new string('0',64));return true;});
+    Assert(calls==2&&File.ReadAllText(target)=="MOD"&&f.Installer.Verify(f.Root).Count==0);
+    var stored=f.Installer.Receipt(f.Root)!;var warning=stored.ReconstructionWarnings!.Single();
+    Assert(warning.ActualSha256==Paths.Hash(target)&&warning.ExpectedSha256!=warning.ActualSha256);
+    Assert(stored.Files.Single(x=>x.Path==path).InstalledHash==warning.ActualSha256);
+    Assert(receipt.ReconstructionWarnings!.Count==1);
+    // Approval is not a persistent bypass for the next regeneration.
+    await Reject(()=>f.Installer.InstallAsync(f.Plan(m),Archives(f,m),null,default));
+    Assert(f.Installer.Receipt(f.Root)!.TransactionId==receipt.TransactionId);
+    File.WriteAllText(target,"DAMAGED");Assert(f.Installer.Verify(f.Root).Count==1);
+    await Reject(()=>f.Installer.RepairAsync(f.Plan(m),Archives(f,m),null,default));
+    Assert(File.ReadAllText(target)=="DAMAGED");
+    await f.Installer.RepairAsync(f.Plan(m),Archives(f,m),null,default,w=>true);
+    Assert(File.ReadAllText(target)=="MOD"&&f.Installer.Verify(f.Root).Count==0);
+    f.Installer.Uninstall(f.Root,default);Assert(Paths.Hash(target)==original);
+    Assert(!File.Exists(Paths.Safe(f.Root,"Binaries/trilex-test.dll"))&&f.Installer.Receipt(f.Root) is null);
+});
+await Test("extractor override accepts only a completed output mismatch in both APIs",async()=>
+{
+    var f=Fixture();var source=Path.Combine(f.Root,"owned.bin");File.WriteAllText(source,"OWNED");var stage=Path.Combine(f.Root,"stage");Directory.CreateDirectory(stage);
+    var file=new PackageFile("RvGame/CookedPC/generated.xxx","",new string('0',64),"recipe","local-transform",Paths.Hash(source),Recipe:[new("original",0,5)]);
+    var calls=0;bool Approve(ReconstructionWarning warning){calls++;Assert(warning.Bytes==5&&warning.ActualSha256==Paths.Hash(source));return true;}
+    Assert(Encoding.UTF8.GetString(PackageExtractor.Reconstruct(source,stage,file,Approve))=="OWNED");
+    var output=Path.Combine(stage,"output.bin");PackageExtractor.ReconstructTo(source,stage,file,output,Approve);Assert(File.ReadAllText(output)=="OWNED"&&calls==2);
+    await Reject(()=>Sync(()=>PackageExtractor.Reconstruct(source,stage,file with{BeforeSha256=new string('1',64)},Approve)));
+    Assert(calls==2);
+});
+await Test("mismatch approval cannot bypass original, archive or game checks",async()=>
+{
+    foreach(var fault in new[]{"source","archive","game"})
+    {
+        var f=Fixture();var m=MismatchPackage(f);var calls=0;
+        if(fault=="source")File.WriteAllText(Paths.Safe(f.Root,"RvGame/CookedPC/test.xxx"),"FOREIGN");
+        var plan=f.Plan(m);
+        if(fault=="archive")File.AppendAllText(Archives(f,m)[m.Id],"TAMPER");
+        if(fault=="game")File.AppendAllText(Paths.Safe(f.Root,"Binaries/Singularity.exe"),"TAMPER");
+        await Reject(()=>f.Installer.InstallAsync(plan,Archives(f,m),null,default,confirmMismatch:w=>{calls++;return true;}));
+        Assert(calls==0&&f.Installer.Receipt(f.Root) is null&&!File.Exists(Paths.Safe(f.Root,"Binaries/trilex-test.dll")));
+    }
+});
+await Test("declining a later mismatch writes no prepared replacements",async()=>
+{
+    var f=Fixture();var m=MismatchPackage(f,true);var calls=0;
+    await Reject(()=>f.Installer.InstallAsync(f.Plan(m),Archives(f,m),null,default,confirmMismatch:w=>++calls==1));
+    Assert(calls==2&&f.Installer.Receipt(f.Root) is null&&!File.Exists(Paths.Safe(f.Root,"Binaries/trilex-test.dll")));
+    foreach(var path in new[]{"RvGame/CookedPC/test.xxx","RvGame/CookedPC/test2.xxx"})Assert(File.ReadAllText(Paths.Safe(f.Root,path))=="ORIGINAL");
+});
+await Test("approved mismatch still rolls back on apply failure and respects cancellation",async()=>
+{
+    var f=Fixture();var m=MismatchPackage(f);var target=Paths.Safe(f.Root,"RvGame/CookedPC/test.xxx");
+    await Reject(()=>f.Installer.InstallAsync(f.Plan(m),Archives(f,m),null,default,i=>{if(i==2)throw new IOException("Synthetic failure after installing the approved mismatch");},confirmMismatch:w=>true));
+    Assert(File.ReadAllText(target)=="ORIGINAL"&&f.Installer.Receipt(f.Root) is null&&!File.Exists(Paths.Safe(f.Root,"Binaries/trilex-test.dll")));
+    using var ct=new CancellationTokenSource();
+    try
+    {
+        await f.Installer.InstallAsync(f.Plan(m),Archives(f,m),null,ct.Token,confirmMismatch:w=>{ct.Cancel();return true;});
+        throw new Exception("Cancellation ignored");
+    }
+    catch(OperationCanceledException){}
+    Assert(File.ReadAllText(target)=="ORIGINAL"&&f.Installer.Receipt(f.Root) is null);
 });
 await Test("download selection cache retries and resumed range",async()=>
 {

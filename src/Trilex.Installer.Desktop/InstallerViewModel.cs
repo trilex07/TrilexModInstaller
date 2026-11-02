@@ -152,10 +152,23 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
         if(LocalExtractorTools.Required(chosen.Modules))await LocalExtractorTools.EnsureAsync(http,offline,progress,ct);
         var downloader=new PackageDownloader(http,Path.Combine(Home,"cache"));var packages=new Dictionary<string,string>();
         foreach(var module in chosen.Modules)packages[module.Id]=BundleSource.ArchiveAt(AppContext.BaseDirectory,module)??await downloader.GetAsync(module,offline,progress,ct);
-        var result=await Task.Run(async()=>repair?await installer.RepairAsync(chosen,packages,progress,ct):await installer.InstallAsync(chosen,packages,progress,ct),ct);
+        bool Confirm(ReconstructionWarning warning)=>ConfirmReconstructionMismatch(warning,ct);
+        var result=await Task.Run(async()=>repair?await installer.RepairAsync(chosen,packages,progress,ct,Confirm):await installer.InstallAsync(chosen,packages,progress,ct,confirmMismatch:Confirm),ct);
         Log("Verify installed files");var failures=await Task.Run(()=>installer.Verify(chosen.Root),ct);if(failures.Count>0)throw new IOException("Post-install verification failed: "+string.Join(", ",failures));
-        Activity=L["Done"]+" v"+result.Version;Percent=100;Log("Install verified "+result.Version);
+        var exceptions=result.ReconstructionWarnings??[];
+        Activity=CompletionText(result);
+        Percent=100;Log(exceptions.Count==0?"Install verified "+result.Version:"Install completed with user-approved reconstruction exceptions: "+exceptions.Count);
     }
+    private bool ConfirmReconstructionMismatch(ReconstructionWarning warning,CancellationToken ct)=>Application.Current.Dispatcher.Invoke(()=>
+    {
+        ct.ThrowIfCancellationRequested();Log("Reconstruction mismatch: "+warning.Describe());
+        var accepted=MessageBox.Show(Application.Current.MainWindow,MismatchText(warning),L["MismatchTitle"],MessageBoxButton.YesNo,MessageBoxImage.Warning,MessageBoxResult.No)==MessageBoxResult.Yes;
+        Log((accepted?"USER ACCEPTED":"USER DECLINED")+" reconstruction mismatch: "+warning.Describe());
+        ct.ThrowIfCancellationRequested();return accepted;
+    });
+    internal string MismatchText(ReconstructionWarning warning)=>L["MismatchWarning"]+"\n\n"+warning.Path+"\n\nExpected SHA256: "+warning.ExpectedSha256+"\nActual SHA256: "+warning.ActualSha256;
+    internal string CompletionText(InstallReceipt receipt)=>(receipt.ReconstructionWarnings?.Count??0)==0?L["Done"]+" v"+receipt.Version:L["InstalledExceptions"]+"\n"+string.Join("\n",receipt.ReconstructionWarnings!.Select(w=>w.Path));
+    internal string VerificationText(List<string> failures,InstallReceipt? receipt)=>failures.Count>0?"Repair required: "+string.Join(", ",failures):(receipt?.ReconstructionWarnings?.Count??0)==0?L["Verified"]:L["VerifiedExceptions"]+"\n"+string.Join("\n",receipt!.ReconstructionWarnings!.Select(w=>w.Path));
     internal IProgress<ProgressInfo> BeginInstallProgress(string version)
     {
         Activity=L["Installing"];Log("Install started "+version);
@@ -164,7 +177,11 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
         // Keep one stable user-facing message and record details only on phase/item changes.
         return new Progress<ProgressInfo>(p=>{var detail=p.Stage+" · "+p.Item;if(detail!=lastProgress){lastProgress=detail;Log(detail);}});
     }
-    public async Task Verify(CancellationToken ct){var failures=await Task.Run(()=>installer.Verify(root),ct);Activity=failures.Count==0?L["Verified"]:"Repair required: "+string.Join(", ",failures);}
+    public async Task Verify(CancellationToken ct)
+    {
+        var failures=await Task.Run(()=>installer.Verify(root),ct);
+        Activity=VerificationText(failures,installer.Receipt(root));
+    }
     public async Task Recover(CancellationToken ct){await Task.Run(()=>installer.Recover(root),ct);Activity=L["Restored"];}
     public async Task Uninstall(CancellationToken ct){await Task.Run(()=>installer.Uninstall(root,ct),ct);Activity=L["Restored"];plan=null;Changed(nameof(CanInstall));}
     public async Task Update(CancellationToken ct)

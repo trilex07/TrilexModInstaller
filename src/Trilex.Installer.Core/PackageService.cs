@@ -91,23 +91,24 @@ public static class PackageExtractor
             if(file.Kind=="copy" && file.Path.EndsWith(".xxx",StringComparison.OrdinalIgnoreCase))throw new InvalidDataException("Original cooked packages must be reconstructed locally, never shipped whole");
         }
     }
-    public static byte[] Reconstruct(string original,string staging,PackageFile file)
+    public static byte[] Reconstruct(string original,string staging,PackageFile file,Func<ReconstructionWarning,bool>? confirmMismatch=null)
     {
-        using var output=new MemoryStream();WriteReconstruction(original,staging,file,output);var result=output.ToArray();VerifyReconstruction(file,Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(result)),result.LongLength);return result;
+        using var output=new MemoryStream();WriteReconstruction(original,staging,file,output);var result=output.ToArray();VerifyReconstruction(file,Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(result)),result.LongLength,confirmMismatch);return result;
     }
-    public static void ReconstructTo(string original,string staging,PackageFile file,string target)
+    public static void ReconstructTo(string original,string staging,PackageFile file,string target,Func<ReconstructionWarning,bool>? confirmMismatch=null)
     {
         Paths.AssertNoLinks(target);Directory.CreateDirectory(Path.GetDirectoryName(target)!);
         using(var output=new FileStream(target,FileMode.CreateNew,FileAccess.Write,FileShare.None)){WriteReconstruction(original,staging,file,output);output.Flush(true);}
-        VerifyReconstruction(file,Paths.Hash(target),new FileInfo(target).Length);
+        VerifyReconstruction(file,Paths.Hash(target),new FileInfo(target).Length,confirmMismatch);
     }
-    private static void VerifyReconstruction(PackageFile file,string actual,long bytes)
+    private static void VerifyReconstruction(PackageFile file,string actual,long bytes,Func<ReconstructionWarning,bool>? confirmMismatch)
     {
         if(Paths.Same(actual,file.Sha256))return;
         // Source identity was checked before running the recipe. Name the failed
         // output and operation rather than incorrectly diagnosing a store edition.
         var operations=string.Join(",",(file.Recipe??[]).Select(x=>x.Source).Distinct());
-        throw new InvalidDataException($"Locally reconstructed output hash mismatch: {file.Path}; source={file.SourcePath??file.SystemSource??file.Path}; codec={file.SourceCodec??"none"}; operations={operations}; bytes={bytes}; expected SHA256={file.Sha256}; actual SHA256={actual}");
+        var warning=new ReconstructionWarning(file.Path,file.SourcePath??file.SystemSource??file.Path,file.SourceCodec??"none",operations,bytes,file.Sha256,actual);
+        if(confirmMismatch?.Invoke(warning)!=true)throw new InvalidDataException(warning.Describe());
     }
     private static void WriteReconstruction(string original,string staging,PackageFile file,Stream output)
     {

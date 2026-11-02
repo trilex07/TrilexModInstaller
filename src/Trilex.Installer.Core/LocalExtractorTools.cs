@@ -39,11 +39,15 @@ public static class LocalExtractorTools
         foreach(var pair in checkedFiles.OrderBy(p=>p.Key=="umodel.exe"?1:0))Paths.AtomicBytes(Paths.Safe(Cache,pair.Key),pair.Value);
         Resolve();
     }
-    public static async Task EnsureAsync(HttpClient http,bool offline,IProgress<ProgressInfo>? progress,CancellationToken ct)
+    public static async Task EnsureAsync(HttpClient http,bool offline,IProgress<ProgressInfo>? progress,CancellationToken ct,string? bundleDirectory=null)
     {
         try{Resolve();return;}catch(InvalidDataException){}
         var imported=Environment.GetEnvironmentVariable("TRILEX_UEVIEWER_ARCHIVE");
         if(imported is not null){Import(imported);return;}
+        // An adjacent official archive supports offline installation without redistributing
+        // an exporter inside the EXE. Import enforces the same archive and binary pins.
+        var adjacent=Paths.Safe(bundleDirectory??AppContext.BaseDirectory,"tools/umodel_win32.zip");
+        if(File.Exists(adjacent)){Import(adjacent);return;}
         if(offline)throw new FileNotFoundException("Pinned UE Viewer offline cache absent; import its original archive before installation");
         Directory.CreateDirectory(Cache);var part=Paths.Safe(Cache,"download-"+Guid.NewGuid().ToString("N")+".tmp");
         try
@@ -60,6 +64,10 @@ public static class LocalExtractorTools
                 while((n=await input.ReadAsync(buffer,ct))>0){total+=n;if(total>maximum)throw new InvalidDataException("UE Viewer archive exceeds budget");await output.WriteAsync(buffer.AsMemory(0,n),ct);progress?.Report(new("Local extractor","UE Viewer · upstream download",total,response.Content.Headers.ContentLength??maximum));}
             }
             Import(part);
+        }
+        catch(HttpRequestException e)
+        {
+            throw new HttpRequestException("UE Viewer download failed (gildor.org). No game files have been changed. Place the original pinned umodel_win32.zip in the tools folder beside TrilexModInstaller.exe, then retry. Keep the ZIP intact; installer-rc5-evidence.json is not required. See Open local logs for details. " + e.Message,e);
         }
         finally{if(File.Exists(part))File.Delete(part);}
     }

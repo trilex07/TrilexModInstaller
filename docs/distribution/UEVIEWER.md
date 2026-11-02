@@ -27,3 +27,19 @@ not label every upstream codec MIT. Original PSK/PSA output remains local and ig
 Only the pinned archive and two independently pinned binary hashes are accepted;
 the archive's unused x64 pair is not extracted. Missing offline tools fail before
 game writes. No PATH executable or package-provided exporter is executed.
+
+## DNS failure and offline retry (after RC5)
+
+RC5 still downloads this tool even in the complete bundle. A DNS error for
+www.gildor.org is independent of the game edition and the evidence report.
+The next installer accepts the unmodified pinned upstream archive at
+`tools/umodel_win32.zip` beside its EXE, before network access, including offline
+mode. A corrupt archive is rejected; there is no unverified fallback.
+This change does not itself redistribute the tool or publish a new release.
+The existing `TRILEX_UEVIEWER_ARCHIVE` override also works in RC5.
+
+`installer-rc5-evidence.json` is an optional test report, never an installation
+input. Separate release module ZIPs are already in the complete bundle.
+Retail-disc/Spanish builds remain unverified: executable and every source file
+must match approved fingerprints; Steam launch is currently Steam-specific.
+Do not bypass hashes to admit another edition.

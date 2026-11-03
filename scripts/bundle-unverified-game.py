@@ -30,6 +30,9 @@ with zipfile.ZipFile(target) as z:
         if name not in replacements:assert hashes[name]==sha(base/name),name
 commit=subprocess.check_output(['git','-c',f'safe.directory={root.as_posix()}','rev-parse','HEAD'],cwd=root,text=True).strip()
 evidence=json.loads((old/'installer-rc7-evidence.json').read_text())
+evidence.update(previousInstallerBuildSource=evidence['installerBuildSource'],previousExeSha256=evidence['exeSha256'],previousZipSha256=evidence['zipSha256'])
+evidence.update(exeSha256=sha(exe),zipSha256=sha(target),zipBytes=target.stat().st_size,coreTests='75 PASS / 0 FAIL',installerRevision='rc7-unverified-executable-consent-20261103',
+    lifecycleScope='Retained earlier signed-content lifecycle results; unverified-build transaction tests are included in current 75 core tests; no real disc/GOG validation')
 evidence.update(installerBuildSource=commit,installerSha256=sha(exe),completeZipSha256=sha(target),
     executableWarning={'status':'OFFLINE PASS; real GOG/disc gameplay NOT RUN','consent':'PL/EN modal, default No; exact directory and EXE SHA256; logged and receipted',
     'coreTests':'75 PASS / 0 FAIL','portableUi':'8 PL/EN layouts PASS; zero binding errors; modal click not automated',

@@ -39,6 +39,7 @@ public sealed class TransactionInstaller(string stateRoot, IProcessGuard process
         // Caller constructs this plan through signed catalog validation; repeat ownership, game and package checks here.
         processes.RequireIdle(plan.Root);Paths.AssertNoLinks(plan.Root);
         if(!Paths.Same(Paths.Hash(Paths.Safe(plan.Root,plan.Executable)),plan.ExeSha256))throw new InvalidDataException("Executable changed after review");
+        if(plan.ExecutableConsent is not null&&!ExecutableCompatibility.Matches(plan.ExecutableConsent,plan.Root,plan.ExeSha256))throw new InvalidDataException("Executable consent belongs to another build or directory");
         if(plan.Modules.Any(x=>x.State!="stable" || !PlanBuilder.HasDistributionReview(x)))throw new InvalidDataException("Only explicitly reviewed stable modules can install");
         var state=StateDirectory(plan.Root);using var gate=Lock(state);RecoverLocked(plan.Root,state);
         var previous=Receipt(plan.Root);if(previous is not null && previous.GameId!=plan.GameId)throw new IOException("Adapter ownership mismatch");
@@ -122,7 +123,7 @@ public sealed class TransactionInstaller(string stateRoot, IProcessGuard process
         }
         // Deselecting a package restores the user's originals, rather than leaving orphaned files.
         if(previous is not null)foreach(var old in previous.Files.Where(x=>!files.ContainsKey(x.Path)))edits.Add((old.Path,RestoreSource(plan.Root,state,old,txn)));
-        var receipt=new InstallReceipt("trilex-install-v1",Path.GetFullPath(plan.Root),plan.GameId,plan.Version,plan.Choices,ownership,id,warnings.Count==0?null:warnings);
+        var receipt=new InstallReceipt("trilex-install-v1",Path.GetFullPath(plan.Root),plan.GameId,plan.Version,plan.Choices,ownership,id,warnings.Count==0?null:warnings,plan.ExecutableConsent);
         Apply(plan.Root,state,edits,previous,receipt,id,progress,ct,faultInjection);
         await Task.CompletedTask;return receipt;
     }

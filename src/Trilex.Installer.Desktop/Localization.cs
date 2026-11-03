@@ -9,6 +9,10 @@ public sealed class Localization : INotifyPropertyChanged
     public string this[string key]=>Words.TryGetValue(key,out var value)?(Language=="pl"?value.Pl:value.En):key;
     private static readonly Dictionary<string,(string En,string Pl)> Words=new()
     {
+        ["UnverifiedBuild"]=("Unverified game build (disc/GOG/modified EXE). Review installation to continue with a warning.","Niezweryfikowana wersja gry (płyta/GOG/zmieniony EXE). Przejdź do podsumowania, aby kontynuować z ostrzeżeniem."),
+        ["UnverifiedTitle"]=("Unverified game version — try anyway?","Niezweryfikowana wersja gry — spróbować mimo to?"),
+        ["UnverifiedWarning"]=("This executable is not one of the tested builds. Disc, GOG and modified versions may use different native code: the VR mod may fail to start, crash or behave incorrectly. This is permission to TRY installation, not confirmed compatibility.\n\nBack up your saves separately. Managed original files are backed up before replacement. Package signatures, package hashes and reconstruction source checks remain enforced.\n\nChoose Yes to continue with this exact executable, or No to cancel.","Ten plik EXE nie należy do przetestowanych wersji. Wydania płytowe, GOG i zmodyfikowane mogą mieć inny kod: mod VR może się nie uruchomić, zawieszać lub działać nieprawidłowo. To zgoda na PRÓBĘ instalacji, a nie potwierdzenie zgodności.\n\nZrób osobną kopię zapisów gry. Oryginalne zarządzane pliki są kopiowane przed podmianą. Podpisy i hashe paczek oraz kontrole źródeł rekonstrukcji pozostają aktywne.\n\nWybierz Tak, aby kontynuować z tym konkretnym EXE, lub Nie, aby anulować."),
+        ["UnverifiedInstalled"]=("Unverified game executable accepted by user. Runtime compatibility is NOT confirmed.","Użytkownik zaakceptował niezweryfikowany EXE gry. Zgodność działania NIE jest potwierdzona."),
         ["FullPreset"]=("Full Trilex V7 (Polish)","Pełna konfiguracja Trilex V7 (PL)"),
         ["Installing"]=("Installing the mod…","Instalowanie moda…"),["Error"]=("Error","Błąd"),
         ["MismatchTitle"]=("Generated file differs — continue at your own risk?","Wygenerowany plik jest inny — kontynuować na własne ryzyko?"),

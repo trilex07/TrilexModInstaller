@@ -70,10 +70,12 @@ public static class PlanBuilder
         }
     }
     public static bool ValidHash(string? hash)=>hash is not null && System.Text.RegularExpressions.Regex.IsMatch(hash,"^[0-9A-Fa-f]{64}$");
-    public static InstallPlan Build(GameManifest game,GameLocation location,InstallChoices choices)
+    public static InstallPlan Build(GameManifest game,GameLocation location,InstallChoices choices,ExecutableConsent? consent=null)
     {
         ValidateManifest(game);
-        if(game.State is not ("stable" or "preview") || !location.Compatible || location.ExeHash is null || !game.ExeSha256.Any(x=>Paths.Same(x,location.ExeHash)))throw new InvalidOperationException("Game is not compatible or not released");
+        var verified=location.Compatible&&game.ExeSha256.Any(x=>Paths.Same(x,location.ExeHash));
+        var acknowledged=location.ExeHash is not null&&ExecutableCompatibility.Matches(consent,location.Root,location.ExeHash)&&ExecutableCompatibility.CanTry(game,location);
+        if(game.State is not ("stable" or "preview") || location.ExeHash is null || (!verified&&!acknowledged))throw new InvalidOperationException("Game is not compatible or not released; unverified Singularity builds require explicit review consent");
         if(choices.TextLanguage is not ("en" or "pl") || choices.VoiceLanguage is not ("en" or "pl") || choices.UiLanguage is not ("en" or "pl"))throw new InvalidDataException("Unsupported language");
         var ids=choices.SelectedModules.Concat(game.Modules.Where(x=>x.Required).Select(x=>x.Id)).ToHashSet(StringComparer.Ordinal);
         if(choices.TextLanguage=="pl")ids.Add("polish-text");
@@ -93,6 +95,6 @@ public static class PlanBuilder
         result=LocalSources.BindCurrentSystem(result);
         var paths=result.SelectMany(x=>x.Files).Where(x=>x.Kind!="ini").Select(x=>x.Path).ToList();
         if(paths.Distinct(StringComparer.OrdinalIgnoreCase).Count()!=paths.Count)throw new InvalidDataException("Two modules own the same target");
-        return new(game.Id,game.Modules.First(x=>x.Required).Version,location.Root,location.ExeHash,choices,result,game.Executable);
+        return new(game.Id,game.Modules.First(x=>x.Required).Version,location.Root,location.ExeHash,choices,result,game.Executable,verified?null:consent);
     }
 }

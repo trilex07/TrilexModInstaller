@@ -23,7 +23,7 @@ public sealed record PackageFile(string Path, string Entry, string Sha256, strin
 public sealed record PatchPart(string Source, long Offset, int Length, string? Entry = null);
 public sealed record SignedEnvelope(string Algorithm, string Payload, string Signature);
 public sealed record InstallChoices(string TextLanguage, string VoiceLanguage, string UiLanguage, List<string> SelectedModules);
-public sealed record InstallPlan(string GameId, string Version, string Root, string ExeSha256, InstallChoices Choices, List<ModuleManifest> Modules, string Executable = "Binaries/Singularity.exe")
+public sealed record InstallPlan(string GameId, string Version, string Root, string ExeSha256, InstallChoices Choices, List<ModuleManifest> Modules, string Executable = "Binaries/Singularity.exe", ExecutableConsent? ExecutableConsent = null)
 {
     public long DownloadBytes => Modules.Sum(x => x.DownloadBytes);
     public long ExpandedBytes => Modules.Sum(x => x.ExpandedBytes);
@@ -35,7 +35,7 @@ public sealed record ReconstructionWarning(string Path,string Source,string Code
 {
     public string Describe()=>$"Locally reconstructed output hash mismatch: {Path}; source={Source}; codec={Codec}; operations={Operations}; bytes={Bytes}; expected SHA256={ExpectedSha256}; actual SHA256={ActualSha256}";
 }
-public sealed record InstallReceipt(string Schema, string Root, string GameId, string Version, InstallChoices Choices, List<OwnedFile> Files, string TransactionId,List<ReconstructionWarning>? ReconstructionWarnings=null);
+public sealed record InstallReceipt(string Schema, string Root, string GameId, string Version, InstallChoices Choices, List<OwnedFile> Files, string TransactionId,List<ReconstructionWarning>? ReconstructionWarnings=null,ExecutableConsent? ExecutableConsent=null);
 public sealed record Journal(string Schema, string Root, string Phase, string TransactionId, InstallReceipt? PreviousReceipt, List<JournalFile> Files);
 public sealed record JournalFile(string Path, string? BeforeHash, string? AfterHash, string Backup, bool Applied);
 

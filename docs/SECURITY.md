@@ -2,7 +2,7 @@
 
 The installer runs asInvoker and never automatically elevates, kills a game, edits the game EXE, uploads telemetry or executes package scripts. Installer state and backups belong to the Windows user. Secure that directory; receipt/journal tampering by an already compromised local account is outside the signing boundary. Do not run untrusted manifests with an elevated developer tool.
 
-1. Validate game path/fingerprint; refuse links/reparse paths.
+1. Validate game path/fingerprint; refuse links/reparse paths. An unrecognized Singularity x86 PE32 EXE may be tried only after explicit per-review consent tied to its directory and SHA-256. This is not certified compatibility. The EXE is never patched or replaced; a post-review change is still refused. Consent is logged and retained in the install receipt, without weakening package or reconstruction-source verification.
 2. Resolve only stable, approved modules from a pinned signed catalog, including dependency and language conflicts.
 3. Verify exact download size and SHA-256. Keep incomplete `.part` separately. Offline imports must match the signed catalog.
 4. Stage allowlisted content and verified local transformations. Check free space on both game and installer-state volumes, accounting conservatively for backups and temporary copies.

@@ -46,6 +46,9 @@ internal static class UiSmoke
     }
     static void CheckReconstructionWarning(InstallerViewModel vm)
     {
+        var build=new GameLocation("GOG or disc folder","Manual",false,"Unverified",new string('D',64));
+        var buildWarning=vm.UnverifiedExecutableText(build);
+        if(!buildWarning.Contains(build.Root)||!buildWarning.Contains(build.ExeHash!)||vm.L["UnverifiedTitle"]=="UnverifiedTitle"||buildWarning.Contains("UnverifiedWarning"))throw new InvalidDataException("Executable warning omitted build identity or localization");
         var warning=new ReconstructionWarning("RvGame/CookedPC/test.xxx","owned.xxx","none","original",5,new string('A',64),new string('B',64));
         var message=vm.MismatchText(warning);
         if(!message.Contains(warning.Path)||!message.Contains(warning.ExpectedSha256)||!message.Contains(warning.ActualSha256)||vm.L["MismatchTitle"]=="MismatchTitle"||message.Contains("MismatchWarning"))throw new InvalidDataException("Mismatch warning omitted identity, hashes or localization");

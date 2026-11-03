@@ -3,6 +3,18 @@
 This release combines the installer process fix with the accepted SingularityVR
 runtime. It is not the earlier installer-only guard-fix ZIP.
 
+Disc/GOG/unrecognized EXE follow-up (2026-11-03): a structurally valid Singularity
+folder with an unrecognized x86 PE32 executable may now be reviewed and installed
+after an explicit PL/EN warning (default **No**). Consent is bound to that folder
+and exact executable SHA-256, logged, and stored in the installation receipt.
+Changing the executable after review still refuses installation. This permits
+testing; disc/GOG runtime compatibility is **NOT VERIFIED**. Back up saves first.
+Package signatures/hashes, reconstruction source checks, backups and recovery
+are unchanged. Different source assets can still stop installation with an exact
+error; send the log instead of replacing the EXE or bypassing source checks.
+For non-Steam editions use the game's normal shortcut; **Launch through Steam**
+is not a GOG/retail launcher and is not enabled by this consent.
+
 RC7 diagnostic refresh (2026-11-02): the installer now names the failed locally
 reconstructed output, source/operation, length and expected/actual SHA-256 in
 the error and local log. This is not a confirmed GOG compatibility fix. Send

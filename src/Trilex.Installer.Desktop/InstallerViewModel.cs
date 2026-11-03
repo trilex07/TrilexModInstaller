@@ -116,20 +116,30 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
     {
         var locations=await Task.Run(()=>adapter.Detect(SteamRoots.Discover(),Game).ToList(),ct);
         var best=locations.FirstOrDefault(x=>x.Compatible)??locations.FirstOrDefault();
-        if(best is null){DetectionStatus=L["NoGame"];return;}GameRoot=best.Root;location=best;DetectionStatus=L[best.Compatible?"Compatible":"Wrong"];Changed(nameof(CanManage));Changed(nameof(CanLaunch));
+        if(best is null){DetectionStatus=L["NoGame"];return;}GameRoot=best.Root;location=best;DetectionStatus=L[best.Compatible?"Compatible":ExecutableCompatibility.CanTry(Game,best)?"UnverifiedBuild":"Wrong"];Changed(nameof(CanManage));Changed(nameof(CanLaunch));
     }
     public async Task Validate(CancellationToken ct)
     {
-        location=await Task.Run(()=>adapter.Validate(root,Game),ct);DetectionStatus=L[location.Compatible?"Compatible":"Wrong"]+" "+location.Detail;Changed(nameof(CanManage));Changed(nameof(CanLaunch));
+        location=await Task.Run(()=>adapter.Validate(root,Game),ct);DetectionStatus=L[location.Compatible?"Compatible":ExecutableCompatibility.CanTry(Game,location)?"UnverifiedBuild":"Wrong"]+" "+location.Detail;Changed(nameof(CanManage));Changed(nameof(CanLaunch));
     }
     public async Task Review(CancellationToken ct)
     {
+        Invalidate();
         if(catalog.ExpiresUtc<=DateTimeOffset.UtcNow)throw new InvalidDataException("Catalog expired; fetch a current signed catalog");
         await Validate(ct);
+        ExecutableConsent? consent=null;
+        if(location?.Compatible!=true&&location is not null&&ExecutableCompatibility.CanTry(Game,location))
+        {
+            ct.ThrowIfCancellationRequested();
+            var accepted=MessageBox.Show(Application.Current.MainWindow,UnverifiedExecutableText(location),L["UnverifiedTitle"],MessageBoxButton.YesNo,MessageBoxImage.Warning,MessageBoxResult.No)==MessageBoxResult.Yes;
+            Log((accepted?"USER ACCEPTED":"USER DECLINED")+" unverified executable: "+location.Root+" SHA256="+location.ExeHash);
+            if(!accepted)throw new OperationCanceledException(ct);
+            consent=new(location.Root,location.ExeHash!);
+        }
         var prerequisites=WindowsPrerequisites.Inspect();
         if(!prerequisites.Present)throw new InvalidOperationException(prerequisites.Detail+"\nMicrosoft Visual C++ v14 x86: "+WindowsPrerequisites.VisualCppX86Url+(ui=="pl"?"\nZainstaluj wymagany pakiet Microsoft i ponów sprawdzanie.":"\nInstall the Microsoft prerequisite, then review again."));
         var choices=new InstallChoices(text,voice,ui,Modules.Where(x=>x.Selected).Select(x=>x.Manifest.Id).ToList());
-        var reviewed=PlanBuilder.Build(Game,location!,choices);
+        var reviewed=PlanBuilder.Build(Game,location!,choices,consent);
         if(reviewed.Modules.SelectMany(m=>m.Files).Any(f=>Paths.Same(f.Path,"Binaries/SingularityPsvr2Bridge.exe")))
         {
             var triggerPrerequisite=WindowsPrerequisites.InspectTriggerHelper();
@@ -137,6 +147,7 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
         }
         plan=reviewed;
         ReviewText=$"{plan.Root}\n\nv{plan.Version} · {plan.DownloadBytes/1048576.0:F1} MB download · {plan.ExpandedBytes/1048576.0:F1} MB payload\nText: {text} / Voice: {voice}\n\n"+string.Join("\n",plan.Modules.Select(x=>$"{x.Label(ui)} · {x.Version} · [{string.Join(", ",x.Dependencies)}]"));
+        if(plan.ExecutableConsent is not null)ReviewText+="\n\n"+L["UnverifiedInstalled"]+"\nSHA256: "+plan.ExeSha256;
         if(LocalAudioTools.Required(plan.Modules))ReviewText+="\n\n"+(ui=="pl"?"Remaster audio: przetwarzanie lokalne z własnej kopii gry. Dodatkowy kodek FFmpeg 9.0.2 (GPLv3), około 109 MB z gyan.dev; bez pobierania nagrań.":"Audio remaster: generated locally from your own game. Additional FFmpeg 9.0.2 codec (GPLv3), approximately 109 MB from gyan.dev; no recording download.");
         if(LocalExtractorTools.Required(plan.Modules))ReviewText+="\n\n"+(ui=="pl"?"Zasoby Centuriona powstaną z własnej kopii gry. Pełny ZIP zawiera zweryfikowany UE Viewer w folderze tools; nie wymaga pobierania z gildor.org ani pobierania modeli gry.":"Centurion assets are generated from your own game. The complete ZIP includes a verified UE Viewer in its tools folder; no gildor.org download or game-model download is needed.");
         var fanContent=plan.Modules.Where(m=>!m.RightsVerified&&m.PublisherReview is not null).ToList();
@@ -156,7 +167,7 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
         var result=await Task.Run(async()=>repair?await installer.RepairAsync(chosen,packages,progress,ct,Confirm):await installer.InstallAsync(chosen,packages,progress,ct,confirmMismatch:Confirm),ct);
         Log("Verify installed files");var failures=await Task.Run(()=>installer.Verify(chosen.Root),ct);if(failures.Count>0)throw new IOException("Post-install verification failed: "+string.Join(", ",failures));
         var exceptions=result.ReconstructionWarnings??[];
-        Activity=CompletionText(result);
+        Activity=CompletionText(result)+(result.ExecutableConsent is null?"":"\n"+L["UnverifiedInstalled"]);
         Percent=100;Log(exceptions.Count==0?"Install verified "+result.Version:"Install completed with user-approved reconstruction exceptions: "+exceptions.Count);
     }
     private bool ConfirmReconstructionMismatch(ReconstructionWarning warning,CancellationToken ct)=>Application.Current.Dispatcher.Invoke(()=>
@@ -167,6 +178,7 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
         ct.ThrowIfCancellationRequested();return accepted;
     });
     internal string MismatchText(ReconstructionWarning warning)=>L["MismatchWarning"]+"\n\n"+warning.Path+"\n\nExpected SHA256: "+warning.ExpectedSha256+"\nActual SHA256: "+warning.ActualSha256;
+    internal string UnverifiedExecutableText(GameLocation build)=>L["UnverifiedWarning"]+"\n\n"+build.Root+"\nSHA256: "+build.ExeHash;
     internal string CompletionText(InstallReceipt receipt)=>(receipt.ReconstructionWarnings?.Count??0)==0?L["Done"]+" v"+receipt.Version:L["InstalledExceptions"]+"\n"+string.Join("\n",receipt.ReconstructionWarnings!.Select(w=>w.Path));
     internal string VerificationText(List<string> failures,InstallReceipt? receipt)=>failures.Count>0?"Repair required: "+string.Join(", ",failures):(receipt?.ReconstructionWarnings?.Count??0)==0?L["Verified"]:L["VerifiedExceptions"]+"\n"+string.Join("\n",receipt!.ReconstructionWarnings!.Select(w=>w.Path));
     internal IProgress<ProgressInfo> BeginInstallProgress(string version)
@@ -180,7 +192,8 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
     public async Task Verify(CancellationToken ct)
     {
         var failures=await Task.Run(()=>installer.Verify(root),ct);
-        Activity=VerificationText(failures,installer.Receipt(root));
+        var receipt=installer.Receipt(root);
+        Activity=VerificationText(failures,receipt)+(receipt?.ExecutableConsent is null?"":"\n"+L["UnverifiedInstalled"]);
     }
     public async Task Recover(CancellationToken ct){await Task.Run(()=>installer.Recover(root),ct);Activity=L["Restored"];}
     public async Task Uninstall(CancellationToken ct){await Task.Run(()=>installer.Uninstall(root,ct),ct);Activity=L["Restored"];plan=null;Changed(nameof(CanInstall));}

@@ -62,6 +62,19 @@ Select a compatible folder, choose text/voice and modules, then review before in
 
 ## Repository layout
 
+### Disc / GOG / unrecognized Singularity executables
+
+Browse to the game folder, then **Review installation**. For an unrecognized
+x86 executable the installer shows a warning with its exact SHA-256. **No** is
+the default; **Yes** permits an experimental installation for that folder and
+EXE only. It does not certify disc/GOG compatibility or disable signed-package
+and original-source checks. Keep a separate backup of saves. Consent and errors
+are available through **Open local logs**. Non-Steam owners launch from their
+normal game shortcut; this override does not enable the Steam launch button.
+
+If a source/reconstruction error remains, send the installer log with game
+edition and language. Do not swap EXEs or download extra evidence JSON files.
+
 - `src/Trilex.Installer.Core`: catalog, adapters, downloader, extraction, recipes, transactions.
 - `src/Trilex.Installer.Desktop`: WPF, localization, Steam process guard, offscreen smoke tests.
 - `src/Trilex.Installer.Tools`: offline catalog signing/verification and audited package creation.

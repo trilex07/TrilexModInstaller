@@ -71,6 +71,37 @@ await Test("multiple Steam libraries and nested VDF",()=>Sync(()=>
     var found=new SingularityGameAdapter().Detect([steam],f.Game()).ToList();Assert(found.Count==1&&found[0].Compatible);
 }));
 await Test("manual location and executable mismatch",()=>Sync(()=>{var f=Fixture();var game=f.Game();var adapter=new SingularityGameAdapter();Assert(adapter.Validate(f.Root,game).Compatible);File.AppendAllText(Path.Combine(f.Root,"Binaries","Singularity.exe"),"different build");Assert(!adapter.Validate(f.Root,game).Compatible);Assert(!adapter.Validate(Path.Combine(f.Root,"missing"),game).Compatible);}));
+await Test("unverified disc/GOG executable needs exact explicit consent",async()=>
+{
+    var f=Fixture();var module=Package(f);var game=f.Game(module);var exe=Path.Combine(f.Root,"Binaries","Singularity.exe");
+    var pe=new byte[256];pe[0]=0x4D;pe[1]=0x5A;pe[0x3C]=0x80;pe[0x80]=0x50;pe[0x81]=0x45;pe[0x84]=0x4C;pe[0x85]=1;pe[0x98]=0x0B;pe[0x99]=1;File.WriteAllBytes(exe,pe);
+    var location=new SingularityGameAdapter().Validate(f.Root,game);Assert(!location.Compatible&&ExecutableCompatibility.CanTry(game,location));
+    var choices=new InstallChoices("en","en","en",[]);var consent=new ExecutableConsent(f.Root,location.ExeHash!);
+    await Reject(()=>Sync(()=>PlanBuilder.Build(game,location,choices)));
+    await Reject(()=>Sync(()=>PlanBuilder.Build(game,location,choices,consent with{Sha256=new string('0',64)})));
+    await Reject(()=>Sync(()=>PlanBuilder.Build(game,location,choices,consent with{Root=Path.Combine(f.Root,"other")})));
+    await Reject(()=>Sync(()=>PlanBuilder.Build(game with{State="unavailable"},location,choices,consent)));
+    var plan=PlanBuilder.Build(game,location,choices,consent);Assert(plan.ExecutableConsent==consent&&plan.ExeSha256==location.ExeHash);
+    var installed=await f.Installer.InstallAsync(plan,Archives(f,module),null,default);Assert(installed.ExecutableConsent==consent&&f.Installer.Verify(f.Root).Count==0);
+    Assert(f.Installer.Receipt(f.Root)!.ExecutableConsent==consent);f.Installer.Uninstall(f.Root,default);Assert(Paths.Hash(exe)==location.ExeHash);
+});
+await Test("unverified executable consent preserves integrity and freshness gates",async()=>
+{
+    var f=Fixture();var module=Package(f);var game=f.Game(module);var exe=Path.Combine(f.Root,"Binaries","Singularity.exe");
+    var pe=new byte[256];pe[0]=0x4D;pe[1]=0x5A;pe[0x3C]=0x80;pe[0x80]=0x50;pe[0x81]=0x45;pe[0x84]=0x4C;pe[0x85]=1;pe[0x98]=0x0B;pe[0x99]=1;File.WriteAllBytes(exe,pe);
+    var location=new SingularityGameAdapter().Validate(f.Root,game);var consent=new ExecutableConsent(f.Root,location.ExeHash!);
+    var plan=PlanBuilder.Build(game,location,new("en","en","en",[]),consent);
+    await Reject(()=>f.Installer.InstallAsync(plan with{Modules=[module with{ArchiveSha256=new string('0',64)}]},Archives(f,module),null,default));
+    await Reject(()=>f.Installer.InstallAsync(plan with{ExecutableConsent=consent with{Root=Path.Combine(f.Root,"other")}},Archives(f,module),null,default));
+    File.AppendAllText(exe,"changed after review");await Reject(()=>f.Installer.InstallAsync(plan,Archives(f,module),null,default));
+    Assert(!ExecutableCompatibility.CanTry(game,location));Assert(!File.Exists(Path.Combine(f.Root,"Binaries","d3d9.dll")));
+});
+await Test("missing and non-x86 executable cannot use unverified consent",()=>Sync(()=>
+{
+    var f=Fixture();var game=f.Game();var exe=Path.Combine(f.Root,"Binaries","Singularity.exe");File.AppendAllText(exe,"not a PE");
+    var adapter=new SingularityGameAdapter();Assert(!ExecutableCompatibility.CanTry(game,adapter.Validate(f.Root,game)));
+    File.Delete(exe);Assert(!ExecutableCompatibility.CanTry(game,adapter.Validate(f.Root,game)));
+}));
 await Test("only pinned PSVR2 helper executable can install and restore",async()=>
 {
     var f=Fixture();var module=Package(f);var helper="Binaries/SingularityPsvr2Bridge.exe";

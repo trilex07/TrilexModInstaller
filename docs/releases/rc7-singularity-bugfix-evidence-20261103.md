@@ -48,3 +48,7 @@ lengths and is selected only by the exact new signed Valkyrie output identity.
 Publication replaces the existing seven changed release assets. Nine unchanged
 module assets must retain their previous GitHub digests. Remote verification
 receipt is retained privately with the release artifact evidence.
+
+Publication completed: all seven replacements match local SHA256/size in GitHub
+server metadata; all nine unchanged assets retain their previous digests. This
+is remote metadata verification, not a complete re-download test.

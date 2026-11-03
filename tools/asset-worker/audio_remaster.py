@@ -8,6 +8,7 @@ import wave
 from pathlib import Path
 from audio_profiles import PROFILES
 from vorbis_fixed_allocation import pages, crc, pad_to_allocation
+from vorbis_header_repair import pad_to_allocation as repaired_allocation
 
 CODECS = {'3256173F3F8BFFD7DF12227C68ADF68025EDB1832273A9530688A7BB1ED8EDEC',
           '589E50B766D251AFDF181DD664D40BD94407E200B019989FD7468C7D118A28D0'}
@@ -110,6 +111,19 @@ def pack(logical, whole):
     return bytes(result)+b'\0'*((-len(result)) % 65536)
 
 
+def accepted_allocation(encoded, size, expected, profile):
+    # Preserve all previously signed recipes byte-for-byte. Only the reviewed
+    # Valkyrie revision opts in through its exact expected output hash.
+    original = pad_to_allocation(encoded, size)
+    if sha(original) == expected:
+        return original
+    if profile == '04_weapon_walkiria_ar9':
+        repaired = repaired_allocation(original, size)
+        if sha(repaired) == expected:
+            return repaired
+    raise ValueError('Encoded audio differs from accepted recipe')
+
+
 def generate(source, output, metadata, codec):
     if sha(codec.read_bytes()) not in CODECS:
         raise ValueError('Audio codec identity not approved')
@@ -149,7 +163,8 @@ def generate(source, output, metadata, codec):
     if op['gainDb']:
         args += ['-af', 'volume='+str(op['gainDb'])+'dB']
     run(codec, args+['-c:a', 'libvorbis', '-q:a', str(op['quality']), encoded])
-    replacement = pad_to_allocation(canonical_serial(encoded.read_bytes(), op['serial']), size)
+    canonical = canonical_serial(encoded.read_bytes(), op['serial'])
+    replacement = accepted_allocation(canonical, size, op['encodedSha256'], op['profile'])
     if sha(replacement) != op['encodedSha256']:
         raise ValueError('Encoded audio differs from accepted recipe')
     revised = logical[:at]+replacement+logical[at+size:]

@@ -20,7 +20,8 @@ reconstructed output, source/operation, length and expected/actual SHA-256 in
 the error and local log. This is not a confirmed GOG compatibility fix. Send
 `installer.log` from **Open local logs**, installer version, game version and
 language if installation fails. Re-download the complete ZIP for this update;
-the signed catalog and all mod packages are unchanged.
+at that diagnostic-only revision the catalog/packages were unchanged. This later
+mod refresh updates the signed catalog, vr-core, audio-remaster and portable-settings.
 
 RC7 explicit exception follow-up: if a fully generated local file has a different
 output hash, the installer offers a per-file warning with **No** selected by
@@ -32,9 +33,34 @@ uninstall cannot undo save changes or prevent crashes. Original-source and
 downloaded-package checks cannot be bypassed. Approval is required again for
 regeneration. This is not a confirmed Steam/GOG compatibility fix.
 
-- x86 renderer: A16FC1927B215A1A306DBE56CE24B1CB03A042A541EC7C8C4A4CBA1BF6A4A75A.
-- Runtime build source: 6c38abea084023e8e5f7702385e21b37e71adc9f, integrated
-  into SingularityVR main by 92fe119c187076defb2f5038e1678ec15c0da137.
+## Singularity bug-fix refresh — 2026-11-03
+
+Still **installer-1.0.0-rc.7**: re-download the complete ZIP and extract it into a
+fresh folder. Do not mix an older catalog/packages with this refresh. This is a
+mod-content bug-fix update, not a new installer version or UI feature release.
+The EXE is rebuilt only because its embedded local-audio worker must generate
+the repaired Valkyrie bank. Existing consent, backup and recovery rules remain.
+
+- x86 renderer: 7AD356F832ED84E2F599733BE58553BD661381C6C2FD51B4ACDEE25116F38E86.
+- Runtime source: 9488a26a (full SHA in evidence), including all intervening
+  runtime fixes since the previous RC7 A16FC192 build.
+- L1 TMD gravity with grip arbitration; optional gaze-directed TMD aim with the
+  compatible PSVR2 Toolkit provider and existing tracked-hand fallback.
+- Valkyrie physical insertion correction, plus TMD/right-weapon attachment
+  corrections during movement, stick turns and head rotation.
+- Polish Bink routing fixes for named and in-memory movie streams; native films
+  remain mono. Unknown movie streams retain native selection.
+- Context popup laser/cursor geometry correction; engine-cinema caption
+  duplication in both eyes and mono-to-stereo bootstrap/frustum-fit correction.
+- World scale 80 -> 76 (5% smaller), accepted by the user.
+- Right-eye cinema LEFT-edge extension 2%, right edge unchanged. This is an
+  explicitly requested reversible calibration; final headset border symmetry
+  is still PENDING, not a proven compositor repair. Diagnostics/captures OFF.
+- Repaired Valkyrie Vorbis allocation header, generated locally from owned game
+  data. Final bank B8126A759169A89D92FA596D6FBE52E8D94F3BCBA0ACC24FD61967CAD87AFD7A.
+  Encoded audio and native lengths/offsets are preserved; no XAudio DLL swap.
+- Existing Seeker physical reload remains disabled. No test-only weapon grants.
+
 - x64 gaze/trigger bridge: C4D002A3F09258F311EFF9CFB4FF20ABAD4CEB9CF3967E25A80212DFAF335271.
 - Stereo cinema for engine-rendered cutscenes, gaze weapon-wheel selection,
   gaze-centred NIS sharpening and damage haptics are enabled in the preset.
@@ -43,10 +69,9 @@ regeneration. This is not a confirmed Steam/GOG compatibility fix.
   headset acceptance of every feature or every pending HUD/recenter case.
 - Test-only Kasimov/Centurion grants are OFF. Owned native inventory remains
   authoritative. Seeker physical reload remains disabled.
-- Existing HD weapons/textures, menus, weapon HUD, Polish text/dubbing and local
-  audio recipes remain byte-identical to RC6. Native Bink films remain mono;
-  stereo cinema applies to engine-rendered scenes. Unverified/pending work is
-  not silently substituted into this release.
+- Existing HD weapons/textures, menus, weapon HUD and Polish text/dubbing remain
+  unchanged; only the Valkyrie local-audio recipe is refreshed. Native Bink films remain mono;
+  stereo cinema applies to engine-rendered scenes. The cinema calibration limitation is disclosed above.
 - Only running Singularity blocks installation; other Steam apps and VR tools
   are allowed. No process is terminated. EXE compatibility, reconstruction
   hashes, backups and transactional rollback remain enforced.
@@ -73,7 +98,9 @@ catalog signature is separate. Existing content rights declarations are retained
 
 ## Release gate
 
-Before publication: signed catalog verification, actual archive/setting checks,
-core suite, offline clean install and RC6 upgrade/repair/uninstall lifecycle,
-complete-ZIP integrity and hashes. No Steam write or game launch is needed for
+This refresh verifies the signed catalog, every archive and changed setting,
+core/producer suites, exact local audio reproduction, and scoped runtime/settings
+transaction lifecycles. Earlier full RC7 lifecycle evidence remains historical;
+a new complete all-media clean-install/headset pass is not claimed. Complete-ZIP
+integrity and hashes are checked before publication. No Steam write or game launch is needed for
 these checks. See installer-rc7-evidence.json for actual results.

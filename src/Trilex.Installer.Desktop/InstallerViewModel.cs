@@ -37,12 +37,13 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
     private string gameId="singularity";
     private GameManifest Game=>catalog.Games.Single(x=>x.Id==gameId);
     public bool IsSingularity=>gameId=="singularity";
+    public Visibility DarknessOptions=>IsSingularity?Visibility.Collapsed:Visibility.Visible;
     public Visibility SingularityOptions=>IsSingularity?Visibility.Visible:Visibility.Collapsed;
     public void SelectGame(string id)
     {
         if(Busy||id==gameId||!catalog.Games.Any(x=>x.Id==id))return;
         gameId=id; GameRoot=""; DetectionStatus=Game.State=="coming_soon"?L["Blocked"]:""; Modules.Clear();
-        RefreshModules(); Changed(nameof(SingularityOptions));Changed(nameof(LaunchLabel));
+        RefreshModules(); Changed(nameof(SingularityOptions));Changed(nameof(DarknessOptions));Changed(nameof(LaunchLabel));
     }
     private GameLocation? location;
     private InstallPlan? plan;
@@ -122,6 +123,14 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
         catch(OperationCanceledException){Activity=L["Cancelled"];Log("Cancelled");}
         catch(Exception e){Activity=L["Error"]+": "+e.Message;Log(e.GetType().Name+": "+e.Message);}
         finally{Busy=false;cancellation.Dispose();cancellation=null;}
+    }
+    public async Task DownloadDarknessTextures(string destination,CancellationToken ct)
+    {
+        if(IsSingularity||Offline)throw new InvalidOperationException(L["TexturesOnline"]);
+        Activity=L["TexturesDownloading"];
+        var progress=new Progress<ProgressInfo>(p=>{if(p.Total>0&&Percent<100)Percent=Math.Min(99,p.Completed*100.0/p.Total);});
+        await new DarknessTextureDownload(http).SaveAsync(destination,progress,ct);
+        Percent=100;Activity=L["TexturesSaved"]+" "+destination;
     }
     public void Cancel()=>cancellation?.Cancel();
     public async Task Detect(CancellationToken ct)
@@ -262,10 +271,10 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
     public async Task Update(CancellationToken ct)
     {
         catalog=await catalogs.FetchLatestAsync(ct);Paths.AtomicBytes(Path.Combine(Home,"catalog.signed.json"),catalogs.LastVerifiedEnvelope!);
-        if(!catalog.Games.Any(x=>x.Id==gameId)){gameId="singularity";GameRoot="";DetectionStatus="";Modules.Clear();Changed(nameof(SingularityOptions));Changed(nameof(LaunchLabel));}
+        if(!catalog.Games.Any(x=>x.Id==gameId)){gameId="singularity";GameRoot="";DetectionStatus="";Modules.Clear();Changed(nameof(SingularityOptions));Changed(nameof(DarknessOptions));Changed(nameof(LaunchLabel));}
         location=null;Changed(nameof(CanLaunch));RefreshModules();Invalidate();TrustStatus=L["Trust"]+" · "+catalog.Version;Activity=L["ReviewHint"];
     }
-    public void ImportCatalog(string path){catalog=catalogs.Verify(File.ReadAllBytes(path));Paths.AtomicBytes(Path.Combine(Home,"catalog.signed.json"),catalogs.LastVerifiedEnvelope!);if(!catalog.Games.Any(x=>x.Id==gameId)){gameId="singularity";GameRoot="";DetectionStatus="";Modules.Clear();Changed(nameof(SingularityOptions));Changed(nameof(LaunchLabel));}
+    public void ImportCatalog(string path){catalog=catalogs.Verify(File.ReadAllBytes(path));Paths.AtomicBytes(Path.Combine(Home,"catalog.signed.json"),catalogs.LastVerifiedEnvelope!);if(!catalog.Games.Any(x=>x.Id==gameId)){gameId="singularity";GameRoot="";DetectionStatus="";Modules.Clear();Changed(nameof(SingularityOptions));Changed(nameof(DarknessOptions));Changed(nameof(LaunchLabel));}
         location=null;Changed(nameof(CanLaunch));RefreshModules();Invalidate();TrustStatus=L["Trust"]+" · "+catalog.Version;Activity=L["ReviewHint"];}
     public void ImportPackages(IEnumerable<string> files)
     {

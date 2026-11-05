@@ -160,6 +160,29 @@ await Test("Darkness II manual x86 build requires exact consent and rejects exec
     Assert(!ExecutableCompatibility.CanTry(game,adapter.Validate(f.Root,game)));
     await Reject(()=>f.Installer.InstallAsync(plan,Archives(f,module),null,default));
 });
+await Test("Only the Darkness II source download accepts changed texture ZIPs",async ()=>{
+    var f=Fixture();
+    var target=Path.Combine(f.Root,"textures.zip");
+    byte[] Zip(string name,byte sample)
+    {
+        using var memory=new MemoryStream();
+        using(var zip=new ZipArchive(memory,ZipArchiveMode.Create,true))
+        using(var entry=zip.CreateEntry(name).Open())entry.Write(new byte[]{137,80,78,71,13,10,26,10,sample});
+        return memory.ToArray();
+    }
+    var first=Zip("weapons/one.png",1);
+    var update=Zip("tentacles/another.png",2);
+    foreach(var bytes in new[]{first,update})
+    {
+        using var http=new HttpClient(new FakeHttp(bytes));
+        await new DarknessTextureDownload(http).SaveAsync(target,null,default);
+        Assert(File.ReadAllBytes(target).SequenceEqual(bytes));
+    }
+    using var bad=new HttpClient(new FakeHttp(Zip("../escape.png",3)));
+    await Reject(()=>new DarknessTextureDownload(bad).SaveAsync(target,null,default));
+    Assert(File.ReadAllBytes(target).SequenceEqual(update));
+    Assert(!Directory.EnumerateFiles(f.Root,"*.part").Any());
+});
 await Test("Drive package bytes remain hash pinned and redirects cannot leave Drive",async ()=>{
     var f=Fixture();
     var m=Package(f) with{DownloadUrl="https://drive.usercontent.google.com/download?id=fixture_123&export=download&confirm=t"};

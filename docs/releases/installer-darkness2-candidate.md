@@ -46,3 +46,14 @@ Offline evidence: 77 tests passed and WPF compiled. The four real candidate
 ZIPs were exercised against private copies of the original files: English
 installation, Polish update, English update, verification after each, then
 byte-exact uninstall. No live Steam/GOG/disc, headset, or Drive test was run.
+
+## Mutable 2K texture source download
+
+The Darkness II card offers a separate **Download 2K texture source ZIP**
+action. Only this hardcoded public Drive file can be downloaded without a
+pinned hash or fixed size. Upload new versions to the same Drive file ID.
+Keep the ZIP layout as weapons/*.png and tentacles/*.png. Download and
+expanded-size limits apply; invalid files do not replace a saved ZIP.
+This action saves source PNGs to a user-selected location and does not
+install or extract them into the game. Installable modules still require
+exact signed hashes and lengths.

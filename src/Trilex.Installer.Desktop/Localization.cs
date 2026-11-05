@@ -9,6 +9,10 @@ public sealed class Localization : INotifyPropertyChanged
     public string this[string key]=>Words.TryGetValue(key,out var value)?(Language=="pl"?value.Pl:value.En):key;
     private static readonly Dictionary<string,(string En,string Pl)> Words=new()
     {
+        ["DownloadTextures"]=("Download 2K texture source ZIP","Pobierz ZIP z teksturami 2K (PNG)"),
+        ["TexturesOnline"]=("Texture download requires online mode.","Pobieranie tekstur wymaga trybu online."),
+        ["TexturesDownloading"]=("Downloading and checking the texture ZIP…","Pobieranie i sprawdzanie ZIP-a z teksturami…"),
+        ["TexturesSaved"]=("Texture source ZIP saved:","Zapisano ZIP z teksturami:"),
         ["LaunchGame"]=("Launch game","Uruchom grę"),
         ["SkipUnavailable"]=("This optional package could not be downloaded or found offline. Continue without it?","Nie można pobrać ani znaleźć lokalnie opcjonalnej paczki. Kontynuować bez niej?"),
         ["SkipIncompatible"]=("This optional component needs original files that are missing or differ. Continue without it?","Brakuje oryginalnych plików dodatku albo mają inną wersję. Kontynuować bez tego dodatku?"),

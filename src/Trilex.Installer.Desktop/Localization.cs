@@ -9,6 +9,10 @@ public sealed class Localization : INotifyPropertyChanged
     public string this[string key]=>Words.TryGetValue(key,out var value)?(Language=="pl"?value.Pl:value.En):key;
     private static readonly Dictionary<string,(string En,string Pl)> Words=new()
     {
+        ["SkipHdTextures"]=("HD textures could not be prepared. Continue installing without them?","Nie udało się przygotować tekstur HD. Kontynuować instalację bez nich?"),
+        ["HdTextures"]=("HD textures (weapons and tentacles)","Tekstury HD (bronie i macki)"),
+        ["HdTextureHint"]=("HD textures will be downloaded and converted locally before installation. Conversion may take several minutes.","Tekstury HD zostaną pobrane i przekonwertowane lokalnie przed instalacją. Konwersja może potrwać kilka minut."),
+        ["TexturesConverting"]=("Preparing HD textures for the game…","Przygotowywanie tekstur HD do gry…"),
         ["DownloadTextures"]=("Download 2K texture source ZIP","Pobierz ZIP z teksturami 2K (PNG)"),
         ["TexturesOnline"]=("Texture download requires online mode.","Pobieranie tekstur wymaga trybu online."),
         ["TexturesDownloading"]=("Downloading and checking the texture ZIP…","Pobieranie i sprawdzanie ZIP-a z teksturami…"),

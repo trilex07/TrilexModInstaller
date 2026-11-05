@@ -23,6 +23,10 @@ Copy-Item -Path '.build/asset-worker/licenses/*' -Destination $imageNotices -Rec
 $extractorNotices=Join-Path $notices 'ueviewer'
 New-Item -ItemType Directory -Force $extractorNotices | Out-Null
 Copy-Item -LiteralPath 'third_party/ueviewer/SDL2-COPYING.txt','docs/distribution/UEVIEWER.md' -Destination $extractorNotices -Force
+$textureNotices=Join-Path $notices 'darkness-textures'
+New-Item -ItemType Directory -Force $textureNotices | Out-Null
+Copy-Item -Path '.build/darkness-textures/licenses/*' -Destination $textureNotices -Recurse -Force
+Copy-Item -Path 'tools/darkness-textures/*.py' -Destination $textureNotices -Force
 $exe=Join-Path $publish 'TrilexModInstaller.exe'
 $sha=(Get-FileHash -LiteralPath $exe -Algorithm SHA256).Hash
 [IO.File]::WriteAllText((Join-Path $publish 'SHA256SUMS.txt'),"$sha  TrilexModInstaller.exe`n",(New-Object Text.UTF8Encoding($false)))

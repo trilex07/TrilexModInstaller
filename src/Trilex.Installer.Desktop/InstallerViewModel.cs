@@ -37,12 +37,14 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
     private string gameId="singularity";
     private GameManifest Game=>catalog.Games.Single(x=>x.Id==gameId);
     public bool IsSingularity=>gameId=="singularity";
+    private bool hdTextures;
+    public bool HdTextures {get=>hdTextures;set{if(Busy||hdTextures==value)return;hdTextures=value;Invalidate();Changed();}}
     public Visibility DarknessOptions=>IsSingularity?Visibility.Collapsed:Visibility.Visible;
     public Visibility SingularityOptions=>IsSingularity?Visibility.Visible:Visibility.Collapsed;
     public void SelectGame(string id)
     {
         if(Busy||id==gameId||!catalog.Games.Any(x=>x.Id==id))return;
-        gameId=id; GameRoot=""; DetectionStatus=Game.State=="coming_soon"?L["Blocked"]:""; Modules.Clear();
+        gameId=id;HdTextures=false; GameRoot=""; DetectionStatus=Game.State=="coming_soon"?L["Blocked"]:""; Modules.Clear();
         RefreshModules(); Changed(nameof(SingularityOptions));Changed(nameof(DarknessOptions));Changed(nameof(LaunchLabel));
     }
     private GameLocation? location;
@@ -54,7 +56,13 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
     public string UiLanguage{get=>ui;set{if(Busy||value==ui||value is not("en"or"pl"))return;ui=value;L.Set(value);RefreshModules();Changed();Changed(nameof(LaunchLabel));Activity=L["Initial"];SavePreferences();}}
     public string TextLanguage{get=>text;set{if(value is not("en"or"pl"))return;text=value;SyncLanguageModule("polish-text",value=="pl");Invalidate();Changed();SavePreferences();}}
     public string VoiceLanguage{get=>voice;set{if(value is not("en"or"pl"))return;voice=value;SyncLanguageModule("polish-dubbing",value=="pl");Invalidate();Changed();SavePreferences();}}
-    public string GameRoot{get=>root;set{root=value;location=null;Invalidate();Changed();Changed(nameof(CanManage));Changed(nameof(CanLaunch));}}
+    public string GameRoot{get=>root;set{
+        if(!Paths.Same(root,value)&&!IsSingularity){
+            try{hdTextures=!string.IsNullOrWhiteSpace(value)&&installer.Receipt(value)?.Choices.SelectedModules.Contains("hd-textures")==true;}
+            catch(Exception e)when(e is IOException or ArgumentException or InvalidDataException or UnauthorizedAccessException or JsonException){hdTextures=false;}
+            Changed(nameof(HdTextures));
+        }
+        root=value;location=null;Invalidate();Changed();Changed(nameof(CanManage));Changed(nameof(CanLaunch));}}
     public string Activity{get=>activity;private set{activity=value;Changed();}}
     public string DetectionStatus{get=>detection;private set{detection=value;Changed();}}
     public string ReviewText{get=>review;private set{review=value;Changed();}}
@@ -123,14 +131,6 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
         catch(OperationCanceledException){Activity=L["Cancelled"];Log("Cancelled");}
         catch(Exception e){Activity=L["Error"]+": "+e.Message;Log(e.GetType().Name+": "+e.Message);}
         finally{Busy=false;cancellation.Dispose();cancellation=null;}
-    }
-    public async Task DownloadDarknessTextures(string destination,CancellationToken ct)
-    {
-        if(IsSingularity||Offline)throw new InvalidOperationException(L["TexturesOnline"]);
-        Activity=L["TexturesDownloading"];
-        var progress=new Progress<ProgressInfo>(p=>{if(p.Total>0&&Percent<100)Percent=Math.Min(99,p.Completed*100.0/p.Total);});
-        await new DarknessTextureDownload(http).SaveAsync(destination,progress,ct);
-        Percent=100;Activity=L["TexturesSaved"]+" "+destination;
     }
     public void Cancel()=>cancellation?.Cancel();
     public async Task Detect(CancellationToken ct)
@@ -203,6 +203,7 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
         }
         plan=reviewed;
         ReviewText=$"{plan.Root}\n\nv{plan.Version} · {plan.DownloadBytes/1048576.0:F1} MB download · {plan.ExpandedBytes/1048576.0:F1} MB payload\nText: {choices.TextLanguage} / Voice: {choices.VoiceLanguage}\n\n"+string.Join("\n",plan.Modules.Select(x=>$"{x.Label(ui)} · {x.Version} · [{string.Join(", ",x.Dependencies)}]"));
+        if(!IsSingularity&&HdTextures)ReviewText+="\n\n"+L["HdTextureHint"];
         if(plan.ExecutableConsent is not null)ReviewText+="\n\n"+L["UnverifiedInstalled"]+"\nSHA256: "+plan.ExeSha256;
         if(LocalAudioTools.Required(plan.Modules))ReviewText+="\n\n"+(ui=="pl"?"Remaster audio: przetwarzanie lokalne z własnej kopii gry. Dodatkowy kodek FFmpeg 9.0.2 (GPLv3), około 109 MB z gyan.dev; bez pobierania nagrań.":"Audio remaster: generated locally from your own game. Additional FFmpeg 9.0.2 codec (GPLv3), approximately 109 MB from gyan.dev; no recording download.");
         if(LocalExtractorTools.Required(plan.Modules))ReviewText+="\n\n"+(ui=="pl"?"Zasoby Centuriona powstaną z własnej kopii gry. Pełny ZIP zawiera zweryfikowany UE Viewer w folderze tools; nie wymaga pobierania z gildor.org ani pobierania modeli gry.":"Centurion assets are generated from your own game. The complete ZIP includes a verified UE Viewer in its tools folder; no gildor.org download or game-model download is needed.");
@@ -234,12 +235,38 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
                 };
             }
         }
+        string? textureWork=null;
+        try
+        {
+        if(chosen.GameId=="darkness2"&&HdTextures)
+        {
+            if(offline)throw new IOException(L["TexturesOnline"]);
+            textureWork=Path.Combine(Home,"texture-work",Guid.NewGuid().ToString("N"));Directory.CreateDirectory(textureWork);
+            Activity=L["TexturesDownloading"];
+            var pngZip=Path.Combine(textureWork,"source.zip");
+            try
+            {
+            await new DarknessTextureDownload(http).SaveAsync(pngZip,progress,ct);
+            Activity=L["TexturesConverting"];
+            var prepared=await Task.Run(()=>DarknessTextureInstall.PrepareAsync(chosen.Root,installer,textureWork,pngZip,ct),ct);
+            chosen=chosen with {Modules=[..chosen.Modules,prepared.Module],
+                Choices=chosen.Choices with {SelectedModules=[..chosen.Choices.SelectedModules,"hd-textures"]}};
+            packages[prepared.Module.Id]=prepared.Archive;
+            }
+            catch(Exception e) when(e is IOException or InvalidDataException or HttpRequestException)
+            {
+                if(repair||!WarnDarkness(e.Message,L["SkipHdTextures"]))throw;
+                chosen=chosen with {Choices=chosen.Choices with {SelectedModules=chosen.Choices.SelectedModules.Where(id=>id!="hd-textures").ToList()}};
+            }
+        }
         bool Confirm(ReconstructionWarning warning)=>chosen.GameId=="singularity"&&ConfirmReconstructionMismatch(warning,ct);
         var result=await Task.Run(async()=>repair?await installer.RepairAsync(chosen,packages,progress,ct,Confirm):await installer.InstallAsync(chosen,packages,progress,ct,confirmMismatch:Confirm),ct);
         Log("Verify installed files");var failures=await Task.Run(()=>installer.Verify(chosen.Root),ct);if(failures.Count>0)throw new IOException("Post-install verification failed: "+string.Join(", ",failures));
         var exceptions=result.ReconstructionWarnings??[];
         Activity=CompletionText(result)+(result.ExecutableConsent is null?"":"\n"+L["UnverifiedInstalled"]);
         Percent=100;Log(exceptions.Count==0?"Install verified "+result.Version:"Install completed with user-approved reconstruction exceptions: "+exceptions.Count);
+        }
+        finally{if(textureWork is not null&&Directory.Exists(textureWork))Directory.Delete(textureWork,true);}
     }
     private bool ConfirmReconstructionMismatch(ReconstructionWarning warning,CancellationToken ct)=>Application.Current.Dispatcher.Invoke(()=>
     {

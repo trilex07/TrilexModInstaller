@@ -14,8 +14,8 @@ installation, production catalog signing, or upload was performed.
   both profiles including the runtime switches (simulator off), and x86 OpenXR.
 - Menu and shrine repairs plus DLC marker and font repairs are selected by
   default. Optional Polish text selects the Polish variant of the same menu
-  and shrine package. No Polish voices, private in-game language switching
-  helper, or HD texture pack. Change subtitle language in the installer.
+  and shrine package. No Polish voices or private in-game language switching
+  helper. Change subtitle language in the installer.
 - If a supported optional cache preimage is missing or differs, the installer
   asks whether to continue without that module. The same applies when an
   optional download cannot be retrieved. A conflicting unmanaged runtime
@@ -47,13 +47,46 @@ ZIPs were exercised against private copies of the original files: English
 installation, Polish update, English update, verification after each, then
 byte-exact uninstall. No live Steam/GOG/disc, headset, or Drive test was run.
 
-## Mutable 2K texture source download
+## Optional HD texture installation
 
-The Darkness II card offers a separate **Download 2K texture source ZIP**
-action. Only this hardcoded public Drive file can be downloaded without a
-pinned hash or fixed size. Upload new versions to the same Drive file ID.
-Keep the ZIP layout as weapons/*.png and tentacles/*.png. Download and
-expanded-size limits apply; invalid files do not replace a saved ZIP.
-This action saves source PNGs to a user-selected location and does not
-install or extract them into the game. Installable modules still require
-exact signed hashes and lengths.
+The Darkness II options contain **HD textures (weapons and tentacles)**.
+Selecting it and pressing Install downloads the fixed publisher Drive ZIP,
+validates its bounded PNG-only structure, and runs the embedded converter.
+The converter reads owned H/B/F.Texture cache/TOC pairs and generates native
+planar DXT mip streams using the established Darkness2VR comic-texture encoder.
+The native texture dimensions and mip layouts are preserved; the source PNGs
+provide the replacement artwork. It does not simply copy PNGs into the game.
+
+The downloaded ZIP has no fixed publisher hash or fixed byte length, as
+explicitly requested. New PNG artwork can replace the Drive file without
+updating the installer. Keep the current 64 unique filenames and the layout
+weapons/*.png and tentacles/*.png. Changes to texture identities or formats
+can require an updated converter. No downloaded code is executed.
+
+All six cache outputs are prepared before game writes. The existing
+transaction engine backs up originals and records the generated output
+identities for repair, deselection, rollback and uninstall. Locally generated
+hashes track exactly what was installed; they do not pin the remote ZIP.
+Original texture caches larger than 2 GiB are supported with bounded copy
+chunks. New installs can continue without textures after an explicit warning
+if download/conversion fails; repair failures stop to retain the existing
+installation. Cancellation stops the converter process tree.
+
+Build the embedded converter using scripts/build-darkness-textures.ps1
+-InstallDependencies. Its AssetTools parameter selects a Darkness2VR tools
+folder with quickbms/quickbms.exe and darkness2.bms. The portable distribution
+must include the worker license notices, Python module sources and matching
+QuickBMS corresponding source under its GPL terms before public release.
+
+Offline real-cache exercise:
+dotnet run --project tests/Trilex.Installer.HdExercise -c Release -- artifacts/FRESH
+OWNED_TEXTURE_FOLDER SOURCE_PNG_ZIP
+This writes only to the fresh artifacts directory. Original texture folder
+contains the six clean H/B/F.Texture.cache/.toc files. No game is launched.
+
+Validation (offline, 2026-11-05): all 78 core regressions pass; WPF builds
+without warnings. The embedded worker converted all 64 actual source PNGs.
+A real-cache fixture installed and verified all six native texture cache/TOC
+outputs including the >2 GiB F.Texture cache, then uninstalled and restored
+the exact six original SHA-256 identities. No Steam or headset acceptance
+is claimed for the installer integration.

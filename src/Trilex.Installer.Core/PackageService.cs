@@ -128,7 +128,7 @@ public static class PackageExtractor
         original=LocalDecoder.Decode(original,staging,file);
         foreach(var part in file.Recipe)
         {
-            if(part.Length<0 || part.Offset<0 || part.Length>256*1024*1024 || output.Length+part.Length>int.MaxValue)throw new InvalidDataException("Unsafe reconstruction range");
+            if(part.Length<0 || part.Offset<0 || part.Length>256*1024*1024 || output.Length+part.Length>16L*1024*1024*1024)throw new InvalidDataException("Unsafe reconstruction range");
             if(part.Source is "centurion-clip" or "centurion-shell" or "centurion-animation"){if(part.Offset!=0||part.Entry is not null)throw new InvalidDataException("Centurion operation accepts no package code");LocalImageGenerator.ApplyCenturion(original,ownedSource,staging,part.Source[10..],output,part.Length);continue;}
             if(part.Source=="knife"){if(part.Offset!=0)throw new InvalidDataException("Knife offset must be zero");LocalImageGenerator.ApplyKnife(original,staging,Paths.Safe(staging,part.Entry??""),output,part.Length);continue;}
             if(part.Source=="image"){if(part.Offset!=0)throw new InvalidDataException("Image offset must be zero");LocalImageGenerator.Apply(original,staging,Paths.Safe(staging,part.Entry??""),output,part.Length,ownedSource,file);continue;}

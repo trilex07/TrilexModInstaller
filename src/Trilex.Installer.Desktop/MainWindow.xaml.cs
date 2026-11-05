@@ -19,11 +19,6 @@ public partial class MainWindow : Window
     private async void Review_Click(object sender,RoutedEventArgs e)=>await vm.Run(vm.Review);
     private void Singularity_Click(object sender,RoutedEventArgs e)=>vm.SelectGame("singularity");
     private void Darkness_Click(object sender,RoutedEventArgs e)=>vm.SelectGame("darkness2");
-    private async void DownloadTextures_Click(object sender,RoutedEventArgs e)
-    {
-        var dialog=new SaveFileDialog{FileName=Trilex.Installer.Core.DarknessTextureDownload.FileName,Filter="ZIP|*.zip",DefaultExt=".zip"};
-        if(dialog.ShowDialog(this)==true)await vm.Run(ct=>vm.DownloadDarknessTextures(dialog.FileName,ct));
-    }
     private async void FullPreset_Click(object sender,RoutedEventArgs e)=>await vm.Run(ct=>{vm.SelectAcceptedPreset();return Task.CompletedTask;});
     private async void Install_Click(object sender,RoutedEventArgs e)=>await vm.Run(ct=>vm.Execute(ct));
     private async void Repair_Click(object sender,RoutedEventArgs e)=>await vm.Run(ct=>vm.Execute(ct,true));

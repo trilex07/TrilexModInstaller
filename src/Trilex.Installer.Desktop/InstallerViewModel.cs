@@ -42,7 +42,7 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
     {
         if(Busy||id==gameId||!catalog.Games.Any(x=>x.Id==id))return;
         gameId=id; GameRoot=""; DetectionStatus=Game.State=="coming_soon"?L["Blocked"]:""; Modules.Clear();
-        RefreshModules(); Changed(nameof(SingularityOptions));
+        RefreshModules(); Changed(nameof(SingularityOptions));Changed(nameof(LaunchLabel));
     }
     private GameLocation? location;
     private InstallPlan? plan;
@@ -50,7 +50,7 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
     private string ui="en",text="en",voice="en",root="",activity="",detection="",review="",trust="";
     private bool busy,offline,showReview;
     private double percent;
-    public string UiLanguage{get=>ui;set{if(Busy||value==ui||value is not("en"or"pl"))return;ui=value;L.Set(value);RefreshModules();Changed();Activity=L["Initial"];SavePreferences();}}
+    public string UiLanguage{get=>ui;set{if(Busy||value==ui||value is not("en"or"pl"))return;ui=value;L.Set(value);RefreshModules();Changed();Changed(nameof(LaunchLabel));Activity=L["Initial"];SavePreferences();}}
     public string TextLanguage{get=>text;set{if(value is not("en"or"pl"))return;text=value;SyncLanguageModule("polish-text",value=="pl");Invalidate();Changed();SavePreferences();}}
     public string VoiceLanguage{get=>voice;set{if(value is not("en"or"pl"))return;voice=value;SyncLanguageModule("polish-dubbing",value=="pl");Invalidate();Changed();SavePreferences();}}
     public string GameRoot{get=>root;set{root=value;location=null;Invalidate();Changed();Changed(nameof(CanManage));Changed(nameof(CanLaunch));}}
@@ -63,7 +63,9 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
     public bool NotBusy=>!Busy;
     public bool CanInstall=>plan is not null&&!Busy;
     public bool CanManage{get{if(Busy||string.IsNullOrWhiteSpace(root))return false;try{return installer.Receipt(root)?.GameId==gameId;}catch(Exception e)when(e is ArgumentException or IOException or InvalidDataException or JsonException or UnauthorizedAccessException){return false;}}}
-    public bool CanLaunch=>CanManage&&location?.Compatible==true;
+    public bool CanLaunch=>CanManage&&(IsSingularity?location?.Compatible==true:
+        location?.ExeHash is { } hash && (location.Compatible || ExecutableCompatibility.Matches(installer.Receipt(root)?.ExecutableConsent,root,hash)));
+    public string LaunchLabel=>L[IsSingularity?"Launch":"LaunchGame"];
     public Visibility ReviewVisibility=>showReview?Visibility.Visible:Visibility.Collapsed;
     public double Percent{get=>percent;private set{percent=value;Changed();}}
     public InstallerViewModel()
@@ -101,11 +103,12 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
     private void SyncLanguageModule(string id,bool selected){var module=Modules.SingleOrDefault(m=>m.Manifest.Id==id);if(module?.Selectable==true)module.Selected=selected;}
     private void RefreshModules()
     {
+        var previousIds=Modules.Select(x=>x.Manifest.Id).ToHashSet();
         var selected=Modules.Where(x=>x.Selected).Select(x=>x.Manifest.Id).ToHashSet();Modules.Clear();
         foreach(var module in Game.Modules)
         {
             var vm=new ModuleViewModel(module,L);
-            if(vm.Selectable)vm.Selected=module.Id switch{"polish-text"=>IsSingularity?text=="pl":selected.Contains(module.Id),"polish-dubbing"=>voice=="pl",_=>selected.Contains(module.Id)};
+            if(vm.Selectable)vm.Selected=module.Id switch{"polish-text"=>IsSingularity?text=="pl":selected.Contains(module.Id),"polish-dubbing"=>voice=="pl","darkness-menu" or "darkness-assets"=>!previousIds.Contains(module.Id)||selected.Contains(module.Id),_=>selected.Contains(module.Id)};
             vm.PropertyChanged+=(s,e)=>{if(e.PropertyName==nameof(ModuleViewModel.Selected)){if(IsSingularity&&module.Id=="polish-text")TextLanguage=vm.Selected?"pl":"en";if(module.Id=="polish-dubbing")VoiceLanguage=vm.Selected?"pl":"en";}Invalidate();};
             Modules.Add(vm);
         }
@@ -150,6 +153,40 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
         var selected=Modules.Where(x=>x.Selected).Select(x=>x.Manifest.Id).ToList();
         var choices=new InstallChoices(IsSingularity?text:selected.Contains("polish-text")?"pl":"en",IsSingularity?voice:"en",ui,selected);
         var reviewed=PlanBuilder.Build(Game,location!,choices,consent);
+        if(!IsSingularity)
+        {
+            var receipt=installer.Receipt(reviewed.Root);
+            string? Original(PackageFile file)
+            {
+                var path=file.SourcePath??file.Path;
+                var owned=receipt?.Files.SingleOrDefault(f=>Paths.Same(f.Path,path));
+                return owned is null?Paths.HashOrNull(Paths.Safe(reviewed.Root,path)):owned.OriginalHash;
+            }
+            // Optional cache pairs must be skipped together. Never try a recipe against different data.
+            while(true)
+            {
+                var incompatible=reviewed.Modules.FirstOrDefault(m=>!m.Required&&m.Files.Any(f=>f.Kind=="recipe"&&
+                    !Paths.Same(Original(f),f.SourceSha256??f.BeforeSha256)));
+                if(incompatible is null)break;
+                var paths=incompatible.Files.Where(f=>f.Kind=="recipe"&&!Paths.Same(Original(f),f.SourceSha256??f.BeforeSha256)).Select(f=>f.Path);
+                var detail=incompatible.Label(ui)+"\n"+string.Join("\n",paths);
+                if(!WarnDarkness(detail,L["SkipIncompatible"]))throw new OperationCanceledException(ct);
+                choices=choices with {
+                    TextLanguage=incompatible.Id=="polish-text"?"en":choices.TextLanguage,
+                    SelectedModules=choices.SelectedModules.Where(id=>id!=incompatible.Id).ToList()
+                };
+                reviewed=PlanBuilder.Build(Game,location!,choices,consent);
+            }
+            var modules=reviewed.Modules.Select(m=>m with {Files=m.Files.Select(f=>
+            {
+                if(f.Kind!="copy"||receipt?.Files.Any(x=>Paths.Same(x.Path,f.Path))==true)return f;
+                var hash=Original(f);
+                if(hash is null||Paths.Same(hash,f.Sha256)||Paths.Same(hash,f.BeforeSha256))return f;
+                if(!WarnDarkness(f.Path+"\nSHA256: "+hash,L["ReplaceUnmanaged"]))throw new OperationCanceledException(ct);
+                return f with {BeforeSha256=hash};
+            }).ToList()}).ToList();
+            reviewed=reviewed with {Modules=modules};
+        }
         if(reviewed.Modules.SelectMany(m=>m.Files).Any(f=>Paths.Same(f.Path,"Binaries/SingularityPsvr2Bridge.exe")))
         {
             var triggerPrerequisite=WindowsPrerequisites.InspectTriggerHelper();
@@ -172,7 +209,22 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
         if(LocalAudioTools.Required(chosen.Modules))await LocalAudioTools.EnsureAsync(http,offline,progress,ct);
         if(LocalExtractorTools.Required(chosen.Modules))await LocalExtractorTools.EnsureAsync(http,offline,progress,ct);
         var downloader=new PackageDownloader(http,Path.Combine(Home,"cache"));var packages=new Dictionary<string,string>();
-        foreach(var module in chosen.Modules)packages[module.Id]=BundleSource.ArchiveAt(AppContext.BaseDirectory,module,chosen.GameId)??await downloader.GetAsync(module,offline,progress,ct);
+        foreach(var module in chosen.Modules.ToArray())
+        {
+            try{packages[module.Id]=BundleSource.ArchiveAt(AppContext.BaseDirectory,module,chosen.GameId)??await downloader.GetAsync(module,offline,progress,ct);}
+            catch(Exception e) when(chosen.GameId=="darkness2"&&!repair&&!module.Required&&
+                (e is FileNotFoundException or HttpRequestException)&&!chosen.Modules.Any(m=>m.Dependencies.Contains(module.Id)))
+            {
+                if(!WarnDarkness(module.Label(ui)+"\n"+e.Message,L["SkipUnavailable"]))throw new OperationCanceledException(ct);
+                chosen=chosen with {
+                    Modules=chosen.Modules.Where(m=>m.Id!=module.Id).ToList(),
+                    Choices=chosen.Choices with {
+                        TextLanguage=module.Id=="polish-text"?"en":chosen.Choices.TextLanguage,
+                        SelectedModules=chosen.Choices.SelectedModules.Where(id=>id!=module.Id).ToList()
+                    }
+                };
+            }
+        }
         bool Confirm(ReconstructionWarning warning)=>chosen.GameId=="singularity"&&ConfirmReconstructionMismatch(warning,ct);
         var result=await Task.Run(async()=>repair?await installer.RepairAsync(chosen,packages,progress,ct,Confirm):await installer.InstallAsync(chosen,packages,progress,ct,confirmMismatch:Confirm),ct);
         Log("Verify installed files");var failures=await Task.Run(()=>installer.Verify(chosen.Root),ct);if(failures.Count>0)throw new IOException("Post-install verification failed: "+string.Join(", ",failures));
@@ -210,10 +262,10 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
     public async Task Update(CancellationToken ct)
     {
         catalog=await catalogs.FetchLatestAsync(ct);Paths.AtomicBytes(Path.Combine(Home,"catalog.signed.json"),catalogs.LastVerifiedEnvelope!);
-        if(!catalog.Games.Any(x=>x.Id==gameId)){gameId="singularity";GameRoot="";DetectionStatus="";Modules.Clear();Changed(nameof(SingularityOptions));}
+        if(!catalog.Games.Any(x=>x.Id==gameId)){gameId="singularity";GameRoot="";DetectionStatus="";Modules.Clear();Changed(nameof(SingularityOptions));Changed(nameof(LaunchLabel));}
         location=null;Changed(nameof(CanLaunch));RefreshModules();Invalidate();TrustStatus=L["Trust"]+" · "+catalog.Version;Activity=L["ReviewHint"];
     }
-    public void ImportCatalog(string path){catalog=catalogs.Verify(File.ReadAllBytes(path));Paths.AtomicBytes(Path.Combine(Home,"catalog.signed.json"),catalogs.LastVerifiedEnvelope!);if(!catalog.Games.Any(x=>x.Id==gameId)){gameId="singularity";GameRoot="";DetectionStatus="";Modules.Clear();Changed(nameof(SingularityOptions));}
+    public void ImportCatalog(string path){catalog=catalogs.Verify(File.ReadAllBytes(path));Paths.AtomicBytes(Path.Combine(Home,"catalog.signed.json"),catalogs.LastVerifiedEnvelope!);if(!catalog.Games.Any(x=>x.Id==gameId)){gameId="singularity";GameRoot="";DetectionStatus="";Modules.Clear();Changed(nameof(SingularityOptions));Changed(nameof(LaunchLabel));}
         location=null;Changed(nameof(CanLaunch));RefreshModules();Invalidate();TrustStatus=L["Trust"]+" · "+catalog.Version;Activity=L["ReviewHint"];}
     public void ImportPackages(IEnumerable<string> files)
     {
@@ -227,7 +279,17 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
         }
         Offline=true;Activity=L["Ready"];
     }
-    public void Launch(){if(!CanLaunch)throw new InvalidOperationException("Verify a managed installation first");Process.Start(new ProcessStartInfo("steam://rungameid/"+Game.SteamAppId){UseShellExecute=true});}
+    private bool WarnDarkness(string detail,string warning)
+    {
+        var accepted=MessageBox.Show(Application.Current.MainWindow,warning+"\n\n"+detail,L["UnverifiedTitle"],
+            MessageBoxButton.YesNo,MessageBoxImage.Warning,MessageBoxResult.No)==MessageBoxResult.Yes;
+        Log((accepted?"USER ACCEPTED":"USER DECLINED")+" Darkness II: "+detail);
+        return accepted;
+    }
+    public void Launch(){if(!CanLaunch)throw new InvalidOperationException("Verify a managed installation first");if(IsSingularity){Process.Start(new ProcessStartInfo("steam://rungameid/"+Game.SteamAppId){UseShellExecute=true});return;}
+        var exe=Paths.Safe(root,Game.Executable);
+        if(!Paths.Same(Paths.Hash(exe),location!.ExeHash))throw new IOException("Executable changed after review");
+        Process.Start(new ProcessStartInfo(exe){UseShellExecute=true,WorkingDirectory=root});}
     public void OpenLogs()=>Process.Start(new ProcessStartInfo(Home){UseShellExecute=true});
     public void Dispose(){cancellation?.Cancel();http.Dispose();}
 }

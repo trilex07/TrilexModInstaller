@@ -7,10 +7,16 @@ public static class ExecutableCompatibility
 {
     public static bool CanTry(GameManifest game,GameLocation location)
     {
-        if(game.Id!="singularity"||game.Adapter!="SingularityGameAdapter"||location.Compatible||!PlanBuilder.ValidHash(location.ExeHash))return false;
+        IGameAdapter? adapter=(game.Id,game.Adapter) switch
+        {
+            ("singularity","SingularityGameAdapter")=>new SingularityGameAdapter(),
+            ("darkness2","Darkness2GameAdapter")=>new Darkness2GameAdapter(),
+            _=>null
+        };
+        if(adapter is null||location.Compatible||!PlanBuilder.ValidHash(location.ExeHash))return false;
         try
         {
-            var actual=new SingularityGameAdapter().Validate(location.Root,game);
+            var actual=adapter.Validate(location.Root,game);
             if(actual.Compatible||!Paths.Same(actual.ExeHash,location.ExeHash))return false;
             using var input=File.OpenRead(Paths.Safe(location.Root,game.Executable));using var reader=new BinaryReader(input);
             if(input.Length<64||reader.ReadUInt16()!=0x5A4D)return false;

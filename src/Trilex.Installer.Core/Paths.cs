@@ -32,6 +32,9 @@ public static class Paths
             current = Path.GetDirectoryName(current)!;
         }
     }
+    public static bool DarknessAssetTarget(string path)=>
+        new[]{"H.Script.cache","H.Script.toc","B.Font.cache","B.Font.toc","H.Font.cache","H.Font.toc"}
+            .Any(name=>Same(path,"Cache.DLC/PCPatchManifests/Cache.Windows/"+name));
     public static bool DarknessTextTarget(string path)=>Same(path,"Cache.Windows/H.Misc.cache")||Same(path,"Cache.Windows/H.Misc.toc");
     public static void AllowedTarget(string relative)
     {
@@ -39,7 +42,7 @@ public static class Paths
         // Source-owned, catalog-hash-pinned PSVR2 IPC helper is an explicit
         // runtime dependency. Never permit replacing the game/other EXEs.
         var triggerHelper=string.Equals(norm,"Binaries/SingularityPsvr2Bridge.exe",StringComparison.OrdinalIgnoreCase);
-        if (Same(norm,"d3d9.dll") || Same(norm,"Darkness2VR.ini") || Same(norm,"openxr_loader.dll") || DarknessTextTarget(norm)) return;
+        if (Same(norm,"d3d9.dll") || Same(norm,"Darkness2VR.ini") || Same(norm,"openxr_loader.dll") || Same(norm,"Darkness2VR-diagnostic.ini") || DarknessAssetTarget(norm) || DarknessTextTarget(norm)) return;
         if (norm.EndsWith(".exe",StringComparison.OrdinalIgnoreCase) && !triggerHelper || norm.StartsWith("saves/",StringComparison.OrdinalIgnoreCase) || !(norm.StartsWith("Binaries/",StringComparison.OrdinalIgnoreCase) || norm.StartsWith("RvGame/",StringComparison.OrdinalIgnoreCase))) throw new InvalidDataException("Target is not a mod installation path");
     }
     public static void AtomicBytes(string target, byte[] bytes)

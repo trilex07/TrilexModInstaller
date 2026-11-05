@@ -71,10 +71,12 @@ public static class PlanBuilder
                 Paths.Safe(Path.GetTempPath(),f.Path);Paths.AllowedTarget(f.Path);
                 LocalSources.Validate(f,Path.GetTempPath());
                 var target=f.Path.Replace('\\','/');
-                var darknessTarget=Paths.Same(target,"d3d9.dll")||Paths.Same(target,"Darkness2VR.ini") || Paths.Same(target,"openxr_loader.dll")||Paths.DarknessTextTarget(target);
+                var darknessTarget=Paths.Same(target,"d3d9.dll")||Paths.Same(target,"Darkness2VR.ini") || Paths.Same(target,"openxr_loader.dll")||Paths.Same(target,"Darkness2VR-diagnostic.ini")||Paths.DarknessAssetTarget(target)||Paths.DarknessTextTarget(target);
                 if((game.Id=="darkness2")!=darknessTarget)throw new InvalidDataException("Target belongs to another game");
-                if(game.Id=="darkness2" && Paths.DarknessTextTarget(target) && (m.Id!="polish-text" || f.Kind!="recipe"))
+                if(game.Id=="darkness2" && Paths.DarknessTextTarget(target) && (m.Id is not ("polish-text" or "darkness-menu") || f.Kind!="recipe"))
                     throw new InvalidDataException("Darkness II language cache requires a local recipe");
+                if(game.Id=="darkness2" && Paths.DarknessAssetTarget(target) && (m.Id!="darkness-assets" || f.Kind!="recipe"))
+                    throw new InvalidDataException("Darkness II DLC repairs require a local recipe");
             }
             if(m.State=="stable" && (!HasDistributionReview(m) || m.Files.Count==0 || !ValidHash(m.ArchiveSha256) || m.DownloadBytes==0 || m.DownloadUrl is null))throw new InvalidDataException("Stable module lacks explicit distribution review, files or exact distribution identity");
         }
@@ -85,10 +87,14 @@ public static class PlanBuilder
         ValidateManifest(game);
         var verified=location.Compatible&&game.ExeSha256.Any(x=>Paths.Same(x,location.ExeHash));
         var acknowledged=location.ExeHash is not null&&ExecutableCompatibility.Matches(consent,location.Root,location.ExeHash)&&ExecutableCompatibility.CanTry(game,location);
-        if(game.State is not ("stable" or "preview") || location.ExeHash is null || (!verified&&!acknowledged))throw new InvalidOperationException("Game is not compatible or not released; unverified Singularity builds require explicit review consent");
+        if(game.State is not ("stable" or "preview") || location.ExeHash is null || (!verified&&!acknowledged))throw new InvalidOperationException("Game is not compatible or not released; unverified builds require explicit review consent");
         if(choices.TextLanguage is not ("en" or "pl") || choices.VoiceLanguage is not ("en" or "pl") || choices.UiLanguage is not ("en" or "pl"))throw new InvalidDataException("Unsupported language");
         var ids=choices.SelectedModules.Concat(game.Modules.Where(x=>x.Required).Select(x=>x.Id)).ToHashSet(StringComparer.Ordinal);
-        if(choices.TextLanguage=="pl")ids.Add("polish-text");
+        if(choices.TextLanguage=="pl")
+        {
+            ids.Add("polish-text");
+            if(game.Id=="darkness2")ids.Remove("darkness-menu");
+        }
         if(choices.VoiceLanguage=="pl")ids.Add("polish-dubbing");
         if(choices.TextLanguage=="en" && ids.Contains("polish-text") || choices.VoiceLanguage=="en" && ids.Contains("polish-dubbing"))throw new InvalidOperationException("Language choices conflict with selected packs");
         var result=new List<ModuleManifest>();var visiting=new HashSet<string>();var done=new HashSet<string>();

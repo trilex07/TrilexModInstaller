@@ -139,6 +139,27 @@ await Test("Darkness II detects the signed Steam fingerprint and rejects unknown
     File.AppendAllText(exe,"changed");
     await Reject(()=>Sync(()=>PlanBuilder.Build(game,adapter.Validate(gameRoot,game),new("en","en","en",[]))));
 });
+await Test("Darkness II manual x86 build requires exact consent and rejects executable changes",async ()=>{
+    var f=Fixture();
+    Directory.CreateDirectory(Path.Combine(f.Root,"Cache.Windows"));
+    var exe=Path.Combine(f.Root,"DarknessII.exe");
+    var pe=new byte[256];pe[0]=0x4D;pe[1]=0x5A;pe[0x3C]=0x80;pe[0x80]=0x50;pe[0x81]=0x45;
+    pe[0x84]=0x4C;pe[0x85]=1;pe[0x98]=0x0B;pe[0x99]=1;File.WriteAllBytes(exe,pe);
+    var module=Package(f);module=module with{Files=[module.Files[0] with{Path="d3d9.dll"}]};
+    var game=new GameManifest("darkness2","Darkness II","preview","Darkness2GameAdapter","67370","DarknessII.exe",[new string('0',64)],[module]);
+    var adapter=new Darkness2GameAdapter();
+    var location=adapter.Validate(f.Root,game);
+    Assert(!location.Compatible&&ExecutableCompatibility.CanTry(game,location));
+    var choices=new InstallChoices("en","en","en",[]);
+    await Reject(()=>Sync(()=>PlanBuilder.Build(game,location,choices)));
+    var plan=PlanBuilder.Build(game,location,choices,new(f.Root,location.ExeHash!));
+    var receipt=await f.Installer.InstallAsync(plan,Archives(f,module),null,default);
+    Assert(receipt.ExecutableConsent==plan.ExecutableConsent);
+    f.Installer.Uninstall(f.Root,default);
+    pe[0x84]=0x64;pe[0x85]=0x86;File.WriteAllBytes(exe,pe);
+    Assert(!ExecutableCompatibility.CanTry(game,adapter.Validate(f.Root,game)));
+    await Reject(()=>f.Installer.InstallAsync(plan,Archives(f,module),null,default));
+});
 await Test("Drive package bytes remain hash pinned and redirects cannot leave Drive",async ()=>{
     var f=Fixture();
     var m=Package(f) with{DownloadUrl="https://drive.usercontent.google.com/download?id=fixture_123&export=download&confirm=t"};

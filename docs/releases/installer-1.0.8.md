@@ -19,6 +19,14 @@ Darkness II imports only four reviewed packages from SIDE's `darkness2-full-cand
 
 ## Verification gates
 
+### Darkness II HD converter correction
+
+The initial 1.0.8 converter regressed the native block-layout repair from Darkness2VR `ef56b259` (physically accepted in `c8015216`). It appended planar DXT streams while declaring raw, uncompressed TOC entries. This caused rainbow/static artifacts on tentacles. The PNG archive was correct; replacing it was not necessary.
+
+The corrected worker unplanes B/F streams once at the raw-cache publication boundary, preserving H descriptors, BC3 alpha, image dimensions, mip order and native paths. Four regression cases cover BC1/BC3 blocks, full 16KiB chunks and tails, unchanged headers and rejected malformed formats/alignment. The read-only `verify_native_layout.py` audit compared all 190 generated payloads (64 H, 64 B, 62 F) byte-for-byte with the accepted pre-install backup: all equal. Independent Pillow BC decoding passed all 126 B/F top mips against the source PNGs; maximum mean RGB error was 7.838/255 for B and 3.253/255 for F. Original bad planar decoding averaged 61.551/255 and 51.238/255 respectively. These are offline pixel and file checks, not a new headset PASS.
+
+Users who selected Darkness II HD in the initial 1.0.8 must use the refreshed installer and reinstall with HD selected. Managed original backups remain authoritative; the corrected transaction regenerates the six cache files. VR DLLs, configuration, audio and other games are outside this fix. The release evidence records the hotfix source separately from the original 1.0.8 tag.
+
 - Core regression harness: 81 PASS, 0 FAIL.
 - Asset/package producer tests: 15 PASS. Drive catalog producer tests: 2 PASS.
 - Published self-contained WPF app: eight PL/EN layout/binding cases PASS, zero binding errors. Darkness II module/options screens are captured at the same layouts; displayed modules must be stable and must not contain preview in their versions.

@@ -2,6 +2,20 @@
 import hashlib,json,sys
 from pathlib import Path
 import manage_comic_textures as m
+from convert_raw_textures import deinterleave_dxt1_stream,deinterleave_dxt5_stream
+
+def native_raw_payload(tag,format,data):
+    """Raw TOC entries require interleaved BC blocks, unlike compressed cache streams.
+
+    The source encoder emits 16 KiB planar chunks. Keep the H descriptor intact;
+    unplane B/F exactly once, before publishing packed == size in the TOC.
+    See Darkness2VR ef56b259 (physically accepted in c8015216).
+    """
+    if tag=="H":return data
+    if tag not in ("B","F"):raise ValueError("Unknown texture cache")
+    if format not in ("DXT1","DXT5"):raise ValueError("Unsupported native block format")
+    if len(data)%(8 if format=="DXT1" else 16):raise ValueError("Native block alignment")
+    return (deinterleave_dxt1_stream if format=="DXT1" else deinterleave_dxt5_stream)(data)
 
 def main():
     original,png,output=map(Path,sys.argv[1:])
@@ -40,6 +54,7 @@ def main():
                 if not item[tag.lower()+"_size"]:continue
                 rel=item["path"]
                 data=(package/tag/rel).read_bytes()
+                data=native_raw_payload(tag,item["format"],data)
                 pos=cache.entries[rel][0]
                 m.struct.pack_into("<Q",toc,pos,length+stream.tell())
                 m.struct.pack_into("<III",toc,pos+16,len(data),len(data),0)

@@ -183,6 +183,24 @@ await Test("Only the Darkness II source download accepts changed texture ZIPs",a
     Assert(File.ReadAllBytes(target).SequenceEqual(update));
     Assert(!Directory.EnumerateFiles(f.Root,"*.part").Any());
 });
+await Test("Darkness texture targets cannot enter a Singularity manifest",async ()=>{
+    var f=Fixture();var m=Package(f);
+    var texture=m with{Files=[m.Files[0] with{Path="Cache.Windows/H.Texture.toc"}]};
+    await Reject(()=>Sync(()=>PlanBuilder.ValidateManifest(f.Game(texture))));
+    var game=new GameManifest("darkness2","Darkness II","preview","Darkness2GameAdapter","67370","DarknessII.exe",[new string('0',64)],[texture]);
+    PlanBuilder.ValidateManifest(game);
+});
+await Test("Local texture conversion rejects unvalidated ZIPs before copying game data",async ()=>{
+    var f=Fixture();var archive=Path.Combine(f.Root,"bad.zip");
+    using(var zip=ZipFile.Open(archive,ZipArchiveMode.Create))
+    using(var output=zip.CreateEntry("../escape.png").Open())output.Write(new byte[]{137,80,78,71,13,10,26,10});
+    var workspace=Path.Combine(f.Root,"conversion");
+    await Reject(()=>DarknessTextureInstall.PrepareAsync(f.Root,f.Installer,workspace,archive,default));
+    Assert(!Directory.Exists(workspace));
+    using var cancellation=new CancellationTokenSource();cancellation.Cancel();
+    try{await DarknessTextureDownload.ValidateArchiveAsync(archive,cancellation.Token);throw new Exception("Expected cancellation");}
+    catch(OperationCanceledException){}
+});
 await Test("Drive package bytes remain hash pinned and redirects cannot leave Drive",async ()=>{
     var f=Fixture();
     var m=Package(f) with{DownloadUrl="https://drive.usercontent.google.com/download?id=fixture_123&export=download&confirm=t"};

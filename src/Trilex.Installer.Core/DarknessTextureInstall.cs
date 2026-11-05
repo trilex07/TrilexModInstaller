@@ -12,8 +12,11 @@ public static class DarknessTextureInstall
     public static async Task<(ModuleManifest Module,string Archive)> PrepareAsync(
         string root,TransactionInstaller installer,string workspace,string pngZip,CancellationToken ct)
     {
+        // Local callers and offline fixtures must meet the same contract as downloads.
+        await DarknessTextureDownload.ValidateArchiveAsync(pngZip,ct);
         var inputs=Path.Combine(workspace,"originals");Directory.CreateDirectory(inputs);
         var receipt=installer.Receipt(root);
+        if(receipt is not null&&receipt.GameId!="darkness2")throw new IOException("Texture original belongs to another game");
         foreach(var stem in new[]{"H.Texture","B.Texture","F.Texture"})
         foreach(var ext in new[]{".cache",".toc"})
         {
@@ -31,8 +34,10 @@ public static class DarknessTextureInstall
         using(var zip=ZipFile.OpenRead(pngZip))
         foreach(var entry in zip.Entries.Where(e=>!e.FullName.EndsWith('/')))
         {
+            ct.ThrowIfCancellationRequested();
             var path=Paths.Safe(png,entry.FullName);Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-            using var source=entry.Open();using var target=new FileStream(path,FileMode.CreateNew);source.CopyTo(target);
+            using var source=entry.Open();using var target=new FileStream(path,FileMode.CreateNew);
+            await source.CopyToAsync(target,ct);
         }
         var worker=Path.Combine(workspace,"Trilex.DarknessTextures.exe");
         using(var resource=typeof(DarknessTextureInstall).Assembly.GetManifestResourceStream("Trilex.DarknessTextures.exe")??throw new IOException("Texture conversion worker is not bundled"))

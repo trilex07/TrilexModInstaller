@@ -71,7 +71,7 @@ public static class PlanBuilder
                 Paths.Safe(Path.GetTempPath(),f.Path);Paths.AllowedTarget(f.Path);
                 LocalSources.Validate(f,Path.GetTempPath());
                 var target=f.Path.Replace('\\','/');
-                var darknessTarget=Paths.Same(target,"d3d9.dll")||Paths.Same(target,"Darkness2VR.ini") || Paths.Same(target,"openxr_loader.dll")||Paths.Same(target,"Darkness2VR-diagnostic.ini")||Paths.DarknessAssetTarget(target)||Paths.DarknessTextTarget(target);
+                var darknessTarget=Paths.Same(target,"d3d9.dll")||Paths.Same(target,"Darkness2VR.ini") || Paths.Same(target,"openxr_loader.dll")||Paths.Same(target,"Darkness2VR-diagnostic.ini")||Paths.DarknessAssetTarget(target)||Paths.DarknessTextTarget(target)||DarknessTextureInstall.IsTarget(target);
                 if((game.Id=="darkness2")!=darknessTarget)throw new InvalidDataException("Target belongs to another game");
                 if(game.Id=="darkness2" && Paths.DarknessTextTarget(target) && (m.Id is not ("polish-text" or "darkness-menu") || f.Kind!="recipe"))
                     throw new InvalidDataException("Darkness II language cache requires a local recipe");

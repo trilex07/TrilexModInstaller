@@ -16,5 +16,8 @@ try {
  if($LASTEXITCODE){throw 'Texture worker build failed'}
  New-Item -ItemType Directory .build/darkness-textures/licenses -Force | Out-Null
  Copy-Item "$AssetTools/quickbms/quickbms.txt" .build/darkness-textures/licenses
+ Copy-Item "$AssetTools/darkness2.bms" .build/darkness-textures/licenses
+ python -s scripts/collect-worker-licenses.py .build/darkness-textures/licenses
+ if($LASTEXITCODE){throw 'Texture worker license collection failed'}
 }
 finally{$env:PYTHONPATH=$previous}

@@ -2,7 +2,8 @@
 import importlib.metadata as md,shutil,sys
 from pathlib import Path
 ROOT=Path(__file__).resolve().parent.parent
-out=ROOT/'.build/asset-worker/licenses';out.mkdir(parents=True,exist_ok=True)
+out=Path(sys.argv[1]) if len(sys.argv)>1 else ROOT/'.build/asset-worker/licenses'
+out.mkdir(parents=True,exist_ok=True)
 for name in ['numpy','Pillow','PyInstaller','pyinstaller-hooks-contrib','charset-normalizer']:
     try:dist=md.distribution(name)
     except md.PackageNotFoundError:

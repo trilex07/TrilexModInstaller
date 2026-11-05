@@ -1,17 +1,9 @@
-# Trilex Mod Installer 1.0.0 RC1 — complete V7 candidate
+# Trilex Mod Installer 1.0.8
 
-Complete self-contained Windows x64 installer with 12 signed V7 modules and a full Polish preset. Includes VR runtime, Polish text/replacement dubbing, local audio remaster, UI/HUD, native-derived hands/TMD/reload resources, HD textures and portable settings. Requires a compatible owned game; no game executable or whole commercial cooked package is shipped.
+Two-game installer: Singularity VR and The Darkness II VR. Darkness II is selectable without a preview label. Singularity retains the accepted runtime and complete V7 modules. Polish dubbing and HD packages use the supplied Google Drive links with signed integrity pins. Run the game launches the managed game executable directly.
 
-Extract the entire complete ZIP before running the EXE. Selected packages are verified locally; first-time Centurion/audio helper downloads require internet or an existing verified cache. Install, reinstall, repair and uninstall use exact backups and transaction recovery. No Python, .NET SDK or source checkout is required.
+Darkness II supplies VR core, hand assets, native menu and Polish text modules, plus optional locally converted HD textures. It does not supply a new Darkness II voice pack. Package paths and transaction state are isolated per game.
 
-Unresolved third-party permission provenance is explicitly disclosed under signed publisher review; it is not an MIT grant or rights-holder approval. The executable is unsigned. Production Authenticode requirements are unchanged. Clean-PC interaction and physical installer acceptance remain pending; offline results are recorded separately.
+Validation includes Core regressions, asset-producer tests, bilingual WPF layout checks, EN/PL installation lifecycle and byte-exact restoration, and all six Darkness texture cache conversion/install/deselect/uninstall checks on real copied data. See docs/releases/installer-1.0.8.md for exact evidence and runtime boundaries.
 
-## Historical source preview
-
-# Trilex Mod Installer 0.1.0 RC
-
-Installer engineering preview with branded bilingual desktop UI, signed catalogs, verified downloads, offline support and reversible transactions. Singularity is the first supported adapter; Darkness II is Coming Soon.
-
-**Game packs are not yet publicly installable.** Current catalog shows unavailable components until rights-safe local asset reconstruction and package publication are reviewed. No original game content is included. This RC is not a replacement for the separately accepted SingularityVR V7 Steam deployment.
-
-See README, inventory and STATUS for exact evidence and remaining gates. No physical/real-Steam installer PASS is claimed. Production publication requires both catalog signatures and Authenticode signing.
+Extract the complete ZIP. Keep the original-backup state. The EXE is unsigned. Unrecognized Singularity editions require explicit warned consent and remain experimental. Evidence JSON files are optional test records, not installation dependencies.

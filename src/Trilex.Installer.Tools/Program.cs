@@ -1,3 +1,4 @@
+using Trilex.Installer.Desktop;
 using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text.Json;
@@ -42,6 +43,87 @@ try
             Console.WriteLine("PASS verified download: "+id);
         }
         Json.Write(Path.Combine(downloadCache,"download-verification.json"),new{status="PASS",gameId,rows,gameAccess="NONE"});
+    }
+    else if(args is ["require-idle",var idleRoot])
+    {
+        new WindowsProcessGuard().RequireIdle(idleRoot);Console.WriteLine("PASS game processes idle");
+    }
+    else if(args is ["install-managed",var installCatalog,var installKey,var installGame,var installRoot,var installBundle,var installState,var installLanguage,..var localTextureSource] && localTextureSource.Length<=1)
+    {
+        using var http=CatalogService.CreateHttpClient();
+        var catalog=new CatalogService(http,File.ReadAllText(installKey)).Verify(File.ReadAllBytes(installCatalog));
+        var game=catalog.Games.Single(g=>g.Id==installGame);
+        IGameAdapter adapter=installGame=="singularity"?new SingularityGameAdapter():installGame=="darkness2"?new Darkness2GameAdapter():throw new InvalidDataException("Unknown game");
+        var location=adapter.Validate(installRoot,game);
+        var selected=game.Modules.Where(m=>m.State=="stable"&&m.Id is not ("polish-text" or "polish-dubbing")).Select(m=>m.Id).ToList();
+        var plan=PlanBuilder.Build(game,location,new(installLanguage,installGame=="singularity"?installLanguage:"en",installLanguage,selected));
+        var guard=new WindowsProcessGuard();guard.RequireIdle(plan.Root);
+        if(LocalAudioTools.Required(plan.Modules))await LocalAudioTools.EnsureAsync(http,false,null,default);
+        if(LocalExtractorTools.Required(plan.Modules))await LocalExtractorTools.EnsureAsync(http,false,null,default,installBundle);
+        var downloader=new PackageDownloader(http,Path.Combine(Path.GetDirectoryName(Path.GetFullPath(installState))!,"cache"));
+        var archives=new Dictionary<string,string>();
+        foreach(var module in plan.Modules)archives[module.Id]=BundleSource.ArchiveAt(installBundle,module,game.Id)??await downloader.GetAsync(module,false,null,default);
+        var installer=new TransactionInstaller(installState,guard);
+        if(localTextureSource.Length==1)
+        {
+            if(installGame!="darkness2")throw new InvalidDataException("Local texture conversion is Darkness II only");
+            var work=Path.Combine(Path.GetDirectoryName(Path.GetFullPath(installState))!,"texture-work",Guid.NewGuid().ToString("N"));Directory.CreateDirectory(work);
+            var prepared=await DarknessTextureInstall.PrepareAsync(plan.Root,installer,work,localTextureSource[0],default);
+            plan=plan with {Modules=[..plan.Modules,prepared.Module],Choices=plan.Choices with {SelectedModules=[..plan.Choices.SelectedModules,"hd-textures"]}};
+            archives[prepared.Module.Id]=prepared.Archive;
+        }
+        // Adopt a previously deployed accepted payload only when its bytes match
+        // this signed target. Never overwrite an arbitrary external edit.
+        var previous=installer.Receipt(plan.Root);
+        var repairAccepted=false;
+        if(previous is not null)foreach(var old in previous.Files.Where(f=>f.Kind!="ini"))
+        {
+            var live=Paths.HashOrNull(Paths.Safe(plan.Root,old.Path));
+            if(Paths.Same(live,old.InstalledHash))continue;
+            var target=plan.Modules.SelectMany(m=>m.Files).FirstOrDefault(f=>Paths.Same(f.Path,old.Path));
+            if(target is null||!Paths.Same(live,target.Sha256))throw new IOException("External edit does not match signed target: "+old.Path);
+            repairAccepted=true;
+        }
+        await installer.InstallAsync(plan,archives,null,default,repair:repairAccepted);
+        var failures=installer.Verify(plan.Root);
+        if(failures.Count!=0)throw new IOException("Installed verification failed: "+string.Join(",",failures));
+        Console.WriteLine("PASS managed install and all owned file hashes: "+game.Id);
+    }
+    else if(args is ["verify-darkness-textures",var textureDestination])
+    {
+        using var http=CatalogService.CreateHttpClient();
+        await new DarknessTextureDownload(http).SaveAsync(textureDestination,null,default);
+        Console.WriteLine("PASS bounded PNG source ZIP downloaded; SHA256="+Paths.Hash(textureDestination));
+    }
+    else if(args is ["exercise-darkness",var signedInput,var publicInput,var bundleInput,var originalInput,var fixtureOutput])
+    {
+        var output=Path.GetFullPath(fixtureOutput);
+        if(!output.StartsWith(Path.GetFullPath("artifacts")+Path.DirectorySeparatorChar,StringComparison.OrdinalIgnoreCase)||Directory.Exists(output))throw new ArgumentException("Fresh artifacts fixture required");
+        using var http=CatalogService.CreateHttpClient();
+        var catalog=new CatalogService(http,File.ReadAllText(publicInput)).Verify(File.ReadAllBytes(signedInput));
+        var game=catalog.Games.Single(g=>g.Id=="darkness2");
+        var owned=Path.Combine(output,"game");Directory.CreateDirectory(owned);
+        var paths=game.Modules.SelectMany(m=>m.Files).Select(f=>f.SourcePath??f.Path).Append(game.Executable).Distinct(StringComparer.OrdinalIgnoreCase);
+        foreach(var relative in paths)
+        {
+            var source=Paths.Safe(originalInput,relative);if(!File.Exists(source))continue;
+            var target=Paths.Safe(owned,relative);Directory.CreateDirectory(Path.GetDirectoryName(target)!);File.Copy(source,target);
+        }
+        var originals=Directory.GetFiles(owned,"*",SearchOption.AllDirectories).ToDictionary(p=>p,Paths.Hash);
+        var location=new Darkness2GameAdapter().Validate(owned,game);
+        var installer=new TransactionInstaller(Path.Combine(output,"state"),new FixtureGuard(owned));
+        foreach(var language in new[]{"en","pl","en"})
+        {
+            var plan=PlanBuilder.Build(game,location,new(language,"en","en",["darkness-assets","darkness-menu"]));
+            var archives=plan.Modules.ToDictionary(m=>m.Id,m=>BundleSource.ArchiveAt(bundleInput,m,game.Id)??throw new IOException("Missing bundled Darkness package"));
+            await installer.InstallAsync(plan,archives,null,default);
+            if(installer.Verify(owned).Count!=0)throw new IOException("Installed verification failed");
+            Console.WriteLine("PASS install/update/verify: "+language);
+        }
+        installer.Uninstall(owned,default);
+        if(Directory.GetFiles(owned,"*",SearchOption.AllDirectories).Length!=originals.Count||originals.Any(p=>Paths.Hash(p.Key)!=p.Value))throw new IOException("Original restoration failed");
+        Json.Write(Path.Combine(output,"lifecycle-report.json"),new{status="PASS",languages=new[]{"en","pl","en"},restoredOriginals=originals.Count,gameAccess="NONE; copied fixture only"});
+        Console.WriteLine("PASS byte-exact uninstall restoration");
     }
     else if(args is ["prepare-extractor-tools",var extractorBundle])
     {
@@ -112,7 +194,12 @@ try
         }
         Json.Write(Path.Combine(reconstructedRoot,"recipe-report.json"),new{status="PASS",files=module.Files.Count,scope="Exact preimage and final SHA256; read-only originals; not a public license or game acceptance",steamAccess="NONE"});Console.WriteLine("PASS reconstructed exact files: "+module.Files.Count);
     }
-    else throw new ArgumentException("Commands: prepare-audio-tools | keygen PRIVATE.pem PUBLIC.pem | sign CATALOG.json PRIVATE.pem OUTPUT.json | verify SIGNED.json PUBLIC.pem | pack MODULE.json STAGE OUTPUT.zip | exercise MODULE.json ARCHIVE.zip artifacts/FRESH_FIXTURE | verify-recipes MODULE.json STAGE ORIGINALS artifacts/FRESH_OUTPUT");
+    else throw new ArgumentException("Commands: require-idle ROOT | install-managed SIGNED PUBLIC GAME ROOT BUNDLE STATE LANGUAGE [DARKNESS_PNG_ZIP] | exercise-darkness SIGNED PUBLIC BUNDLE ORIGINALS artifacts/FRESH_FIXTURE | verify-darkness-textures ZIP | prepare-audio-tools | keygen PRIVATE.pem PUBLIC.pem | sign CATALOG.json PRIVATE.pem OUTPUT.json | verify SIGNED.json PUBLIC.pem | pack MODULE.json STAGE OUTPUT.zip | exercise MODULE.json ARCHIVE.zip artifacts/FRESH_FIXTURE | verify-recipes MODULE.json STAGE ORIGINALS artifacts/FRESH_OUTPUT");
 }
 catch(Exception e){Console.Error.WriteLine(e.GetType().Name+": "+e.Message);Environment.ExitCode=1;}
+
+sealed class FixtureGuard(string root):IProcessGuard
+{
+    public void RequireIdle(string candidate){if(!Paths.Same(Path.GetFullPath(candidate),root))throw new IOException("Fixture boundary violation");}
+}
 

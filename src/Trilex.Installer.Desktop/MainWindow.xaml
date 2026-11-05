@@ -4,7 +4,7 @@
   <Border Background="#0B1520" BorderBrush="#213747" BorderThickness="0,0,1,0">
    <DockPanel Margin="18,24">
     <StackPanel DockPanel.Dock="Top"><Image Source="Assets/Trilex_logo_256.png" Height="110" Stretch="Uniform"/><TextBlock Text="T R I L E X" FontSize="21" HorizontalAlignment="Center" Margin="0,6,0,0"/><TextBlock Text="MOD INSTALLER" FontSize="10" Foreground="{StaticResource Muted}" HorizontalAlignment="Center" Margin="0,6,0,32"/><Border Background="#0B3950" BorderBrush="#17BFFF" BorderThickness="2,0,0,0" Padding="12,14"><TextBlock Text="{Binding L[Library]}" Foreground="#53DCFF"/></Border></StackPanel>
-    <StackPanel VerticalAlignment="Bottom"><TextBlock Text="1.0.0 • RC" Foreground="{StaticResource Muted}"/><TextBlock Text="TRILEX07" FontSize="10" Foreground="#17BFFF" Margin="0,6,0,8"/><TextBlock Text="{Binding L[Safety]}" FontSize="11" Foreground="{StaticResource Muted}"/></StackPanel>
+    <StackPanel VerticalAlignment="Bottom"><TextBlock Text="1.0.8" Foreground="{StaticResource Muted}"/><TextBlock Text="TRILEX07" FontSize="10" Foreground="#17BFFF" Margin="0,6,0,8"/><TextBlock Text="{Binding L[Safety]}" FontSize="11" Foreground="{StaticResource Muted}"/></StackPanel>
    </DockPanel>
   </Border>
   <Grid Grid.Column="1" Margin="28,20,28,20">

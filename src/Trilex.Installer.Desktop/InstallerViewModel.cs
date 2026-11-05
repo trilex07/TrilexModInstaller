@@ -72,9 +72,8 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
     public bool NotBusy=>!Busy;
     public bool CanInstall=>plan is not null&&!Busy;
     public bool CanManage{get{if(Busy||string.IsNullOrWhiteSpace(root))return false;try{return installer.Receipt(root)?.GameId==gameId;}catch(Exception e)when(e is ArgumentException or IOException or InvalidDataException or JsonException or UnauthorizedAccessException){return false;}}}
-    public bool CanLaunch=>CanManage&&(IsSingularity?location?.Compatible==true:
-        location?.ExeHash is { } hash && (location.Compatible || ExecutableCompatibility.Matches(installer.Receipt(root)?.ExecutableConsent,root,hash)));
-    public string LaunchLabel=>L[IsSingularity?"Launch":"LaunchGame"];
+    public bool CanLaunch=>CanManage&&GameLauncher.CanLaunch(Game,location,installer.Receipt(root));
+    public string LaunchLabel=>L["LaunchGame"];
     public Visibility ReviewVisibility=>showReview?Visibility.Visible:Visibility.Collapsed;
     public double Percent{get=>percent;private set{percent=value;Changed();}}
     public InstallerViewModel()
@@ -322,10 +321,8 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
         Log((accepted?"USER ACCEPTED":"USER DECLINED")+" Darkness II: "+detail);
         return accepted;
     }
-    public void Launch(){if(!CanLaunch)throw new InvalidOperationException("Verify a managed installation first");if(IsSingularity){Process.Start(new ProcessStartInfo("steam://rungameid/"+Game.SteamAppId){UseShellExecute=true});return;}
-        var exe=Paths.Safe(root,Game.Executable);
-        if(!Paths.Same(Paths.Hash(exe),location!.ExeHash))throw new IOException("Executable changed after review");
-        Process.Start(new ProcessStartInfo(exe){UseShellExecute=true,WorkingDirectory=root});}
+    public void Launch(){if(!CanLaunch)throw new InvalidOperationException("Verify a managed installation first");
+        Process.Start(GameLauncher.CreateStartInfo(Game,location!,installer.Receipt(root)!));}
     public void OpenLogs()=>Process.Start(new ProcessStartInfo(Home){UseShellExecute=true});
     public void Dispose(){cancellation?.Cancel();http.Dispose();}
 }

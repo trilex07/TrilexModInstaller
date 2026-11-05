@@ -27,6 +27,22 @@ try
     {
         using var http=new HttpClient();var catalog=new CatalogService(http,File.ReadAllText(verifyKey)).Verify(File.ReadAllBytes(signedPath));Console.WriteLine("Verified catalog "+catalog.Version);
     }
+    else if(args is ["verify-downloads",var signedCatalog,var publisherKey,var gameId,var downloadCache,..var moduleIds] && moduleIds.Length>0)
+    {
+        using var http=CatalogService.CreateHttpClient();
+        var catalog=new CatalogService(http,File.ReadAllText(publisherKey)).Verify(File.ReadAllBytes(signedCatalog));
+        var game=catalog.Games.Single(g=>g.Id==gameId);
+        var downloader=new PackageDownloader(http,downloadCache);
+        var rows=new List<object>();
+        foreach(var id in moduleIds)
+        {
+            var module=game.Modules.Single(m=>m.Id==id&&m.State=="stable");
+            var archive=await downloader.GetAsync(module,false,null,default);
+            rows.Add(new{id,sha256=Paths.Hash(archive),bytes=new FileInfo(archive).Length});
+            Console.WriteLine("PASS verified download: "+id);
+        }
+        Json.Write(Path.Combine(downloadCache,"download-verification.json"),new{status="PASS",gameId,rows,gameAccess="NONE"});
+    }
     else if(args is ["prepare-extractor-tools",var extractorBundle])
     {
         // Release fixture: fail if the actual portable directory cannot prepare

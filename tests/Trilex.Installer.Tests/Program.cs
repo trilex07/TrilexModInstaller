@@ -750,6 +750,23 @@ await Test("process guard blocks only Singularity across Steam/retail drives and
     Assert(Check(124,"unknown",@"C:\Retail\Singularity\Binaries\SINGULARITY.EXE") is not null);
     Assert(Check(124,"SingularityLauncher",@"D:\Retail\SingularityLauncher.exe") is null);
 }));
+await Test("Universal launch prepares only the exact reviewed game EXE and its working directory",async()=>
+{
+    var f=Fixture();var module=Package(f);var game=f.Game(module);var location=f.Location();
+    var receipt=new InstallReceipt("1",f.Root,"singularity","test",new("en","en","en",[]),[],"test");
+    Assert(GameLauncher.CanLaunch(game,location,receipt));
+    var info=GameLauncher.CreateStartInfo(game,location,receipt);
+    Assert(Paths.Same(info.FileName,Paths.Safe(f.Root,game.Executable))&&Paths.Same(info.WorkingDirectory,Path.GetFullPath(f.Root))&&info.Arguments=="");
+    var unknown=location with{Compatible=false};
+    Assert(!GameLauncher.CanLaunch(game,unknown,receipt));
+    var accepted=receipt with{ExecutableConsent=new(f.Root,location.ExeHash!)};
+    Assert(GameLauncher.CanLaunch(game,unknown,accepted));
+    Assert(!GameLauncher.CanLaunch(game,unknown,accepted with{GameId="darkness2"}));
+    Assert(!GameLauncher.CanLaunch(game,unknown,accepted with{Root=f.Root+"-other"}));
+    Assert(!GameLauncher.CanLaunch(game,unknown,accepted with{ExecutableConsent=new(f.Root,new string('0',64))}));
+    File.AppendAllText(Paths.Safe(f.Root,game.Executable),"changed");
+    await Reject(()=>Sync(()=>GameLauncher.CreateStartInfo(game,unknown,accepted)));
+});
 var report=new{time=DateTimeOffset.UtcNow,passed=results.Count-failed,failed,fixtureRoot=testRoot,steamAccess="NONE",results};
 Json.Write(Path.Combine(testRoot,"test-report.json"),report);Console.WriteLine(JsonSerializer.Serialize(new{passed=results.Count-failed,failed,report=Path.Combine(testRoot,"test-report.json")}));Environment.ExitCode=failed==0?0:1;
 

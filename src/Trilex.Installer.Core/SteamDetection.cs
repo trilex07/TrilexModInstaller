@@ -30,9 +30,10 @@ public interface IGameAdapter
     IEnumerable<GameLocation> Detect(IEnumerable<string> steamRoots,GameManifest manifest);
     GameLocation Validate(string root,GameManifest manifest);
 }
-public sealed class SingularityGameAdapter : IGameAdapter
+public abstract class SteamGameAdapter : IGameAdapter
 {
-    public string Id=>"singularity";
+    public abstract string Id { get; }
+    protected abstract string DataDirectory { get; }
     public IEnumerable<GameLocation> Detect(IEnumerable<string> steamRoots,GameManifest manifest)
     {
         var libraries=new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -58,16 +59,20 @@ public sealed class SingularityGameAdapter : IGameAdapter
         try
         {
             var exe=Paths.Safe(root,manifest.Executable);
-            if(!File.Exists(exe) || !Directory.Exists(Paths.Safe(root,"RvGame/CookedPC")))return new(root,"Manual",false,"Missing executable or CookedPC directory",null);
+            if(!File.Exists(exe) || !Directory.Exists(Paths.Safe(root,DataDirectory)))return new(root,"Manual",false,"Missing executable or game data directory",null);
             var hash=Paths.Hash(exe);var valid=manifest.ExeSha256.Any(x=>Paths.Same(x,hash));
             return new(Path.GetFullPath(root),"Manual",valid,valid?"Compatible executable fingerprint":"Unsupported executable fingerprint",hash);
         }
         catch(Exception e)when(e is IOException or InvalidDataException or UnauthorizedAccessException or ArgumentException){return new(root,"Manual",false,e.Message,null);}
     }
 }
-public sealed class Darkness2GameAdapter : IGameAdapter
+public sealed class SingularityGameAdapter : SteamGameAdapter
 {
-    public string Id=>"darkness2";
-    public IEnumerable<GameLocation> Detect(IEnumerable<string> roots,GameManifest manifest)=>[];
-    public GameLocation Validate(string root,GameManifest manifest)=>new(root,"Manual",false,"Coming Soon — adapter not enabled",null);
+    public override string Id=>"singularity";
+    protected override string DataDirectory=>"RvGame/CookedPC";
+}
+public sealed class Darkness2GameAdapter : SteamGameAdapter
+{
+    public override string Id=>"darkness2";
+    protected override string DataDirectory=>"Cache.Windows";
 }

@@ -13,7 +13,7 @@ public sealed class PackageDownloader(HttpClient http,string cache,string reposi
         var target=Paths.Safe(cache,module.ArchiveSha256!.ToLowerInvariant()+".zip");
         if(File.Exists(target)) {if(Paths.Same(Paths.Hash(target),module.ArchiveSha256)&&new FileInfo(target).Length==module.DownloadBytes)return target;File.Delete(target);}
         if(offline)throw new FileNotFoundException("Verified package is not in the offline cache: "+module.Id);
-        var uri=new Uri(module.DownloadUrl??throw new InvalidDataException("Missing package URL"));CatalogService.ValidateReleaseUrl(uri,repository);
+        var uri=new Uri(module.DownloadUrl??throw new InvalidDataException("Missing package URL"));if(!ReleaseTransport.IsDrivePackage(uri))CatalogService.ValidateReleaseUrl(uri,repository);
         var partial=target+".part";
         for(var attempt=0;attempt<3;attempt++)
         {
@@ -25,6 +25,8 @@ public sealed class PackageDownloader(HttpClient http,string cache,string reposi
                 if(start==module.DownloadBytes){if(Paths.Same(Paths.Hash(partial),module.ArchiveSha256)){File.Move(partial,target);return target;}File.Delete(partial);start=0;}
                 using var response=await ReleaseTransport.SendAsync(http,uri,start,ct);
                 response.EnsureSuccessStatusCode();
+                if(ReleaseTransport.IsDrivePackage(uri) && response.Content.Headers.ContentType?.MediaType=="text/html")
+                    throw new InvalidDataException("Google Drive returned a web page instead of the ZIP. Check public access and download quota.");
                 var resume=response.StatusCode==HttpStatusCode.PartialContent;
                 if(resume && (response.Content.Headers.ContentRange?.From!=start || response.Content.Headers.ContentRange?.Length!=module.DownloadBytes))throw new InvalidDataException("Incorrect download range");
                 if(!resume)start=0;
@@ -46,15 +48,22 @@ public sealed class PackageDownloader(HttpClient http,string cache,string reposi
 }
 public static class ReleaseTransport
 {
+    public static bool IsDrivePackage(Uri uri)=>uri.Scheme=="https" && uri.IsDefaultPort &&
+        uri.UserInfo.Length==0 && uri.Fragment.Length==0 &&
+        uri.Host=="drive.usercontent.google.com" && uri.AbsolutePath=="/download" &&
+        System.Text.RegularExpressions.Regex.IsMatch(uri.Query,@"^\?id=[A-Za-z0-9_-]+&export=download&confirm=t$");
+
     public static async Task<HttpResponseMessage> SendAsync(HttpClient http,Uri uri,long start,CancellationToken ct)
     {
+        var drive=IsDrivePackage(uri);
         for(var redirect=0;redirect<5;redirect++)
         {
             using var request=new HttpRequestMessage(HttpMethod.Get,uri);if(start>0)request.Headers.Range=new RangeHeaderValue(start,null);
             var response=await http.SendAsync(request,HttpCompletionOption.ResponseHeadersRead,ct);
             if((int)response.StatusCode is not (301 or 302 or 303 or 307 or 308))return response;
-            var next=response.Headers.Location is { } location?new Uri(uri,location):throw new InvalidDataException("Empty redirect");response.Dispose();
-            if(next.Scheme!="https" || !next.IsDefaultPort || !string.IsNullOrEmpty(next.UserInfo) || next.Host is not ("release-assets.githubusercontent.com" or "objects.githubusercontent.com" or "github-releases.githubusercontent.com"))throw new InvalidDataException("Untrusted release redirect");
+            var location=response.Headers.Location;response.Dispose();
+            var next=location is not null?new Uri(uri,location):throw new InvalidDataException("Empty redirect");
+            if(next.Scheme!="https" || !next.IsDefaultPort || !string.IsNullOrEmpty(next.UserInfo) || (drive ? next.Host!="drive.usercontent.google.com" : next.Host is not ("release-assets.githubusercontent.com" or "objects.githubusercontent.com" or "github-releases.githubusercontent.com")))throw new InvalidDataException("Untrusted release redirect");
             uri=next;
         }
         throw new InvalidDataException("Too many release redirects");

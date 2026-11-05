@@ -32,9 +32,18 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
     private readonly HttpClient http=CatalogService.CreateHttpClient();
     private readonly CatalogService catalogs;
     private readonly TransactionInstaller installer;
-    private readonly SingularityGameAdapter adapter=new();
+    private IGameAdapter adapter=>IsSingularity ? new SingularityGameAdapter() : new Darkness2GameAdapter();
     private Catalog catalog;
-    private GameManifest Game=>catalog.Games.Single(x=>x.Id=="singularity");
+    private string gameId="singularity";
+    private GameManifest Game=>catalog.Games.Single(x=>x.Id==gameId);
+    public bool IsSingularity=>gameId=="singularity";
+    public Visibility SingularityOptions=>IsSingularity?Visibility.Visible:Visibility.Collapsed;
+    public void SelectGame(string id)
+    {
+        if(Busy||id==gameId||!catalog.Games.Any(x=>x.Id==id))return;
+        gameId=id; GameRoot=""; DetectionStatus=Game.State=="coming_soon"?L["Blocked"]:""; Modules.Clear();
+        RefreshModules(); Changed(nameof(SingularityOptions));
+    }
     private GameLocation? location;
     private InstallPlan? plan;
     private CancellationTokenSource? cancellation;
@@ -53,7 +62,7 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
     public bool Busy{get=>busy;private set{busy=value;Changed();Changed(nameof(NotBusy));Changed(nameof(CanManage));Changed(nameof(CanLaunch));Changed(nameof(CanInstall));}}
     public bool NotBusy=>!Busy;
     public bool CanInstall=>plan is not null&&!Busy;
-    public bool CanManage{get{if(Busy||string.IsNullOrWhiteSpace(root))return false;try{return installer.Receipt(root) is not null;}catch(Exception e)when(e is ArgumentException or IOException or InvalidDataException or JsonException or UnauthorizedAccessException){return false;}}}
+    public bool CanManage{get{if(Busy||string.IsNullOrWhiteSpace(root))return false;try{return installer.Receipt(root)?.GameId==gameId;}catch(Exception e)when(e is ArgumentException or IOException or InvalidDataException or JsonException or UnauthorizedAccessException){return false;}}}
     public bool CanLaunch=>CanManage&&location?.Compatible==true;
     public Visibility ReviewVisibility=>showReview?Visibility.Visible:Visibility.Collapsed;
     public double Percent{get=>percent;private set{percent=value;Changed();}}
@@ -96,8 +105,8 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
         foreach(var module in Game.Modules)
         {
             var vm=new ModuleViewModel(module,L);
-            if(vm.Selectable)vm.Selected=module.Id switch{"polish-text"=>text=="pl","polish-dubbing"=>voice=="pl",_=>selected.Contains(module.Id)};
-            vm.PropertyChanged+=(s,e)=>{if(e.PropertyName==nameof(ModuleViewModel.Selected)){if(module.Id=="polish-text")TextLanguage=vm.Selected?"pl":"en";if(module.Id=="polish-dubbing")VoiceLanguage=vm.Selected?"pl":"en";}Invalidate();};
+            if(vm.Selectable)vm.Selected=module.Id switch{"polish-text"=>IsSingularity?text=="pl":selected.Contains(module.Id),"polish-dubbing"=>voice=="pl",_=>selected.Contains(module.Id)};
+            vm.PropertyChanged+=(s,e)=>{if(e.PropertyName==nameof(ModuleViewModel.Selected)){if(IsSingularity&&module.Id=="polish-text")TextLanguage=vm.Selected?"pl":"en";if(module.Id=="polish-dubbing")VoiceLanguage=vm.Selected?"pl":"en";}Invalidate();};
             Modules.Add(vm);
         }
     }
@@ -138,7 +147,8 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
         }
         var prerequisites=WindowsPrerequisites.Inspect();
         if(!prerequisites.Present)throw new InvalidOperationException(prerequisites.Detail+"\nMicrosoft Visual C++ v14 x86: "+WindowsPrerequisites.VisualCppX86Url+(ui=="pl"?"\nZainstaluj wymagany pakiet Microsoft i ponów sprawdzanie.":"\nInstall the Microsoft prerequisite, then review again."));
-        var choices=new InstallChoices(text,voice,ui,Modules.Where(x=>x.Selected).Select(x=>x.Manifest.Id).ToList());
+        var selected=Modules.Where(x=>x.Selected).Select(x=>x.Manifest.Id).ToList();
+        var choices=new InstallChoices(IsSingularity?text:selected.Contains("polish-text")?"pl":"en",IsSingularity?voice:"en",ui,selected);
         var reviewed=PlanBuilder.Build(Game,location!,choices,consent);
         if(reviewed.Modules.SelectMany(m=>m.Files).Any(f=>Paths.Same(f.Path,"Binaries/SingularityPsvr2Bridge.exe")))
         {
@@ -146,7 +156,7 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
             if(!triggerPrerequisite.Present)throw new InvalidOperationException(triggerPrerequisite.Detail+"\nMicrosoft Visual C++ v14 x64: "+WindowsPrerequisites.VisualCppX64Url+(ui=="pl"?"\nZainstaluj wymagany pakiet Microsoft i ponów sprawdzanie.":"\nInstall the Microsoft prerequisite, then review again."));
         }
         plan=reviewed;
-        ReviewText=$"{plan.Root}\n\nv{plan.Version} · {plan.DownloadBytes/1048576.0:F1} MB download · {plan.ExpandedBytes/1048576.0:F1} MB payload\nText: {text} / Voice: {voice}\n\n"+string.Join("\n",plan.Modules.Select(x=>$"{x.Label(ui)} · {x.Version} · [{string.Join(", ",x.Dependencies)}]"));
+        ReviewText=$"{plan.Root}\n\nv{plan.Version} · {plan.DownloadBytes/1048576.0:F1} MB download · {plan.ExpandedBytes/1048576.0:F1} MB payload\nText: {choices.TextLanguage} / Voice: {choices.VoiceLanguage}\n\n"+string.Join("\n",plan.Modules.Select(x=>$"{x.Label(ui)} · {x.Version} · [{string.Join(", ",x.Dependencies)}]"));
         if(plan.ExecutableConsent is not null)ReviewText+="\n\n"+L["UnverifiedInstalled"]+"\nSHA256: "+plan.ExeSha256;
         if(LocalAudioTools.Required(plan.Modules))ReviewText+="\n\n"+(ui=="pl"?"Remaster audio: przetwarzanie lokalne z własnej kopii gry. Dodatkowy kodek FFmpeg 9.0.2 (GPLv3), około 109 MB z gyan.dev; bez pobierania nagrań.":"Audio remaster: generated locally from your own game. Additional FFmpeg 9.0.2 codec (GPLv3), approximately 109 MB from gyan.dev; no recording download.");
         if(LocalExtractorTools.Required(plan.Modules))ReviewText+="\n\n"+(ui=="pl"?"Zasoby Centuriona powstaną z własnej kopii gry. Pełny ZIP zawiera zweryfikowany UE Viewer w folderze tools; nie wymaga pobierania z gildor.org ani pobierania modeli gry.":"Centurion assets are generated from your own game. The complete ZIP includes a verified UE Viewer in its tools folder; no gildor.org download or game-model download is needed.");
@@ -162,8 +172,8 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
         if(LocalAudioTools.Required(chosen.Modules))await LocalAudioTools.EnsureAsync(http,offline,progress,ct);
         if(LocalExtractorTools.Required(chosen.Modules))await LocalExtractorTools.EnsureAsync(http,offline,progress,ct);
         var downloader=new PackageDownloader(http,Path.Combine(Home,"cache"));var packages=new Dictionary<string,string>();
-        foreach(var module in chosen.Modules)packages[module.Id]=BundleSource.ArchiveAt(AppContext.BaseDirectory,module)??await downloader.GetAsync(module,offline,progress,ct);
-        bool Confirm(ReconstructionWarning warning)=>ConfirmReconstructionMismatch(warning,ct);
+        foreach(var module in chosen.Modules)packages[module.Id]=BundleSource.ArchiveAt(AppContext.BaseDirectory,module,chosen.GameId)??await downloader.GetAsync(module,offline,progress,ct);
+        bool Confirm(ReconstructionWarning warning)=>chosen.GameId=="singularity"&&ConfirmReconstructionMismatch(warning,ct);
         var result=await Task.Run(async()=>repair?await installer.RepairAsync(chosen,packages,progress,ct,Confirm):await installer.InstallAsync(chosen,packages,progress,ct,confirmMismatch:Confirm),ct);
         Log("Verify installed files");var failures=await Task.Run(()=>installer.Verify(chosen.Root),ct);if(failures.Count>0)throw new IOException("Post-install verification failed: "+string.Join(", ",failures));
         var exceptions=result.ReconstructionWarnings??[];
@@ -200,9 +210,11 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
     public async Task Update(CancellationToken ct)
     {
         catalog=await catalogs.FetchLatestAsync(ct);Paths.AtomicBytes(Path.Combine(Home,"catalog.signed.json"),catalogs.LastVerifiedEnvelope!);
-        RefreshModules();Invalidate();TrustStatus=L["Trust"]+" · "+catalog.Version;Activity=L["ReviewHint"];
+        if(!catalog.Games.Any(x=>x.Id==gameId)){gameId="singularity";GameRoot="";DetectionStatus="";Modules.Clear();Changed(nameof(SingularityOptions));}
+        location=null;Changed(nameof(CanLaunch));RefreshModules();Invalidate();TrustStatus=L["Trust"]+" · "+catalog.Version;Activity=L["ReviewHint"];
     }
-    public void ImportCatalog(string path){catalog=catalogs.Verify(File.ReadAllBytes(path));Paths.AtomicBytes(Path.Combine(Home,"catalog.signed.json"),catalogs.LastVerifiedEnvelope!);RefreshModules();Invalidate();TrustStatus=L["Trust"]+" · "+catalog.Version;Activity=L["ReviewHint"];}
+    public void ImportCatalog(string path){catalog=catalogs.Verify(File.ReadAllBytes(path));Paths.AtomicBytes(Path.Combine(Home,"catalog.signed.json"),catalogs.LastVerifiedEnvelope!);if(!catalog.Games.Any(x=>x.Id==gameId)){gameId="singularity";GameRoot="";DetectionStatus="";Modules.Clear();Changed(nameof(SingularityOptions));}
+        location=null;Changed(nameof(CanLaunch));RefreshModules();Invalidate();TrustStatus=L["Trust"]+" · "+catalog.Version;Activity=L["ReviewHint"];}
     public void ImportPackages(IEnumerable<string> files)
     {
         var cache=Path.Combine(Home,"cache");Directory.CreateDirectory(cache);

@@ -32,12 +32,14 @@ public static class Paths
             current = Path.GetDirectoryName(current)!;
         }
     }
+    public static bool DarknessTextTarget(string path)=>Same(path,"Cache.Windows/H.Misc.cache")||Same(path,"Cache.Windows/H.Misc.toc");
     public static void AllowedTarget(string relative)
     {
         var norm = relative.Replace('\\','/');
         // Source-owned, catalog-hash-pinned PSVR2 IPC helper is an explicit
         // runtime dependency. Never permit replacing the game/other EXEs.
         var triggerHelper=string.Equals(norm,"Binaries/SingularityPsvr2Bridge.exe",StringComparison.OrdinalIgnoreCase);
+        if (Same(norm,"d3d9.dll") || Same(norm,"Darkness2VR.ini") || Same(norm,"openxr_loader.dll") || DarknessTextTarget(norm)) return;
         if (norm.EndsWith(".exe",StringComparison.OrdinalIgnoreCase) && !triggerHelper || norm.StartsWith("saves/",StringComparison.OrdinalIgnoreCase) || !(norm.StartsWith("Binaries/",StringComparison.OrdinalIgnoreCase) || norm.StartsWith("RvGame/",StringComparison.OrdinalIgnoreCase))) throw new InvalidDataException("Target is not a mod installation path");
     }
     public static void AtomicBytes(string target, byte[] bytes)

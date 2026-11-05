@@ -115,7 +115,40 @@ await Test("only pinned PSVR2 helper executable can install and restore",async()
     await Reject(()=>f.Installer.InstallAsync(f.Plan(bad),Archives(f,bad),null,default));
     Assert(!File.Exists(Paths.Safe(f.Root,helper)));
 });
-await Test("Darkness II remains unavailable",()=>Sync(()=>{var f=Fixture();Assert(!new Darkness2GameAdapter().Validate(f.Root,f.Game()).Compatible);}));
+await Test("Darkness II detects the signed Steam fingerprint and rejects unknown builds",async ()=>{
+    var f=Fixture();
+    var library=Path.Combine(f.Root,"steamapps");
+    var gameRoot=Path.Combine(library,"common","Darkness II");
+    Directory.CreateDirectory(Path.Combine(gameRoot,"Cache.Windows"));
+    var exe=Path.Combine(gameRoot,"DarknessII.exe");
+    File.WriteAllText(exe,"synthetic Darkness II");
+    File.WriteAllText(Path.Combine(library,"appmanifest_67370.acf"),""" "AppState" { "appid" "67370" "installdir" "Darkness II" } """);
+    var module=Package(f);
+    module=module with{Files=[module.Files[0] with{Path="d3d9.dll"}]};
+    var game=new GameManifest("darkness2","Darkness II","preview","Darkness2GameAdapter","67370","DarknessII.exe",[Paths.Hash(exe)],[module]);
+    var adapter=new Darkness2GameAdapter();
+    var location=adapter.Detect([f.Root],game).Single();
+    Assert(location.Compatible);
+    var plan=PlanBuilder.Build(game,location,new("en","en","en",[]));
+    await f.Installer.InstallAsync(plan,Archives(f,module),null,default);
+    Assert(File.Exists(Path.Combine(gameRoot,"d3d9.dll")));
+    f.Installer.Uninstall(gameRoot,default);
+    Assert(!File.Exists(Path.Combine(gameRoot,"d3d9.dll")));
+    Assert(ProcessGuardPolicy.Refusal(gameRoot,1,2,"DarknessII",null)!=null);
+    Assert(ProcessGuardPolicy.Refusal(gameRoot,1,2,"Singularity",null)==null);
+    File.AppendAllText(exe,"changed");
+    await Reject(()=>Sync(()=>PlanBuilder.Build(game,adapter.Validate(gameRoot,game),new("en","en","en",[]))));
+});
+await Test("Drive package bytes remain hash pinned and redirects cannot leave Drive",async ()=>{
+    var f=Fixture();
+    var m=Package(f) with{DownloadUrl="https://drive.usercontent.google.com/download?id=fixture_123&export=download&confirm=t"};
+    using var http=new HttpClient(new FakeHttp(File.ReadAllBytes(Archives(f,m)[m.Id])));
+    var path=await new PackageDownloader(http,Path.Combine(f.Root,"drive")).GetAsync(m,false,null,default);
+    Assert(Paths.Hash(path)==m.ArchiveSha256);
+    using var bad=new HttpClient(new FakeHttp([]){Redirect="https://release-assets.githubusercontent.com/file"});
+    await Reject(()=>new PackageDownloader(bad,Path.Combine(f.Root,"bad-drive")).GetAsync(m,false,null,default));
+    await Reject(()=>Sync(()=>CatalogService.ValidateReleaseUrl(new Uri(m.DownloadUrl!),"trilex07/TrilexModInstaller")));
+});
 await Test("missing packages and dependency cycles",async()=>
 {
     var f=Fixture();var m=Package(f);await Reject(()=>Sync(()=>PlanBuilder.Build(f.Game(m with{Dependencies=["missing"]}),f.Location(),new("en","en","en",[]))));

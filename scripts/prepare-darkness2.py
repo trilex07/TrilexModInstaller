@@ -13,7 +13,8 @@ sys.dont_write_bytecode = True
 ROOT = Path(__file__).resolve().parents[1]
 CORE = ("d3d9.dll", "Darkness2VR.ini", "Darkness2VR-diagnostic.ini", "openxr_loader.dll")
 DLC = "Cache.DLC/PCPatchManifests/Cache.Windows/"
-ASSETS = tuple(DLC+stem+ext for stem in ("H.Script","B.Font","H.Font") for ext in (".cache",".toc"))
+SCRIPTS = tuple(DLC+"H.Script"+ext for ext in (".cache",".toc"))
+FONTS = tuple(DLC+stem+ext for stem in ("B.Font","H.Font") for ext in (".cache",".toc"))
 CACHE = ("H.Misc.cache", "H.Misc.toc")
 
 def sha(path):
@@ -57,9 +58,9 @@ def main():
     modules = []
     for mid, en, pl, required, url, evidence in (
         ("vr-core", "VR Core", "Rdzeń VR", True, a.core_url, a.core_review),
-        ("darkness-assets", "VR fixes and fonts", "Poprawki VR i czcionek", False, a.assets_url, a.assets_review),
+        ("darkness-assets", "VR fixes", "Poprawki VR", False, a.assets_url, a.assets_review),
         ("darkness-menu", "VR menus and shrine fixes", "Menu VR i poprawki kapliczek", False, a.menu_url, a.assets_review),
-        ("polish-text", "Polish subtitles and game text", "Polskie napisy i tekst gry", False, a.text_url, a.text_review),
+        ("polish-text", "Polish game text and fonts", "Polski tekst gry i czcionki", False, a.text_url, a.text_review),
     ):
         stage = out/(mid+"-stage")
         stage.mkdir()
@@ -71,7 +72,9 @@ def main():
                 files.append(dict(path=name, entry=name, sha256=sha(stage/name), kind="copy",
                                   ownership="licensed" if name=="openxr_loader.dll" else "mod-authored"))
         else:
-            pairs = ((path, a.asset_originals/path, a.asset_targets/path) for path in ASSETS) if mid=="darkness-assets" else (
+            asset_paths = SCRIPTS if mid=="darkness-assets" else FONTS if mid=="polish-text" else ()
+            pairs = [(path, a.asset_originals/path, a.asset_targets/path) for path in asset_paths]
+            if mid!="darkness-assets": pairs.extend(
                 ("Cache.Windows/"+name, a.vanilla_cache/name, variants[mid]/name) for name in CACHE)
             for path, original, target in pairs:
                 entry = Path(path).name+".svrp"

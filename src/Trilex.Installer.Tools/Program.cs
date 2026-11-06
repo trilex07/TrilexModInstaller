@@ -118,7 +118,11 @@ try
             var archives=plan.Modules.ToDictionary(m=>m.Id,m=>BundleSource.ArchiveAt(bundleInput,m,game.Id)??throw new IOException("Missing bundled Darkness package"));
             await installer.InstallAsync(plan,archives,null,default);
             if(installer.Verify(owned).Count!=0)throw new IOException("Installed verification failed");
-            Console.WriteLine("PASS install/update/verify: "+language);
+            var fonts=game.Modules.Single(m=>m.Id=="polish-text").Files.Where(f=>Paths.DarknessFontTarget(f.Path)).ToArray();
+            if(fonts.Length!=4 || fonts.Any(f=>
+                !Paths.Same(Paths.Hash(Paths.Safe(owned,f.Path)),language=="pl"?f.Sha256:originals[Paths.Safe(owned,f.Path)])))
+                throw new IOException("Polish font selection/restoration failed: "+language);
+            Console.WriteLine("PASS install/update/verify and font ownership: "+language);
         }
         installer.Uninstall(owned,default);
         if(Directory.GetFiles(owned,"*",SearchOption.AllDirectories).Length!=originals.Count||originals.Any(p=>Paths.Hash(p.Key)!=p.Value))throw new IOException("Original restoration failed");

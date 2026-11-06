@@ -219,7 +219,7 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
         if(LocalExtractorTools.Required(plan.Modules))ReviewText+="\n\n"+(ui=="pl"?"Zasoby Centuriona powstaną z własnej kopii gry. Pełny ZIP zawiera zweryfikowany UE Viewer w folderze tools; nie wymaga pobierania z gildor.org ani pobierania modeli gry.":"Centurion assets are generated from your own game. The complete ZIP includes a verified UE Viewer in its tools folder; no gildor.org download or game-model download is needed.");
         var fanContent=plan.Modules.Where(m=>!m.RightsVerified&&m.PublisherReview is not null).ToList();
         if(fanContent.Count>0)ReviewText+="\n\n"+(ui=="pl"?"Fanowskie dodatki zatwierdzone do paczki przez Trilexa. Prawa osób trzecich pozostają zastrzeżone; to nie jest potwierdzenie licencji ani poparcia wydawcy gry.":"Fan-made additions approved for this package by Trilex. Third-party rights remain reserved; this is not verification of licenses or endorsement by the game publisher.")+"\n"+string.Join("\n",fanContent.Select(m=>m.Label(ui)+": "+m.PublisherReview!.Notice));
-        showReview=true;Changed(nameof(ReviewVisibility));Changed(nameof(CanInstall));Activity=L["ReviewHint"];
+        showReview=true;Changed(nameof(ReviewVisibility));Changed(nameof(CanInstall));Activity=L["ReviewHint"]; Log("Review ready; awaiting Download & install");
     }
     public async Task Execute(CancellationToken ct,bool repair=false)
     {

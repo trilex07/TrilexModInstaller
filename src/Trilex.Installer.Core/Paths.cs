@@ -32,9 +32,11 @@ public static class Paths
             current = Path.GetDirectoryName(current)!;
         }
     }
-    public static bool DarknessAssetTarget(string path)=>
-        new[]{"H.Script.cache","H.Script.toc","B.Font.cache","B.Font.toc","H.Font.cache","H.Font.toc"}
+    public static bool DarknessFontTarget(string path)=>
+        new[]{"B.Font.cache","B.Font.toc","H.Font.cache","H.Font.toc"}
             .Any(name=>Same(path,"Cache.DLC/PCPatchManifests/Cache.Windows/"+name));
+    public static bool DarknessAssetTarget(string path)=>DarknessFontTarget(path)||
+        Same(path,"Cache.DLC/PCPatchManifests/Cache.Windows/H.Script.cache")||Same(path,"Cache.DLC/PCPatchManifests/Cache.Windows/H.Script.toc");
     public static bool DarknessTextTarget(string path)=>Same(path,"Cache.Windows/H.Misc.cache")||Same(path,"Cache.Windows/H.Misc.toc");
     public static void AllowedTarget(string relative)
     {

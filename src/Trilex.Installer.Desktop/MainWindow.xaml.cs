@@ -16,7 +16,14 @@ public partial class MainWindow : Window
     {
         var dialog=new OpenFolderDialog{Title=vm.L["Folder"],Multiselect=false};if(dialog.ShowDialog(this)==true){vm.GameRoot=dialog.FolderName;await vm.Run(vm.Validate);}
     }
-    private async void Review_Click(object sender,RoutedEventArgs e)=>await vm.Run(vm.Review);
+    private async void Review_Click(object sender,RoutedEventArgs e)
+    {
+        await vm.Run(vm.Review);
+        if(!vm.CanInstall)return;
+        UpdateLayout();
+        InstallAction.BringIntoView();
+        InstallAction.Focus();
+    }
     private void Singularity_Click(object sender,RoutedEventArgs e)=>vm.SelectGame("singularity");
     private void Darkness_Click(object sender,RoutedEventArgs e)=>vm.SelectGame("darkness2");
     private async void FullPreset_Click(object sender,RoutedEventArgs e)=>await vm.Run(ct=>{vm.SelectAcceptedPreset();return Task.CompletedTask;});

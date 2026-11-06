@@ -75,7 +75,7 @@ public static class PlanBuilder
                 if((game.Id=="darkness2")!=darknessTarget)throw new InvalidDataException("Target belongs to another game");
                 if(game.Id=="darkness2" && Paths.DarknessTextTarget(target) && (m.Id is not ("polish-text" or "darkness-menu") || f.Kind!="recipe"))
                     throw new InvalidDataException("Darkness II language cache requires a local recipe");
-                if(game.Id=="darkness2" && Paths.DarknessAssetTarget(target) && (m.Id!="darkness-assets" || f.Kind!="recipe"))
+                if(game.Id=="darkness2" && Paths.DarknessAssetTarget(target) && (m.Id!=(Paths.DarknessFontTarget(target)?"polish-text":"darkness-assets") || f.Kind!="recipe"))
                     throw new InvalidDataException("Darkness II DLC repairs require a local recipe");
             }
             if(m.State=="stable" && (!HasDistributionReview(m) || m.Files.Count==0 || !ValidHash(m.ArchiveSha256) || m.DownloadBytes==0 || m.DownloadUrl is null))throw new InvalidDataException("Stable module lacks explicit distribution review, files or exact distribution identity");
@@ -107,6 +107,8 @@ public static class PlanBuilder
             visiting.Remove(id);done.Add(id);result.Add(module);
         }
         foreach(var id in ids.Order())Visit(id);
+        if(game.Id=="darkness2" && choices.TextLanguage!="pl" && result.Any(m=>m.Id=="polish-text"))
+            throw new InvalidDataException("Darkness II Polish resources require Polish game text");
         if(game.Adapter=="SingularityGameAdapter")result=SingularityV7Settings.Apply(result,choices);
         result=LocalSources.BindCurrentSystem(result);
         var paths=result.SelectMany(x=>x.Files).Where(x=>x.Kind!="ini").Select(x=>x.Path).ToList();

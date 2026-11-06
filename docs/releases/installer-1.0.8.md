@@ -6,7 +6,7 @@ Release branch: `release/installer-1.0.8`. The release tag and `installer-1.0.8-
 
 Singularity's 12 module definitions are preserved from the reviewed Drive-migration catalog. Two optional archive URLs use the supplied Drive files, retaining exact sizes and SHA-256 pins. The accepted x86 runtime remains `7AD356F832ED84E2F599733BE58553BD661381C6C2FD51B4ACDEE25116F38E86`.
 
-Darkness II imports only four reviewed packages from SIDE's `darkness2-full-candidate`, not its older Singularity catalog. All archive hashes match the handoff. The runtime is `622D75E5B58496652106A804EF674AC037F636B169F7104C4FF81781D088A32D`. The game is selectable and its displayed module versions are 1.0.8, with no preview marker. HD conversion is a separate optional local transaction using the existing embedded converter.
+Darkness II imports only four reviewed packages from SIDE's `darkness2-full-candidate`, not its older Singularity catalog. The initial runtime was `622D75E5B58496652106A804EF674AC037F636B169F7104C4FF81781D088A32D`. The November 6 refresh replaces only its DLL with `A9D487B1C5D3B73930A9514C28C9B2CC643D35C1E6A997BBFA65C077E462CE72`, using the frozen `menu-state-cache-20261105` package. Other core payloads and all other modules remain unchanged. The game is selectable and its displayed module versions are 1.0.8, with no preview marker. HD conversion is a separate optional local transaction using the corrected embedded converter.
 
 ## What the audit found
 
@@ -36,6 +36,20 @@ Users who selected Darkness II HD in the initial 1.0.8 must use the refreshed in
 - New gameplay/HMD validation: NOT RUN. No new FPS, GPU-time or exhaustive edition-compatibility PASS is claimed.
 
 ## User installation
+
+### November 6 FPS package refresh (same version and download URL)
+
+Runtime source change: Darkness2VR `26c8dca8855e34a9dcb2d561db6e8887d568e89c`; frozen package source `1e819c0926b090bb5cd87da75844e9c3f6b35669`; deployment handoff `6c14d94f87ab3df61293f10606b4528220bece59`. The render path repeatedly walked the native pause graph outside an input-poll cache. The fix caches that boolean per frame/context with a 50 ms expiry, retaining input-poll semantics. The prior agent's WPR trace identified the per-draw ReadProcessMemory cost. Its stationary crane simulator A/B measured baseline 32.21/32.23 FPS versus candidate 89.15/89.43 FPS; those are scene-specific simulator results, not a headset or universal FPS claim. Headset acceptance remains pending. No new native hooks, settings or texture substitutions are introduced by this refresh.
+
+The installer application version and UI are unchanged. Its signed catalog and embedded bootstrap are refreshed with the new archive/DLL hashes. The original release tag remains intact; release evidence identifies the refreshed installer source and binaries. Existing downloaded ZIPs are not updated automatically: download and extract the refreshed complete ZIP. The prior native texture-layout correction remains included.
+
+### Player report: cannot review installation
+
+The screenshot contains a Discord message, not the installer's error. It does not establish an executable, prerequisite or reconstruction failure. Do not claim this refresh fixes an unidentified install refusal or bypass integrity gates.
+
+Send the player:
+
+> Please extract the complete installer ZIP into a new folder and run TrilexModInstaller.exe. Select The Darkness II and choose the main game folder containing DarknessII.exe, for example E:\\SteamLibrary\\steamapps\\common\\Darkness II. Do not select Cache.DLC\\PCPatchManifests\\Cache.Windows or manually place the separate installer packages there. Click Check folder, then Review installation. If it fails, send a screenshot showing the game selection, folder and Activity error, plus installer.log. Click Open local logs, or press Win+R and open %LOCALAPPDATA%\\Trilex\\ModInstaller. The installer.log file is there. If the game starts but VR fails, also send %LOCALAPPDATA%\\Darkness2VR\\d3d9.log. Please mention your game language and installer ZIP version. Do not delete the installations folder: it contains your backups.
 
 Extract the entire `Trilex-Mod-Installer-1.0.8-win-x64.zip`. Select the game, browse to its folder, choose language/modules, review and install. Singularity dubbing/HD and Darkness II HD download only when selected. Optional local sound processing may need its pinned codec download. Evidence JSON files are not required.
 

@@ -54,3 +54,11 @@ Send the player:
 Extract the entire `Trilex-Mod-Installer-1.0.8-win-x64.zip`. Select the game, browse to its folder, choose language/modules, review and install. Singularity dubbing/HD and Darkness II HD download only when selected. Optional local sound processing may need its pinned codec download. Evidence JSON files are not required.
 
 Keep `%LOCALAPPDATA%/Trilex/ModInstaller/installations` for backup/recovery. Logs are available through Open local logs. Report game edition, language, installer version and exact error. Disc/GOG Singularity remains a warned experimental attempt, never a claim of verified compatibility. The EXE is unsigned.
+
+### November 6: consented Darkness II source replacement
+
+The earlier source-mismatch dialog only offered to skip an optional component. It now distinguishes missing files from existing files with different SHA-256 identities. For existing raw Darkness II font/script/menu/text recipe sources, explicit Yes keeps the module selected and attempts the signed recipe against the exact approved source bytes. Different output still requires a separate warning confirmation before any game-file replacement. No cancels; missing source files can only be skipped or restored first.
+
+Signed catalog/archive verification, patch bounds, source-change detection, original backups and rollback remain enforced. Already-installed exact target bytes are preserved without applying the transform a second time. An unrecognized EXE still requires its own consent; neither consent proves compatibility with another Steam/disc/GOG edition.
+
+Validation: 83 Core tests PASS, including replacement, output refusal, source mutation, invalid ranges, already-target idempotence and exact uninstall restoration; 24 Python tests PASS; copied real-cache EN/PL/EN lifecycle PASS with exact original restoration. No game launch or new headset acceptance is claimed. Download the refreshed complete ZIP at the same 1.0.8 URL; previously downloaded archives do not change automatically.

@@ -107,7 +107,9 @@ public sealed class TransactionInstaller(string stateRoot, IProcessGuard process
                     source=sourceOwner?.OriginalHash is not null?Paths.Safe(state,sourceOwner.Backup):Paths.Safe(plan.Root,file.SourcePath);
                 }
                 if(file.SystemSource is not null)source=LocalSources.SystemPath(file.SystemSource);
-                PackageExtractor.ReconstructTo(source,stage,file,prepared,warning=>
+                // A manually installed byte-identical target needs no second transform.
+                if(Paths.Same(Paths.HashOrNull(source),file.Sha256))Paths.AtomicCopy(source,prepared);
+                else PackageExtractor.ReconstructTo(source,stage,file,prepared,warning=>
                 {
                     ct.ThrowIfCancellationRequested();
                     if(confirmMismatch?.Invoke(warning)!=true)return false;

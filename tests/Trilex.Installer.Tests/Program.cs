@@ -70,6 +70,53 @@ await Test("multiple Steam libraries and nested VDF",()=>Sync(()=>
     File.WriteAllText(Path.Combine(secondary,"steamapps","appmanifest_42670.acf"),"\"AppState\" { \"appid\" \"42670\" \"installdir\" \"Singularity Test\" }");
     var found=new SingularityGameAdapter().Detect([steam],f.Game()).ToList();Assert(found.Count==1&&found[0].Compatible);
 }));
+await Test("Darkness source consent binds only scoped raw recipes without changing the signed output",async()=>
+{
+    var path="Cache.DLC/PCPatchManifests/Cache.Windows/B.Font.cache";
+    var file=new PackageFile(path,"",new string('A',64),"recipe","local-transform",new string('B',64),Recipe:[new("instructions",0,3,"patch.svrp")]);
+    var bound=DarknessRecipeConsent.Bind("darkness2",file,new string('C',64));
+    Assert(bound.Sha256==file.Sha256&&ReferenceEquals(bound.Recipe,file.Recipe)&&bound.SourceSha256 is null&&bound.BeforeSha256==new string('C',64));
+    foreach(var invalid in new[]{file with{Path="d3d9.dll"},file with{SourcePath=path},file with{Recipe=[new("image",0,3,"patch.svrp")]}})
+        await Reject(()=>Sync(()=>DarknessRecipeConsent.Bind("darkness2",invalid,new string('C',64))));
+    await Reject(()=>Sync(()=>DarknessRecipeConsent.Bind("singularity",file,new string('C',64))));
+    await Reject(()=>Sync(()=>DarknessRecipeConsent.Bind("darkness2",file,null!)));
+});
+await Test("Darkness consented source attempts replacement, binds bytes, and restores exact originals",async()=>
+{
+    foreach(var mode in new[]{"replace","decline-output","changed-source","invalid-range","already-target"})
+    {
+        var f=Fixture();var module=Package(f);var path="Cache.DLC/PCPatchManifests/Cache.Windows/B.Font.cache";
+        var target=Paths.Safe(f.Root,path);Directory.CreateDirectory(Path.GetDirectoryName(target)!);
+        File.WriteAllText(target,mode=="already-target"?"NEW":"OWNED");var original=Paths.Hash(target);
+        var recipePath=Path.Combine(f.Root,"font.svrp");
+        using(var writer=new BinaryWriter(File.Create(recipePath)))
+        {
+            writer.Write("SVRP"u8.ToArray());writer.Write((uint)1);writer.Write((ulong)3);writer.Write((uint)1);
+            writer.Write((byte)0);writer.Write((ulong)(mode=="invalid-range"?999:0));writer.Write((uint)3);
+        }
+        using(var zip=ZipFile.Open(Archives(f,module)[module.Id],ZipArchiveMode.Update)){zip.GetEntry("data/mod.bin")!.Delete();zip.CreateEntryFromFile(recipePath,"font.svrp");}
+        var expected=Convert.ToHexString(SHA256.HashData("NEW"u8.ToArray()));
+        var file=new PackageFile(path,"",expected,"recipe","local-transform",new string('0',64),Recipe:[new("instructions",0,3,"font.svrp")]);
+        var bound=mode=="already-target"?file:DarknessRecipeConsent.Bind("darkness2",file,original);
+        module=module with {ArchiveSha256=Paths.Hash(Archives(f,module)[module.Id]),DownloadBytes=new FileInfo(Archives(f,module)[module.Id]).Length,Files=[bound]};
+        if(mode=="changed-source")File.WriteAllText(target,"LATER");
+        var beforeInstall=Paths.Hash(target);var confirmations=0;
+        bool Confirm(ReconstructionWarning warning){confirmations++;return mode=="replace";}
+        if(mode is "replace" or "already-target")
+        {
+            var receipt=await f.Installer.InstallAsync(f.Plan(module),Archives(f,module),null,default,confirmMismatch:Confirm);
+            Assert(File.ReadAllText(target)==(mode=="replace"?"OWN":"NEW"));
+            Assert(confirmations==(mode=="replace"?1:0)&&receipt.Files.Single().OriginalHash==original);
+            Assert(f.Installer.Verify(f.Root).Count==0);f.Installer.Uninstall(f.Root,default);Assert(Paths.Hash(target)==original);
+        }
+        else
+        {
+            await Reject(()=>f.Installer.InstallAsync(f.Plan(module),Archives(f,module),null,default,confirmMismatch:Confirm));
+            Assert(Paths.Hash(target)==beforeInstall&&f.Installer.Receipt(f.Root) is null);
+            Assert(confirmations==(mode=="decline-output"?1:0));
+        }
+    }
+});
 await Test("manual location and executable mismatch",()=>Sync(()=>{var f=Fixture();var game=f.Game();var adapter=new SingularityGameAdapter();Assert(adapter.Validate(f.Root,game).Compatible);File.AppendAllText(Path.Combine(f.Root,"Binaries","Singularity.exe"),"different build");Assert(!adapter.Validate(f.Root,game).Compatible);Assert(!adapter.Validate(Path.Combine(f.Root,"missing"),game).Compatible);}));
 await Test("unverified disc/GOG executable needs exact explicit consent",async()=>
 {

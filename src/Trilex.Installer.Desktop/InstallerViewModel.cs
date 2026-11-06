@@ -170,14 +170,25 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
                 var owned=receipt?.Files.SingleOrDefault(f=>Paths.Same(f.Path,path));
                 return owned is null?Paths.HashOrNull(Paths.Safe(reviewed.Root,path)):owned.OriginalHash;
             }
-            // Optional cache pairs must be skipped together. Never try a recipe against different data.
+            // Missing sources cannot be reconstructed. Existing different sources can be
+            // tried after explicit consent bound to their actual hashes; keep pairs together.
             while(true)
             {
                 var incompatible=reviewed.Modules.FirstOrDefault(m=>!m.Required&&m.Files.Any(f=>f.Kind=="recipe"&&
-                    !Paths.Same(Original(f),f.SourceSha256??f.BeforeSha256)));
+                    !Paths.Same(Original(f),f.SourceSha256??f.BeforeSha256)&&!Paths.Same(Original(f),f.Sha256)));
                 if(incompatible is null)break;
-                var paths=incompatible.Files.Where(f=>f.Kind=="recipe"&&!Paths.Same(Original(f),f.SourceSha256??f.BeforeSha256)).Select(f=>f.Path);
-                var detail=incompatible.Label(ui)+"\n"+string.Join("\n",paths);
+                var mismatches=incompatible.Files.Where(f=>f.Kind=="recipe"&&!Paths.Same(Original(f),f.SourceSha256??f.BeforeSha256)&&!Paths.Same(Original(f),f.Sha256)).ToList();
+                var sources=mismatches.ToDictionary(f=>f.Path,f=>Original(f));
+                var detail=incompatible.Label(ui)+"\n"+string.Join("\n",mismatches.Select(f=>f.Path+"\nSHA256: "+(sources[f.Path]??"MISSING")));
+                if(sources.Values.All(hash=>hash is not null))
+                {
+                    if(!WarnDarkness(detail,L["TryDifferentSources"]))throw new OperationCanceledException(ct);
+                    reviewed=reviewed with {Modules=reviewed.Modules.Select(m=>m.Id!=incompatible.Id?m:m with {
+                        Files=m.Files.Select(f=>sources.TryGetValue(f.Path,out var hash)?DarknessRecipeConsent.Bind(reviewed.GameId,f,hash!):f).ToList()
+                    }).ToList()};
+                    foreach(var pair in sources)Log("USER ACCEPTED Darkness source replacement: "+pair.Key+" SHA256="+pair.Value);
+                    continue;
+                }
                 if(!WarnDarkness(detail,L["SkipIncompatible"]))throw new OperationCanceledException(ct);
                 choices=choices with {
                     TextLanguage=incompatible.Id=="polish-text"?"en":choices.TextLanguage,
@@ -258,7 +269,7 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
                 chosen=chosen with {Choices=chosen.Choices with {SelectedModules=chosen.Choices.SelectedModules.Where(id=>id!="hd-textures").ToList()}};
             }
         }
-        bool Confirm(ReconstructionWarning warning)=>chosen.GameId=="singularity"&&ConfirmReconstructionMismatch(warning,ct);
+        bool Confirm(ReconstructionWarning warning)=>ConfirmReconstructionMismatch(warning,ct);
         var result=await Task.Run(async()=>repair?await installer.RepairAsync(chosen,packages,progress,ct,Confirm):await installer.InstallAsync(chosen,packages,progress,ct,confirmMismatch:Confirm),ct);
         Log("Verify installed files");var failures=await Task.Run(()=>installer.Verify(chosen.Root),ct);if(failures.Count>0)throw new IOException("Post-install verification failed: "+string.Join(", ",failures));
         var exceptions=result.ReconstructionWarnings??[];

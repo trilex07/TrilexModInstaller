@@ -151,7 +151,9 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
         if(location?.Compatible!=true&&location is not null&&ExecutableCompatibility.CanTry(Game,location))
         {
             ct.ThrowIfCancellationRequested();
-            var accepted=MessageBox.Show(Application.Current.MainWindow,UnverifiedExecutableText(location),L["UnverifiedTitle"],MessageBoxButton.YesNo,MessageBoxImage.Warning,MessageBoxResult.No)==MessageBoxResult.Yes;
+            var warning=UnverifiedExecutableText(location);
+            if(Game.Id=="darkness2")warning+=await ScanDarknessBuild(location,ct);
+            var accepted=MessageBox.Show(Application.Current.MainWindow,warning,L["UnverifiedTitle"],MessageBoxButton.YesNo,MessageBoxImage.Warning,MessageBoxResult.No)==MessageBoxResult.Yes;
             Log((accepted?"USER ACCEPTED":"USER DECLINED")+" unverified executable: "+location.Root+" SHA256="+location.ExeHash);
             if(!accepted)throw new OperationCanceledException(ct);
             consent=new(location.Root,location.ExeHash!);
@@ -286,6 +288,27 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
         ct.ThrowIfCancellationRequested();return accepted;
     });
     internal string MismatchText(ReconstructionWarning warning)=>L["MismatchWarning"]+"\n\n"+warning.Path+"\n\nExpected SHA256: "+warning.ExpectedSha256+"\nActual SHA256: "+warning.ActualSha256;
+    private async Task<string> ScanDarknessBuild(GameLocation build,CancellationToken ct)
+    {
+        string detail;
+        try
+        {
+            var matches=await Task.Run(()=>DarknessRendererScan.Scan(Paths.Safe(build.Root,Game.Executable)),ct);
+            detail=string.Join("; ",matches.Select(m=>m.Name+"="+(m.Rva is int rva?$"0x{rva:X}":m.Count==0?"missing":"ambiguous")));
+            Log("Darkness II renderer scan SHA256="+build.ExeHash+": "+detail);
+            detail=ui=="pl"?$"Znaleziono {matches.Count(m=>m.Count==1)}/{matches.Count} sygnatur renderera.":
+                $"Found {matches.Count(m=>m.Count==1)}/{matches.Count} renderer signatures.";
+        }
+        catch(Exception ex) when(ex is IOException or UnauthorizedAccessException or BadImageFormatException or InvalidDataException or OverflowException)
+        {
+            Log("Darkness II renderer scan refused: "+ex.Message);
+            detail=ui=="pl"?"Nie udało się przeskanować renderera.":"The renderer scan could not be completed.";
+        }
+        return "\n\n"+detail+" "+(ui=="pl"?
+            "Skan nie włącza VR dla nieobsługiwanej wersji. Szczegóły: installer.log.":
+            "This scan does not enable VR for unsupported builds. See installer.log for details.");
+    }
+
     internal string UnverifiedExecutableText(GameLocation build)=>L["UnverifiedWarning"]+"\n\n"+build.Root+"\nSHA256: "+build.ExeHash;
     internal string CompletionText(InstallReceipt receipt)=>(receipt.ReconstructionWarnings?.Count??0)==0?L["Done"]+" v"+receipt.Version:L["InstalledExceptions"]+"\n"+string.Join("\n",receipt.ReconstructionWarnings!.Select(w=>w.Path));
     internal string VerificationText(List<string> failures,InstallReceipt? receipt)=>failures.Count>0?"Repair required: "+string.Join(", ",failures):(receipt?.ReconstructionWarnings?.Count??0)==0?L["Verified"]:L["VerifiedExceptions"]+"\n"+string.Join("\n",receipt!.ReconstructionWarnings!.Select(w=>w.Path));

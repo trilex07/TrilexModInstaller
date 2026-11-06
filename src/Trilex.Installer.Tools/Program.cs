@@ -6,7 +6,9 @@ using Trilex.Installer.Core;
 
 try
 {
-    if(args is ["keygen",var privatePath,var publicPath])
+    if(args is ["scan-darkness-renderer",var executable])
+        Console.WriteLine(JsonSerializer.Serialize(DarknessRendererScan.Scan(executable),Json.Options));
+    else if(args is ["keygen",var privatePath,var publicPath])
     {
         if(File.Exists(privatePath)||File.Exists(publicPath))throw new IOException("Refusing key overwrite");
         using var key=ECDsa.Create(ECCurve.NamedCurves.nistP256);

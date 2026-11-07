@@ -66,3 +66,11 @@ Validation: 83 Core tests PASS, including replacement, output refusal, source mu
 ### Darkness II fonts follow Polish game text
 
 The Polish game-text package owns both font cache pairs. English installs leave those files untouched, and switching from Polish to English restores the originals for files previously managed by the installer. VR core and the separate script fixes do not install fonts. Refresh the full 1.0.8 ZIP to get the matching executable, signed catalog and packages.
+
+### November 7: EXE hash is warning-only in the native VR runtime
+
+Unknown whole-file executable hashes no longer veto the native Present, camera/view, constant-source, query preload or optional gaze-observer admission. The runtime logs a compatibility warning and validates the existing PE layout, original instructions, imports, table/function digests and current ownership. A real structural mismatch still refuses the affected hook with a reason; package signatures, downloaded archive hashes, backups and reconstruction protections remain intact.
+
+Runtime source: `7aa2359f8890ac16911f665b26117c422516184c`. Optimized x86 DLL: `A14CA6367330CC9705D18360F073383ACCDDEFA302510C5FD0243DCC781B2580`. Offline comparison of the separately supplied F263B81B player EXE found identical .text/.data and matching referenced native data. This does not constitute headset acceptance or verification of the other EF306DE6 player build.
+
+Validation: x86 identity/unknown-hash/PE negative tests and Present ABI/rollback PASS; 19 Python Present/stereo regressions PASS; 83 installer Core tests and 18 package-producer/runtime-refresh tests PASS. Local complete ZIP and signed payload/hash checks PASS. No Steam deployment or game launch. Download/extract the refreshed full ZIP at the same 1.0.8 URL and send the new d3d9.log after the player retest. The private game EXE is not distributed.

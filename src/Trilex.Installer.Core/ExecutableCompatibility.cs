@@ -11,6 +11,7 @@ public static class ExecutableCompatibility
         {
             ("singularity","SingularityGameAdapter")=>new SingularityGameAdapter(),
             ("darkness2","Darkness2GameAdapter")=>new Darkness2GameAdapter(),
+            ("wonderlands","WonderlandsGameAdapter")=>new WonderlandsGameAdapter(),
             _=>null
         };
         if(adapter is null||location.Compatible||!PlanBuilder.ValidHash(location.ExeHash))return false;
@@ -21,8 +22,8 @@ public static class ExecutableCompatibility
             using var input=File.OpenRead(Paths.Safe(location.Root,game.Executable));using var reader=new BinaryReader(input);
             if(input.Length<64||reader.ReadUInt16()!=0x5A4D)return false;
             input.Position=0x3C;var pe=reader.ReadInt32();if(pe<64||pe>input.Length-26)return false;
-            input.Position=pe;if(reader.ReadUInt32()!=0x4550||reader.ReadUInt16()!=0x14C)return false;
-            input.Position=pe+24;return reader.ReadUInt16()==0x10B;
+            input.Position=pe;if(reader.ReadUInt32()!=0x4550||reader.ReadUInt16()!=(game.Id=="wonderlands"?0x8664:0x14C))return false;
+            input.Position=pe+24;return reader.ReadUInt16()==(game.Id=="wonderlands"?0x20B:0x10B);
         }
         catch(Exception e)when(e is IOException or UnauthorizedAccessException or InvalidDataException or ArgumentException){return false;}
     }

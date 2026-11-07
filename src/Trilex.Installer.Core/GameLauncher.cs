@@ -16,6 +16,6 @@ public static class GameLauncher
         if(!CanLaunch(game,location,receipt))throw new InvalidOperationException("Verify a managed installation first");
         var exe=Paths.Safe(location.Root,game.Executable);
         if(!Paths.Same(Paths.Hash(exe),location.ExeHash))throw new IOException("Executable changed after review");
-        return new(exe){UseShellExecute=true,WorkingDirectory=Path.GetFullPath(location.Root)};
+        return new(exe){UseShellExecute=true,WorkingDirectory=game.Id=="wonderlands"?Path.GetDirectoryName(exe)!:Path.GetFullPath(location.Root),Arguments=game.Id=="wonderlands"?"-dx11":""};
     }
 }

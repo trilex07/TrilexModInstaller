@@ -63,6 +63,7 @@ public static class PlanBuilder
              game.ExeSha256.Count==0 || game.ExeSha256.Any(h=>!ValidHash(h)) ||
              game.Modules.Count(m=>m.Required)!=1 || game.Modules.Any(m=>m.Id=="polish-dubbing")))
             throw new InvalidDataException("Invalid Darkness II release manifest");
+        if(game.Id=="wonderlands" && (game.Adapter!="WonderlandsGameAdapter" || game.SteamAppId!="1286680" || game.Executable!="OakGame/Binaries/Win64/Wonderlands.exe" || game.Modules.Count(m=>m.Required)!=1 || game.ExeSha256.Count==0 || game.ExeSha256.Any(h=>!ValidHash(h))))throw new InvalidDataException("Invalid Wonderlands manifest");
         foreach(var m in game.Modules)
         {
             if(m.DownloadBytes<0 || m.DownloadBytes >= 2L*1024*1024*1024 || m.ExpandedBytes<0 || m.ExpandedBytes>16L*1024*1024*1024)throw new InvalidDataException("Invalid package size");
@@ -72,6 +73,7 @@ public static class PlanBuilder
                 LocalSources.Validate(f,Path.GetTempPath());
                 var target=f.Path.Replace('\\','/');
                 var darknessTarget=Paths.Same(target,"d3d9.dll")||Paths.Same(target,"Darkness2VR.ini") || Paths.Same(target,"openxr_loader.dll")||Paths.Same(target,"Darkness2VR-diagnostic.ini")||Paths.DarknessAssetTarget(target)||Paths.DarknessTextTarget(target)||DarknessTextureInstall.IsTarget(target);
+                if((game.Id=="wonderlands")!=Paths.WonderlandsTarget(target))throw new InvalidDataException("Target belongs to another game");
                 if((game.Id=="darkness2")!=darknessTarget)throw new InvalidDataException("Target belongs to another game");
                 if(game.Id=="darkness2" && Paths.DarknessTextTarget(target) && (m.Id is not ("polish-text" or "darkness-menu") || f.Kind!="recipe"))
                     throw new InvalidDataException("Darkness II language cache requires a local recipe");

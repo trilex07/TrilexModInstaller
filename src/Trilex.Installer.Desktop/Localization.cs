@@ -9,6 +9,12 @@ public sealed class Localization : INotifyPropertyChanged
     public string this[string key]=>Words.TryGetValue(key,out var value)?(Language=="pl"?value.Pl:value.En):key;
     private static readonly Dictionary<string,(string En,string Pl)> Words=new()
     {
+        ["ExportPreparing"]=("Preparing manual installation files…","Przygotowywanie plików instalacji ręcznej…"),
+        ["ManualExport"]=("Prepare files for manual installation (do not install)","Przygotuj pliki do ręcznej instalacji (bez instalowania)"),
+        ["ManualHint"]=("Creates a separate folder with ready-to-copy files and PL/EN instructions. Your game is read only; required original assets are reconstructed locally.","Tworzy osobny folder z gotowymi plikami i instrukcjami PL/EN. Gra jest tylko odczytywana; potrzebne zasoby są odtwarzane lokalnie."),
+        ["ExportAction"]=("Download & prepare folder","Pobierz i przygotuj folder"),
+        ["ExportFolder"]=("Choose where to create the manual installation folder","Wybierz, gdzie utworzyć folder instalacji ręcznej"),
+        ["ExportDone"]=("Manual installation folder ready. Game files were not changed.","Folder instalacji ręcznej gotowy. Pliki gry nie zostały zmienione."),
         ["SkipHdTextures"]=("HD textures could not be prepared. Continue installing without them?","Nie udało się przygotować tekstur HD. Kontynuować instalację bez nich?"),
         ["HdTextures"]=("HD textures (weapons and tentacles)","Tekstury HD (bronie i macki)"),
         ["HdTextureHint"]=("HD textures will be downloaded and converted locally before installation. Conversion may take several minutes.","Tekstury HD zostaną pobrane i przekonwertowane lokalnie przed instalacją. Konwersja może potrwać kilka minut."),

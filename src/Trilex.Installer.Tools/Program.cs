@@ -8,6 +8,28 @@ try
 {
     if(args is ["scan-darkness-renderer",var executable])
         Console.WriteLine(JsonSerializer.Serialize(DarknessRendererScan.Scan(executable),Json.Options));
+    else if(args is ["exercise-wonderlands",var exerciseCatalog,var exerciseKey,var exerciseBundle,var exerciseDirectory])
+    {
+        var exercise=Path.GetFullPath(exerciseDirectory);if(Directory.Exists(exercise))throw new IOException("Use a fresh fixture directory");
+        Directory.CreateDirectory(exercise);var gameRoot=Path.Combine(exercise,"game");
+        Directory.CreateDirectory(Paths.Safe(gameRoot,"OakGame/Content"));
+        var exe=Paths.Safe(gameRoot,"OakGame/Binaries/Win64/Wonderlands.exe");Directory.CreateDirectory(Path.GetDirectoryName(exe)!);
+        var bytes=new byte[256];using(var memory=new MemoryStream(bytes))using(var writer=new BinaryWriter(memory)){writer.Write((ushort)0x5a4d);memory.Position=60;writer.Write(128);memory.Position=128;writer.Write(0x4550);writer.Write((ushort)0x8664);memory.Position=152;writer.Write((ushort)0x20b);}File.WriteAllBytes(exe,bytes);
+        var iniPath=Paths.Safe(gameRoot,"OakGame/Binaries/Win64/WonderlandsVR.ini");var original="[User]\r\nKeep=fixture\r\n";File.WriteAllText(iniPath,original);
+        using var http=new HttpClient();var game=new CatalogService(http,File.ReadAllText(exerciseKey)).Verify(File.ReadAllBytes(exerciseCatalog)).Games.Single(g=>g.Id=="wonderlands");
+        var location=new WonderlandsGameAdapter().Validate(gameRoot,game);
+        var plan=PlanBuilder.Build(game,location,new("en","en","en",[]),new(gameRoot,location.ExeHash!));
+        var archives=plan.Modules.ToDictionary(m=>m.Id,m=>BundleSource.ArchiveAt(exerciseBundle,m,game.Id)??throw new IOException("Missing bundled package"));
+        var installer=new TransactionInstaller(Path.Combine(exercise,"state"),new WindowsProcessGuard());
+        var receipt=await installer.InstallAsync(plan,archives,null,default);if(installer.Verify(gameRoot).Count>0)throw new IOException("Installed fixture differs");
+        var export=ManualExporter.Export(plan,archives,Path.Combine(exercise,"manual"),installer,null,default);
+        var manual=Json.Read<ManualExportReceipt>(Path.Combine(export,"manual-manifest.json"));
+        foreach(var file in manual.Files)if(!Paths.Same(Paths.Hash(Paths.Safe(export,"files/"+file.Path)),Paths.Hash(Paths.Safe(gameRoot,file.Path))))throw new IOException("Manual/managed divergence");
+        installer.Uninstall(gameRoot,default);
+        if(File.ReadAllText(iniPath)!=original||File.Exists(Paths.Safe(gameRoot,"OakGame/Binaries/Win64/xinput1_3.dll")))throw new IOException("Original restore failed");
+        Json.Write(Path.Combine(exercise,"verification.json"),new{status="PASS",files=receipt.Files.Count,manualFiles=manual.Files.Count,restore="byte-exact",gameLaunched=false,source="synthetic PE header, never executed",headset="NOT RUN"});
+        Console.WriteLine("PASS actual signed Wonderlands package: managed install, manual export equality, verify and exact restore");
+    }
     else if(args is ["keygen",var privatePath,var publicPath])
     {
         if(File.Exists(privatePath)||File.Exists(publicPath))throw new IOException("Refusing key overwrite");
@@ -55,7 +77,7 @@ try
         using var http=CatalogService.CreateHttpClient();
         var catalog=new CatalogService(http,File.ReadAllText(installKey)).Verify(File.ReadAllBytes(installCatalog));
         var game=catalog.Games.Single(g=>g.Id==installGame);
-        IGameAdapter adapter=installGame=="singularity"?new SingularityGameAdapter():installGame=="darkness2"?new Darkness2GameAdapter():throw new InvalidDataException("Unknown game");
+        IGameAdapter adapter=installGame=="singularity"?new SingularityGameAdapter():installGame=="darkness2"?new Darkness2GameAdapter():installGame=="wonderlands"?new WonderlandsGameAdapter():throw new InvalidDataException("Unknown game");
         var location=adapter.Validate(installRoot,game);
         var selected=game.Modules.Where(m=>m.State=="stable"&&m.Id is not ("polish-text" or "polish-dubbing")).Select(m=>m.Id).ToList();
         var plan=PlanBuilder.Build(game,location,new(installLanguage,installGame=="singularity"?installLanguage:"en",installLanguage,selected));

@@ -38,12 +38,14 @@ public static class Paths
     public static bool DarknessAssetTarget(string path)=>DarknessFontTarget(path)||
         Same(path,"Cache.DLC/PCPatchManifests/Cache.Windows/H.Script.cache")||Same(path,"Cache.DLC/PCPatchManifests/Cache.Windows/H.Script.toc");
     public static bool DarknessTextTarget(string path)=>Same(path,"Cache.Windows/H.Misc.cache")||Same(path,"Cache.Windows/H.Misc.toc");
+    public static bool WonderlandsTarget(string path)=>new[]{"xinput1_3.dll","openxr_loader.dll","WonderlandsVR.ini","LICENSE-WonderlandsVR.txt","LICENSE-MinHook.txt","LICENSE-OpenXR.txt","THIRD-PARTY-PSVR2.txt"}.Any(name=>Same(path,"OakGame/Binaries/Win64/"+name));
     public static void AllowedTarget(string relative)
     {
         var norm = relative.Replace('\\','/');
         // Source-owned, catalog-hash-pinned PSVR2 IPC helper is an explicit
         // runtime dependency. Never permit replacing the game/other EXEs.
         var triggerHelper=string.Equals(norm,"Binaries/SingularityPsvr2Bridge.exe",StringComparison.OrdinalIgnoreCase);
+        if (WonderlandsTarget(norm)) return;
         if (Same(norm,"d3d9.dll") || Same(norm,"Darkness2VR.ini") || Same(norm,"openxr_loader.dll") || Same(norm,"Darkness2VR-diagnostic.ini") || DarknessAssetTarget(norm) || DarknessTextureInstall.IsTarget(norm) || DarknessTextTarget(norm)) return;
         if (norm.EndsWith(".exe",StringComparison.OrdinalIgnoreCase) && !triggerHelper || norm.StartsWith("saves/",StringComparison.OrdinalIgnoreCase) || !(norm.StartsWith("Binaries/",StringComparison.OrdinalIgnoreCase) || norm.StartsWith("RvGame/",StringComparison.OrdinalIgnoreCase))) throw new InvalidDataException("Target is not a mod installation path");
     }

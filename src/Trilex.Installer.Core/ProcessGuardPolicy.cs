@@ -7,6 +7,11 @@ public static class ProcessGuardPolicy
     public static string? Refusal(string root, int installerPid, int pid, string name, string? path)
     {
         if(pid==installerPid)return null;
+        if(File.Exists(Path.Combine(root,"OakGame","Binaries","Win64","Wonderlands.exe")))
+        {
+            if(!Paths.Same(name,"Wonderlands")&&!Paths.Same(name,"Wonderlands.exe")&&!Paths.Same(Path.GetFileName(path),"Wonderlands.exe"))return null;
+            return $"Installation blocked by Tiny Tina's Wonderlands (PID {pid}). Close the game normally; no process will be terminated.";
+        }
         if(File.Exists(Path.Combine(root,"DarknessII.exe")))
         {
             if(!Paths.Same(name,"DarknessII") && !Paths.Same(name,"DarknessII.exe") &&

@@ -814,6 +814,61 @@ await Test("Universal launch prepares only the exact reviewed game EXE and its w
     File.AppendAllText(Paths.Safe(f.Root,game.Executable),"changed");
     await Reject(()=>Sync(()=>GameLauncher.CreateStartInfo(game,unknown,accepted)));
 });
+await Test("manual export prepares copy, merged INI and recipe without touching game or receipts",async()=>
+{
+    var f=Fixture();var m=Package(f,content:"MOD");var source=Paths.Safe(f.Root,"RvGame/CookedPC/manual.xxx");File.WriteAllText(source,"ORIGINAL");
+    var recipe=new PackageFile("RvGame/CookedPC/manual.xxx","",m.Files[0].Sha256,"recipe","local-transform",Paths.Hash(source),Recipe:[new("payload",0,3,"data/mod.bin")]);
+    // Fixture payload is MOD, so both the copied file and recipe have the same verified output.
+    m=m with{Files=[..m.Files,recipe]};
+    File.WriteAllText(Paths.Safe(f.Root,"Binaries/SingularityVR.ini"),"[User]\nKeep=1\n");
+    var before=Directory.GetFiles(f.Root,"*",SearchOption.AllDirectories).ToDictionary(p=>p,Paths.Hash);
+    var output=f.Root+"-manual";
+    ManualExporter.Export(f.Plan(m),Archives(f,m),output,f.Installer,null,default);
+    Assert(before.All(p=>Paths.Hash(p.Key)==p.Value)&&Directory.GetFiles(f.Root,"*",SearchOption.AllDirectories).Length==before.Count);
+    Assert(f.Installer.Receipt(f.Root) is null&&!Directory.Exists(f.State));
+    Assert(File.ReadAllText(Paths.Safe(output,"files/RvGame/CookedPC/manual.xxx"))=="MOD");
+    var ini=new IniDocument(File.ReadAllText(Paths.Safe(output,"files/Binaries/SingularityVR.ini")));
+    Assert(ini.Get("User/Keep")=="1"&&ini.Get("Input/Test")=="1");
+    Assert(File.Exists(Paths.Safe(output,"README-EN.md"))&&File.Exists(Paths.Safe(output,"README-PL.md"))&&!Directory.Exists(Paths.Safe(output,"work")));
+    foreach(var row in Json.Read<ManualExportReceipt>(Paths.Safe(output,"manual-manifest.json")).Files)Assert(Paths.Hash(Paths.Safe(output,"files/"+row.Path))==row.Sha256);
+    await Reject(()=>Sync(()=>ManualExporter.Export(f.Plan(m),Archives(f,m),output,f.Installer,null,default)));
+    await Reject(()=>Sync(()=>ManualExporter.Export(f.Plan(m),Archives(f,m),Path.Combine(f.Root,"export"),f.Installer,null,default)));
+});
+await Test("manual export rejects tampering and cancellation without partial deliveries",async()=>
+{
+    var f=Fixture();var m=Package(f,content:"MOD");var output=f.Root+"-manual-cancel";using var cancel=new CancellationTokenSource();cancel.Cancel();
+    var cancelled=false;try{ManualExporter.Export(f.Plan(m),Archives(f,m),output,f.Installer,null,cancel.Token);}catch(OperationCanceledException){cancelled=true;}Assert(cancelled);
+    Assert(!Directory.Exists(output)&&!Directory.GetDirectories(Path.GetDirectoryName(output)!,Path.GetFileName(output)+".partial-*").Any());
+    File.AppendAllText(Archives(f,m)[m.Id],"tampered");
+    await Reject(()=>Sync(()=>ManualExporter.Export(f.Plan(m),Archives(f,m),output,f.Installer,null,default)));
+    Assert(!Directory.Exists(output)&&f.Installer.Receipt(f.Root) is null);
+});
+await Test("manual export uses verified managed originals rather than patching installed output twice",async()=>
+{
+    var f=Fixture();var m=Package(f,content:"MOD");var source=Paths.Safe(f.Root,"RvGame/CookedPC/manual.xxx");File.WriteAllText(source,"ORIGINAL");
+    m=m with{Files=[..m.Files,new("RvGame/CookedPC/manual.xxx","",m.Files[0].Sha256,"recipe","local-transform",Paths.Hash(source),Recipe:[new("payload",0,3,"data/mod.bin")])]};
+    await f.Installer.InstallAsync(f.Plan(m),Archives(f,m),null,default);
+    var before=Paths.Hash(source);var receipt=File.ReadAllBytes(Path.Combine(f.Installer.StateDirectory(f.Root),"installed.json"));
+    ManualExporter.Export(f.Plan(m),Archives(f,m),f.Root+"-managed-export",f.Installer,null,default);
+    Assert(Paths.Hash(source)==before&&receipt.SequenceEqual(File.ReadAllBytes(Path.Combine(f.Installer.StateDirectory(f.Root),"installed.json"))));
+});
+await Test("Wonderlands x64 adapter, unknown hash consent, install/export/restore and DX11 launch",async()=>
+{
+    var f=Fixture();var bin=Paths.Safe(f.Root,"OakGame/Binaries/Win64/xinput1_3.dll");Directory.CreateDirectory(Path.GetDirectoryName(bin)!);Directory.CreateDirectory(Paths.Safe(f.Root,"OakGame/Content"));
+    var exe=Paths.Safe(f.Root,"OakGame/Binaries/Win64/Wonderlands.exe");var pe=new byte[256];
+    using(var stream=new MemoryStream(pe))using(var writer=new BinaryWriter(stream)){writer.Write((ushort)0x5A4D);stream.Position=60;writer.Write(128);stream.Position=128;writer.Write(0x4550);writer.Write((ushort)0x8664);stream.Position=152;writer.Write((ushort)0x20B);}File.WriteAllBytes(exe,pe);
+    var initial=Package(f);var m=initial with{Files=[new("OakGame/Binaries/Win64/xinput1_3.dll","data/mod.bin",initial.Files[0].Sha256,"copy","mod-authored"),new("OakGame/Binaries/Win64/WonderlandsVR.ini","","","ini","mod-authored",IniValues:new(){{"Simulator/Enabled","0"}})]};
+    var game=new GameManifest("wonderlands","Tiny Tina's Wonderlands VR","stable","WonderlandsGameAdapter","1286680","OakGame/Binaries/Win64/Wonderlands.exe",[new string('0',64)],[m]);
+    var location=new WonderlandsGameAdapter().Validate(f.Root,game);Assert(!location.Compatible&&ExecutableCompatibility.CanTry(game,location));
+    var plan=PlanBuilder.Build(game,location,new("en","en","en",[]),new(f.Root,location.ExeHash!));
+    var receipt=await f.Installer.InstallAsync(plan,Archives(f,m),null,default);Assert(f.Installer.Verify(f.Root).Count==0);
+    var start=GameLauncher.CreateStartInfo(game,location,receipt);Assert(start.Arguments=="-dx11"&&Paths.Same(start.WorkingDirectory,Path.GetDirectoryName(exe)));
+    Assert(ProcessGuardPolicy.Refusal(f.Root,1,2,"Wonderlands",exe) is not null&&ProcessGuardPolicy.Refusal(f.Root,1,2,"Steam",null) is null);
+    ManualExporter.Export(plan,Archives(f,m),f.Root+"-tiny-export",f.Installer,null,default);
+    f.Installer.Uninstall(f.Root,default);Assert(!File.Exists(bin)&&File.Exists(exe));
+    await Reject(()=>Sync(()=>PlanBuilder.ValidateManifest(game with{Modules=[m with{Files=[m.Files[0] with{Path="Binaries/foreign.dll"}]}]})));
+    await Reject(()=>Sync(()=>PlanBuilder.ValidateManifest(f.Game(m))));
+});
 var report=new{time=DateTimeOffset.UtcNow,passed=results.Count-failed,failed,fixtureRoot=testRoot,steamAccess="NONE",results};
 Json.Write(Path.Combine(testRoot,"test-report.json"),report);Console.WriteLine(JsonSerializer.Serialize(new{passed=results.Count-failed,failed,report=Path.Combine(testRoot,"test-report.json")}));Environment.ExitCode=failed==0?0:1;
 

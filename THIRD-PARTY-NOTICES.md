@@ -3,7 +3,7 @@
 - Installer C#/scripts authored for Trilex: MIT, see LICENSE.
 - Supplied Trilex logos, icons and mockup kit: user-provided design references. Separate branding ownership; not licensed under the source MIT grant. No commercial game screenshot/cover is used in the application. Keep design-kit attribution/provenance when reusing references.
 - .NET/WPF runtime: Microsoft and .NET contributors, upstream MIT and included runtime notices. Self-contained distribution must retain generated notices.
-- Singularity, The Darkness II, their game assets, voice recordings, textures and trademarks belong to their respective owners. Ownership of the game is required. No distribution permission is inferred from the mod or local runtime acceptance.
+- Singularity, The Darkness II, Tiny Tina’s Wonderlands, their game assets, voice recordings, textures and trademarks belong to their respective owners. Ownership of the game is required. No distribution permission is inferred from the mod or local runtime acceptance.
 - Release packages carry separately attributed VR components. SingularityVR, OpenXR, NVIDIA NIS and dependency notices accompany the runtime and portable license directory. Their license terms remain separate from the installer MIT license.
 - Voice-model or generated-audio licenses, voice likeness permissions and derivative texture rights are not established by this installer. The first-edition signed catalog distinguishes verified component licenses from Trilex's explicit fan-mod publishing decision; unverified rights remain marked false and are disclosed before installation. See docs/distribution/FIRST-EDITION.md.
 
@@ -40,3 +40,7 @@ its reconstruction instructions, with the publisher-review notice described abov
 ## Darkness II local texture converter
 
 The separate worker uses Python, NumPy, Pillow and the PyInstaller bootloader. Their collected license trees are under `licenses/darkness-textures`. QuickBMS 0.12.0 is GPLv2; its unchanged binary runs as a subprocess. Its notice, BMS format script and matching full source archive (`quickbms-src-0.12.0.zip`) accompany that directory, together with worker Python source and build scripts. The optional downloaded texture source contains only bounded PNG images. Original caches are read locally and backed up before replacement. No rights in game assets or third-party artwork are granted by the installer MIT license.
+
+## Tiny Tina’s Wonderlands VR
+
+Original Trilex native proxy (MIT), MinHook (BSD-2-Clause), OpenXR loader (Apache-2.0) and optional external PSVR2 Toolkit interop (MIT). Matching notices travel inside the runtime module and under licenses/wonderlands in the portable bundle. No Unreal Engine, UEVR or commercial game code/assets are bundled. PSVR2 Toolkit must be installed separately for its optional features.

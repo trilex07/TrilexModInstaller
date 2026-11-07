@@ -1,8 +1,8 @@
 # Trilex Mod Installer
 
-Free fan-made Windows installer by **Trilex / trilex07** for **Singularity VR** and **The Darkness II VR**.
+Free fan-made Windows installer by **Trilex / trilex07** for **Singularity VR**, **The Darkness II VR** and **Tiny Tina’s Wonderlands VR**.
 
-**[Download installer 1.0.8](https://github.com/trilex07/TrilexModInstaller/releases/tag/installer-1.0.8)**
+**[Download installer 1.0.9](https://github.com/trilex07/TrilexModInstaller/releases/tag/installer-1.0.9)**
 
 Extract the whole ZIP and run `TrilexModInstaller.exe`. Select a game, choose its installed folder and options, then review and install. No Python or .NET installation is required. The executable is not Authenticode signed.
 
@@ -12,6 +12,8 @@ Extract the whole ZIP and run `TrilexModInstaller.exe`. Select a game, choose it
 
 - **Singularity VR:** accepted V7 runtime (`7AD356F8`), motion-controlled hands and TMD, physical reload resources, inner-wrist health/E99/item HUD, weapon-mounted ammo HUD, corrected muzzle VFX, HD weapon resources, native menus, Polish text/dubbing, local audio remaster, stereo engine-cutscene cinema, gaze weapon selection/NIS and damage haptics. Gaze requires a compatible headset/backend; Bink video remains mono.
 - **The Darkness II VR:** VR runtime, native hand resources, menu changes, Polish text and optional HD textures. Existing voice modifications are preserved; this release does not supply a Darkness II dubbing pack.
+- **Tiny Tina’s Wonderlands VR:** native x64 OpenXR runtime, stereo, tracked hands, controller aiming, support grip, wrist HUD, menu laser, rumble and optional PSVR2 Toolkit triggers/gaze. Requires DX11. Packages the current installed runtime/profile; this installer release has offline lifecycle checks, not new headset acceptance.
+- **Manual installation:** select “Prepare files for manual installation”, choose your source game/options, review and choose an output folder. It creates ready-to-copy `files`, README-PL/EN, a manifest and checksums without modifying the game. Original-derived options require readable game sources. Repeat for each game you want to export.
 - **Run the game:** launches the selected managed game's EXE directly. The button does not require Steam; the game's own launcher/DRM requirements still apply.
 - English/Polish installer UI, signed catalogs, package hashes, per-game state, verified backups, repair, uninstall and interrupted-install recovery. User settings use three-way INI merging.
 
@@ -21,7 +23,7 @@ The complete installer bundle includes the other module archives and pinned UE V
 
 ## Requirements and recovery
 
-Windows x64, a legally owned compatible game, and the appropriate VC++ runtimes. The installer provides Microsoft links if needed. Choose the folder containing the game's EXE (Darkness II), or Binaries and RvGame (Singularity).
+Windows x64, a legally owned compatible game, and the appropriate VC++ runtimes. The installer provides Microsoft links if needed. Choose the folder containing the game's EXE (Darkness II), Binaries and RvGame (Singularity), or OakGame (Wonderlands).
 
 Unrecognized Singularity x86 executables can be tried after an explicit warning, default No. Consent binds the folder and EXE hash. Disc/GOG compatibility remains experimental; source, package and rollback integrity checks stay enabled. Send logs with the game edition/language if reconstruction fails. Do not replace the EXE or download evidence files.
 
@@ -31,7 +33,7 @@ Keep `%LOCALAPPDATA%/Trilex/ModInstaller/installations`: it contains original ba
 
 ## Verification
 
-See [1.0.8 evidence and limits](docs/releases/installer-1.0.8.md). Offline, actual installation, gameplay and physical headset acceptance are separate evidence levels. No new FPS or exhaustive HMD compatibility claim is made.
+See [1.0.9 evidence and limits](docs/releases/installer-1.0.9.md). Offline, actual installation, gameplay and physical headset acceptance are separate evidence levels. No new FPS or exhaustive HMD compatibility claim is made.
 
 ## Build
 
@@ -41,7 +43,7 @@ Requires .NET SDK 10, Visual Studio C++ tools and pinned build dependencies:
 ./scripts/build.ps1 -Publish
 ```
 
-The default source bootstrap is separate from the reviewed release catalog. Release preparation uses `scripts/prepare-1.0.8.py`, publisher signing and `scripts/assemble-1.0.8.ps1`; private generation inputs and signing keys are never committed.
+The default source bootstrap is separate from the reviewed release catalog. Release preparation uses `scripts/prepare-1.0.9.py`, publisher signing and `scripts/assemble-1.0.9.ps1`; private generation inputs and signing keys are never committed.
 
 - `src/Trilex.Installer.Core`: catalogs, adapters, downloads, reconstruction and transactions.
 - `src/Trilex.Installer.Desktop`: WPF app and process guard.

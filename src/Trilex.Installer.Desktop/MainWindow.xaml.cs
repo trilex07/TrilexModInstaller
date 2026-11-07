@@ -25,9 +25,19 @@ public partial class MainWindow : Window
         InstallAction.Focus();
     }
     private void Singularity_Click(object sender,RoutedEventArgs e)=>vm.SelectGame("singularity");
+    private void Wonderlands_Click(object sender,RoutedEventArgs e)=>vm.SelectGame("wonderlands");
     private void Darkness_Click(object sender,RoutedEventArgs e)=>vm.SelectGame("darkness2");
     private async void FullPreset_Click(object sender,RoutedEventArgs e)=>await vm.Run(ct=>{vm.SelectAcceptedPreset();return Task.CompletedTask;});
-    private async void Install_Click(object sender,RoutedEventArgs e)=>await vm.Run(ct=>vm.Execute(ct));
+    private async void Install_Click(object sender,RoutedEventArgs e)
+    {
+        if(vm.ManualExport)
+        {
+            var dialog=new OpenFolderDialog{Title=vm.L["ExportFolder"],Multiselect=false};
+            if(dialog.ShowDialog(this)!=true)return;
+            vm.ExportParent=dialog.FolderName;
+        }
+        await vm.Run(ct=>vm.Execute(ct));
+    }
     private async void Repair_Click(object sender,RoutedEventArgs e)=>await vm.Run(ct=>vm.Execute(ct,true));
     private async void Verify_Click(object sender,RoutedEventArgs e)=>await vm.Run(vm.Verify);
     private async void Update_Click(object sender,RoutedEventArgs e)=>await vm.Run(vm.Update);

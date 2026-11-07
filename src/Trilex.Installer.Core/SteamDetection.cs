@@ -76,3 +76,9 @@ public sealed class Darkness2GameAdapter : SteamGameAdapter
     public override string Id=>"darkness2";
     protected override string DataDirectory=>"Cache.Windows";
 }
+
+public sealed class WonderlandsGameAdapter : SteamGameAdapter
+{
+    public override string Id=>"wonderlands";
+    protected override string DataDirectory=>"OakGame/Content";
+}

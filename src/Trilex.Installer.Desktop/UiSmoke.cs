@@ -48,6 +48,17 @@ internal static class UiSmoke
                 var darkness=new RenderTargetBitmap((int)(width*dpi/96.0),(int)(height*dpi/96.0),dpi,dpi,PixelFormats.Pbgra32);darkness.Render(root);
                 using var darkStream=File.Create(Path.Combine(output,"darkness2-"+file));var darkEncoder=new PngBitmapEncoder();darkEncoder.Frames.Add(BitmapFrame.Create(darkness));darkEncoder.Save(darkStream);
             }
+            vm.SelectGame("wonderlands");
+            if(vm.IsWonderlands)
+            {
+                if(vm.Modules.Count!=1||!vm.Modules[0].Selected||vm.DarknessOptions!=Visibility.Collapsed||vm.SingularityOptions!=Visibility.Collapsed)throw new InvalidDataException("Wonderlands adapter/options incomplete");
+                vm.ManualExport=true;Dispatcher.CurrentDispatcher.Invoke(()=>{},DispatcherPriority.Background);
+                if(vm.InstallActionLabel!=vm.L["ExportAction"]||vm.L["ManualHint"]=="ManualHint")throw new InvalidDataException("Manual export localization missing");
+                root.Measure(new Size(width,height));root.Arrange(new Rect(0,0,width,height));root.UpdateLayout();
+                var tiny=new RenderTargetBitmap((int)(width*dpi/96.0),(int)(height*dpi/96.0),dpi,dpi,PixelFormats.Pbgra32);tiny.Render(root);
+                using(var stream=File.Create(Path.Combine(output,"wonderlands-manual-"+file))){var encoder=new PngBitmapEncoder();encoder.Frames.Add(BitmapFrame.Create(tiny));encoder.Save(stream);}
+                vm.ManualExport=false;
+            }
             window.Close();
         }
         if(errors.Messages.Count>0)throw new InvalidDataException(string.Join("\n",errors.Messages));

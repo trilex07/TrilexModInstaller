@@ -1,9 +1,13 @@
-# Trilex Mod Installer 1.0.8
+# Trilex Mod Installer 1.0.9
 
-Two-game installer: Singularity VR and The Darkness II VR. Darkness II is selectable without a preview label. Singularity retains the accepted runtime and complete V7 modules. Polish dubbing and HD packages use the supplied Google Drive links with signed integrity pins. Run the game launches the managed game executable directly.
+Three games: Singularity VR, The Darkness II VR, and Tiny Tina’s Wonderlands VR.
 
-Darkness II supplies VR core, hand assets, native menu and Polish text modules, plus optional locally converted HD textures. It does not supply a new Darkness II voice pack. Package paths and transaction state are isolated per game.
+- Adds Tiny Tina’s native x64 runtime, OpenXR loader and portable snapshot of the installed profile. Choose the game ROOT containing OakGame. The installer writes only the approved files under OakGame/Binaries/Win64; Run the game uses -dx11.
+- Adds “Prepare files for manual installation” for every game and its selected modules, including locally reconstructed options. Choose your source game, options, review and output folder. Read README-EN.md or README-PL.md and copy the contents of files to the game root yourself. Source games and managed receipts are not changed by export. Manual installation has no automatic uninstall; make your own backups.
+- Keeps unknown executable hashes warning-only with explicit review consent. Per-hook native checks and signed package/recipe bounds remain.
+- Retains all 1.0.8 Singularity and Darkness packages and optional downloads unchanged, including the latest Darkness warning-only runtime.
+- Tiny Tina profile simulator paths are removed and Simulator.Enabled remains 0. Optional PSVR2 Toolkit is not bundled.
 
-Validation includes Core regressions, asset-producer tests, bilingual WPF layout checks, EN/PL installation lifecycle and byte-exact restoration, and all six Darkness texture cache conversion/install/deselect/uninstall checks on real copied data. See docs/releases/installer-1.0.8.md for exact evidence and runtime boundaries.
+Offline: installer/Core, actual signed Tiny Tina install/verify/manual-export/restore fixtures, Tiny Tina CTest and bilingual WPF checks. No new game launch or headset/FPS claim. Tiny Tina mod remains under development; see its project README for limitations. Evidence JSON is optional, not needed for installation.
 
-Extract the complete ZIP. Keep the original-backup state. The EXE is unsigned. Unrecognized Singularity editions require explicit warned consent and remain experimental. Evidence JSON files are optional test records, not installation dependencies.
+Extract the entire ZIP. The installer EXE is not Authenticode signed. Windows x64 is required. No commercial game EXE is distributed.

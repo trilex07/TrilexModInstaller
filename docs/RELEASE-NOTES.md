@@ -11,3 +11,5 @@ Three games: Singularity VR, The Darkness II VR, and Tiny Tina’s Wonderlands V
 Offline: installer/Core, actual signed Tiny Tina install/verify/manual-export/restore fixtures, Tiny Tina CTest and bilingual WPF checks. No new game launch or headset/FPS claim. Tiny Tina mod remains under development; see its project README for limitations. Evidence JSON is optional, not needed for installation.
 
 Extract the entire ZIP. The installer EXE is not Authenticode signed. Windows x64 is required. No commercial game EXE is distributed.
+
+Darkness II November 7 refresh: stabilized gaze targeting and tentacle throws; brief blinks retain the target, isolated gaze jumps are filtered. Download the refreshed full 1.0.9 ZIP. Other game packages and settings are preserved.

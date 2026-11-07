@@ -7,7 +7,7 @@ Tiny Tina source: 2eed8c8 (full SHA in release evidence), clean source checkout;
 
 `config/WonderlandsVR.ini` preserves installed key values, removing machine-local Simulator paths. Simulator=0. No change to the game, source mod or installed files. EXE is a reference identity, never a blanket refusal. x64 PE validation and consent are exercised. Actual runtime hooks retain their own native byte checks.
 
-Singularity/Darkness manifests and all original module archives stay identical to 1.0.8. Optional Drive links and hashes remain pinned. Package paths are isolated: packages/, packages/darkness2/, packages/wonderlands/.
+Singularity and optional Darkness module archives stay identical to 1.0.8. The November 7 refresh updates only Darkness vr-core d3d9.dll and its catalog hashes. Optional Drive links and hashes remain pinned. Package paths are isolated: packages/, packages/darkness2/, packages/wonderlands/.
 
 ## Manual export contract
 
@@ -24,3 +24,9 @@ No Steam deployment or game launch in this release task. No new PSVR2 acceptance
 ## Reproduce
 
 Prepare: scripts/prepare-1.0.9.py (requires private local build inputs); sign/verify catalog using existing Tools and publisher key; publish Desktop using the signed catalog; run Tools exercise-wonderlands with a fresh fixture directory; run --render-smoke with isolated TRILEX_HOME; assemble using scripts/assemble-1.0.9.ps1. No private keys or game EXEs belong in Git.
+
+## November 7: Darkness II gaze stability refresh
+
+Accepted runtime SHA256: D72F8E1CBED5CE41D7F90B5775C6CC89A55F39CA0F69933D3A01021C4CA498EE. Darkness2VR implementation 03e7b38d, frozen package 0c0511e1, installed-state handoff 3eed105c. Shared tentacle acquisition/throw filtering retains brief tracking loss up to 160 ms, rejects isolated gaze jumps and confirms deliberate large changes. User reports improved behavior. No configuration, loader, optional module or other game payload changes.
+
+Runtime verification: 51 eye-tracking, 444 acquisition and 319 native-throw checks passed. Steam simulator exercised jitter, short blink, isolated spike, sustained fixation and long-loss fallback. Full live held-object flight and new physical headset acceptance remain unverified. This refresh preserves the 1.0.9 application version and download URL; download/extract the refreshed full ZIP. Previously downloaded ZIPs do not update themselves. Packaging verification and exact artifact identities are in installer-1.0.9-evidence.json.

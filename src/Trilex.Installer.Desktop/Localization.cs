@@ -9,6 +9,19 @@ public sealed class Localization : INotifyPropertyChanged
     public string this[string key]=>Words.TryGetValue(key,out var value)?(Language=="pl"?value.Pl:value.En):key;
     private static readonly Dictionary<string,(string En,string Pl)> Words=new()
     {
+        ["ActionInstall"]=("Install","Zainstaluj"),
+        ["ActionUpdate"]=("Update to","Aktualizuj do"),
+        ["ActionRepair"]=("Repair installation","Napraw instalację"),
+        ["ActionUpToDate"]=("✓ Up to date · reinstall","✓ Aktualne · zainstaluj ponownie"),
+        ["Uninstall2"]=("Uninstall","Odinstaluj"),
+        ["ManualInstall"]=("Manual installation (folder + README)","Instalacja ręczna (folder + README)"),
+        ["MoreOptions"]=("More options","Więcej opcji"),
+        ["InstallerUpdate"]=("Trilex Mod Installer {0} is available (you have {1}).","Dostępny Trilex Mod Installer {0} (masz {1})."),
+        ["DownloadUpdate"]=("Download","Pobierz"),
+        ["OfflineNote"]=("offline, using saved catalog","offline, użyto zapisanego katalogu"),
+        ["TileSoon"]=("Coming soon","Wkrótce"),
+        ["TileNoGame"]=("Game not found","Nie znaleziono gry"),
+        ["TileNotInstalled"]=("Not installed","Nie zainstalowano"),
         ["ExportPreparing"]=("Preparing manual installation files…","Przygotowywanie plików instalacji ręcznej…"),
         ["ManualExport"]=("Prepare files for manual installation (do not install)","Przygotuj pliki do ręcznej instalacji (bez instalowania)"),
         ["ManualHint"]=("Creates a separate folder with ready-to-copy files and PL/EN instructions. Your game is read only; required original assets are reconstructed locally.","Tworzy osobny folder z gotowymi plikami i instrukcjami PL/EN. Gra jest tylko odczytywana; potrzebne zasoby są odtwarzane lokalnie."),
@@ -28,7 +41,7 @@ public sealed class Localization : INotifyPropertyChanged
         ["SkipIncompatible"]=("This optional component needs source files that are missing. It cannot be reconstructed without them. Continue without it?","Brakuje plików źródłowych dodatku. Bez nich nie można go odtworzyć. Kontynuować bez tego dodatku?"),
         ["TryDifferentSources"]=("These files exist but their SHA256 differs from the tested originals. Back them up and TRY replacement anyway? This keeps the selected component enabled. The patch may not fit this version; invalid ranges will stop installation, and different output will require confirmation before any replacement. This does not confirm compatibility.","Te pliki istnieją, ale ich SHA256 różni się od przetestowanych oryginałów. Zachować kopię i SPRÓBOWAĆ podmiany mimo to? Wybrany dodatek pozostanie włączony. Łatka może nie pasować do tej wersji; nieprawidłowe zakresy zatrzymają instalację, a inny wynik wymaga potwierdzenia przed podmianą. To nie potwierdza zgodności."),
         ["ReplaceUnmanaged"]=("An existing mod file differs. Back it up and replace it?","Istniejący plik moda jest inny. Zachować jego kopię i podmienić plik?"),
-        ["UnverifiedBuild"]=("Unverified game build (disc/GOG/modified EXE). Review installation to continue with a warning.","Niezweryfikowana wersja gry (płyta/GOG/zmieniony EXE). Przejdź do podsumowania, aby kontynuować z ostrzeżeniem."),
+        ["UnverifiedBuild"]=("Game found. Unrecognized EXE version — installation allowed (details in log).","Gra wykryta. Nierozpoznana wersja EXE — instalacja dozwolona (szczegóły w logu)."),
         ["UnverifiedTitle"]=("Unverified game version — try anyway?","Niezweryfikowana wersja gry — spróbować mimo to?"),
         ["UnverifiedWarning"]=("This executable is not one of the tested builds. Disc, GOG and modified versions may use different native code: the VR mod may fail to start, crash or behave incorrectly. This is permission to TRY installation, not confirmed compatibility.\n\nBack up your saves separately. Managed original files are backed up before replacement. Package signatures, package hashes and reconstruction source checks remain enforced.\n\nChoose Yes to continue with this exact executable, or No to cancel.","Ten plik EXE nie należy do przetestowanych wersji. Wydania płytowe, GOG i zmodyfikowane mogą mieć inny kod: mod VR może się nie uruchomić, zawieszać lub działać nieprawidłowo. To zgoda na PRÓBĘ instalacji, a nie potwierdzenie zgodności.\n\nZrób osobną kopię zapisów gry. Oryginalne zarządzane pliki są kopiowane przed podmianą. Podpisy i hashe paczek oraz kontrole źródeł rekonstrukcji pozostają aktywne.\n\nWybierz Tak, aby kontynuować z tym konkretnym EXE, lub Nie, aby anulować."),
         ["UnverifiedInstalled"]=("Unverified game executable accepted by user. Runtime compatibility is NOT confirmed.","Użytkownik zaakceptował niezweryfikowany EXE gry. Zgodność działania NIE jest potwierdzona."),

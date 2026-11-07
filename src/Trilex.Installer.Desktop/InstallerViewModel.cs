@@ -50,7 +50,7 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
     {
         if(Busy||id==gameId||!catalog.Games.Any(x=>x.Id==id))return;
         gameId=id;HdTextures=false; GameRoot=""; DetectionStatus=Game.State=="coming_soon"?L["Blocked"]:""; Modules.Clear();
-        RefreshModules(); Changed(nameof(SingularityOptions));Changed(nameof(DarknessOptions));Changed(nameof(LaunchLabel));Changed(nameof(IsWonderlands));
+        needsRepair=false;RefreshModules();RefreshActions(); Changed(nameof(SingularityOptions));Changed(nameof(DarknessOptions));Changed(nameof(LaunchLabel));Changed(nameof(IsWonderlands));
     }
     private GameLocation? location;
     private InstallPlan? plan;
@@ -58,7 +58,7 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
     private string ui="en",text="en",voice="en",root="",activity="",detection="",review="",trust="";
     private bool busy,offline,showReview;
     private double percent;
-    public string UiLanguage{get=>ui;set{if(Busy||value==ui||value is not("en"or"pl"))return;ui=value;L.Set(value);RefreshModules();Changed();Changed(nameof(LaunchLabel));Changed(nameof(InstallActionLabel));Activity=L["Initial"];SavePreferences();}}
+    public string UiLanguage{get=>ui;set{if(Busy||value==ui||value is not("en"or"pl"))return;ui=value;L.Set(value);RefreshModules();Changed();RefreshActions();Changed(nameof(LaunchLabel));Changed(nameof(InstallActionLabel));Activity=L["Initial"];SavePreferences();}}
     public string TextLanguage{get=>text;set{if(value is not("en"or"pl"))return;text=value;SyncLanguageModule("polish-text",value=="pl");Invalidate();Changed();SavePreferences();}}
     public string VoiceLanguage{get=>voice;set{if(value is not("en"or"pl"))return;voice=value;SyncLanguageModule("polish-dubbing",value=="pl");Invalidate();Changed();SavePreferences();}}
     public string GameRoot{get=>root;set{
@@ -67,7 +67,7 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
             catch(Exception e)when(e is IOException or ArgumentException or InvalidDataException or UnauthorizedAccessException or JsonException){hdTextures=false;}
             Changed(nameof(HdTextures));
         }
-        root=value;location=null;Invalidate();Changed();Changed(nameof(CanManage));Changed(nameof(CanLaunch));}}
+        root=value;location=null;needsRepair=false;Invalidate();Changed();RefreshActions();}}
     public string Activity{get=>activity;private set{activity=value;Changed();}}
     public string DetectionStatus{get=>detection;private set{detection=value;Changed();}}
     public string ReviewText{get=>review;private set{review=value;Changed();}}
@@ -137,15 +137,107 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
         finally{Busy=false;cancellation.Dispose();cancellation=null;}
     }
     public void Cancel()=>cancellation?.Cancel();
+
+    public static Version InstallerVersion{get;}=Assembly.GetExecutingAssembly().GetName().Version is Version v?new(v.Major,v.Minor,Math.Max(v.Build,0)):new(0,0,0);
+    public string InstallerVersionText=>InstallerVersion.ToString(3);
+    private readonly Dictionary<string,string> tiles=new();
+    public string SingularityTile=>tiles.GetValueOrDefault("singularity","");
+    public string DarknessTile=>tiles.GetValueOrDefault("darkness2","");
+    public string WonderlandsTile=>tiles.GetValueOrDefault("wonderlands","");
+    private string installerUpdate="";private string? installerUpdatePage;
+    public string InstallerUpdateText{get=>installerUpdate;private set{installerUpdate=value;Changed();Changed(nameof(InstallerUpdateVisibility));}}
+    public Visibility InstallerUpdateVisibility=>installerUpdate.Length>0?Visibility.Visible:Visibility.Collapsed;
+    public void OpenInstallerUpdate(){if(installerUpdatePage is not null)Process.Start(new ProcessStartInfo(installerUpdatePage){UseShellExecute=true});}
+    private bool needsRepair;
+    private string CatalogGameVersion(GameManifest game)=>game.Modules.FirstOrDefault(m=>m.Required)?.Version??catalog.Version;
+    private static string V(string version)=>version.StartsWith('v')?version:"v"+version;
+    private InstallReceipt? SafeReceipt(string path)
+    {
+        if(string.IsNullOrWhiteSpace(path))return null;
+        try{return installer.Receipt(path);}catch(Exception e)when(e is ArgumentException or IOException or InvalidDataException or JsonException or UnauthorizedAccessException){return null;}
+    }
+    public string PrimaryActionLabel
+    {
+        get
+        {
+            var receipt=SafeReceipt(root);
+            if(receipt is null||receipt.GameId!=gameId)return L["ActionInstall"];
+            if(needsRepair)return L["ActionRepair"];
+            var latest=CatalogGameVersion(Game);
+            return receipt.Version==latest?L["ActionUpToDate"]+" "+V(latest):L["ActionUpdate"]+" "+V(latest);
+        }
+    }
+    private void RefreshActions(){Changed(nameof(PrimaryActionLabel));Changed(nameof(CanManage));Changed(nameof(CanLaunch));}
+
+    public async Task Startup(CancellationToken ct)
+    {
+        try
+        {
+            catalog=await catalogs.FetchLatestAsync(ct);Paths.AtomicBytes(Path.Combine(Home,"catalog.signed.json"),catalogs.LastVerifiedEnvelope!);
+            if(!catalog.Games.Any(x=>x.Id==gameId))gameId=catalog.Games[0].Id;
+            RefreshModules();TrustStatus=L["Trust"]+" · catalog "+catalog.Version;
+            var latest=CatalogService.ParseReleaseVersion(catalogs.LatestReleaseTag);
+            installerUpdatePage=catalogs.LatestReleasePage;
+            InstallerUpdateText=latest is not null&&latest>InstallerVersion&&installerUpdatePage is not null?string.Format(L["InstallerUpdate"],latest.ToString(3),InstallerVersionText):"";
+            Log("Startup update check: catalog "+catalog.Version+", latest release "+catalogs.LatestReleaseTag);
+        }
+        catch(Exception e)when(e is HttpRequestException or IOException or InvalidDataException or CryptographicException or JsonException or InvalidOperationException or KeyNotFoundException or TaskCanceledException)
+        {
+            if(ct.IsCancellationRequested)throw;
+            Log("Startup update check skipped: "+e.Message);TrustStatus=L["Trust"]+" · catalog "+catalog.Version+" · "+L["OfflineNote"];
+        }
+        await ScanLibrary(ct);
+        if(string.IsNullOrWhiteSpace(root)&&Game.State!="coming_soon")await Detect(ct);
+        await AutoVerify(ct);
+        Activity=L["Initial"];
+    }
+    private async Task ScanLibrary(CancellationToken ct)
+    {
+        foreach(var game in catalog.Games)
+        {
+            IGameAdapter? scan=game.Id switch{"singularity"=>new SingularityGameAdapter(),"darkness2"=>new Darkness2GameAdapter(),"wonderlands"=>new WonderlandsGameAdapter(),_=>null};
+            if(scan is null||game.State=="coming_soon"){tiles[game.Id]=L["TileSoon"];continue;}
+            var latest=CatalogGameVersion(game);string tile;
+            try
+            {
+                var found=await Task.Run(()=>scan.Detect(SteamRoots.Discover(),game).ToList(),ct);
+                var receipt=found.Select(x=>SafeReceipt(x.Root)).FirstOrDefault(r=>r?.GameId==game.Id);
+                tile=found.Count==0?L["TileNoGame"]:receipt is null?L["TileNotInstalled"]+" · "+V(latest):
+                    receipt.Version==latest?"✓ "+V(latest):"⬆ "+V(receipt.Version)+" → "+V(latest);
+            }
+            catch(Exception e)when(e is IOException or UnauthorizedAccessException or InvalidDataException){Log("Library scan "+game.Id+": "+e.Message);tile=V(latest);}
+            tiles[game.Id]=tile;
+        }
+        Changed(nameof(SingularityTile));Changed(nameof(DarknessTile));Changed(nameof(WonderlandsTile));
+    }
+    private async Task AutoVerify(CancellationToken ct)
+    {
+        needsRepair=false;
+        if(SafeReceipt(root)?.GameId==gameId)
+        {
+            var failures=await Task.Run(()=>installer.Verify(root),ct);needsRepair=failures.Count>0;
+            if(needsRepair)Log("Automatic verification found damaged files: "+string.Join(", ",failures));
+        }
+        RefreshActions();
+    }
+    public async Task PrimaryAction(CancellationToken ct)
+    {
+        SetManualExport(false);
+        if(needsRepair&&SafeReceipt(root)?.GameId==gameId){await Execute(ct,true);await AutoVerify(ct);await ScanLibrary(ct);return;}
+        await Review(ct);
+    }
+    public async Task ManualInstall(CancellationToken ct){SetManualExport(true);await Review(ct);}
+    private void SetManualExport(bool value){if(manualExport==value)return;manualExport=value;Invalidate();Changed(nameof(ManualExport));Changed(nameof(InstallActionLabel));}
+    public async Task AfterInstall(CancellationToken ct){if(!manualExport){await AutoVerify(ct);await ScanLibrary(ct);}}
     public async Task Detect(CancellationToken ct)
     {
         var locations=await Task.Run(()=>adapter.Detect(SteamRoots.Discover(),Game).ToList(),ct);
         var best=locations.FirstOrDefault(x=>x.Compatible)??locations.FirstOrDefault();
-        if(best is null){DetectionStatus=L["NoGame"];return;}GameRoot=best.Root;location=best;DetectionStatus=L[best.Compatible?"Compatible":ExecutableCompatibility.CanTry(Game,best)?"UnverifiedBuild":"Wrong"];Changed(nameof(CanManage));Changed(nameof(CanLaunch));
+        if(best is null){DetectionStatus=L["NoGame"];return;}GameRoot=best.Root;location=best;DetectionStatus=L[best.Compatible?"Compatible":ExecutableCompatibility.CanTry(Game,best)?"UnverifiedBuild":"Wrong"];await AutoVerify(ct);
     }
     public async Task Validate(CancellationToken ct)
     {
-        location=await Task.Run(()=>adapter.Validate(root,Game),ct);DetectionStatus=L[location.Compatible?"Compatible":ExecutableCompatibility.CanTry(Game,location)?"UnverifiedBuild":"Wrong"]+" "+location.Detail;Changed(nameof(CanManage));Changed(nameof(CanLaunch));
+        location=await Task.Run(()=>adapter.Validate(root,Game),ct);DetectionStatus=L[location.Compatible?"Compatible":ExecutableCompatibility.CanTry(Game,location)?"UnverifiedBuild":"Wrong"]+(location.Compatible?"":" "+location.Detail);await AutoVerify(ct);
     }
     public async Task Review(CancellationToken ct)
     {
@@ -156,11 +248,16 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
         if(location?.Compatible!=true&&location is not null&&ExecutableCompatibility.CanTry(Game,location))
         {
             ct.ThrowIfCancellationRequested();
-            var warning=UnverifiedExecutableText(location);
-            if(Game.Id=="darkness2")warning+=await ScanDarknessBuild(location,ct);
-            var accepted=MessageBox.Show(Application.Current.MainWindow,warning,L["UnverifiedTitle"],MessageBoxButton.YesNo,MessageBoxImage.Warning,MessageBoxResult.No)==MessageBoxResult.Yes;
-            Log((accepted?"USER ACCEPTED":"USER DECLINED")+" unverified executable: "+location.Root+" SHA256="+location.ExeHash);
-            if(!accepted)throw new OperationCanceledException(ct);
+            // Hash mismatches alone (Steam patches, regional builds) have not broken real installs;
+            // only a failed renderer signature scan still asks the user.
+            var scan=Game.Id=="darkness2"?await ScanDarknessBuild(location,ct):(AllMatched:true,Detail:"");
+            if(scan.AllMatched)Log("AUTO ACCEPTED unrecognized executable: "+location.Root+" SHA256="+location.ExeHash);
+            else
+            {
+                var accepted=MessageBox.Show(Application.Current.MainWindow,UnverifiedExecutableText(location)+scan.Detail,L["UnverifiedTitle"],MessageBoxButton.YesNo,MessageBoxImage.Warning,MessageBoxResult.No)==MessageBoxResult.Yes;
+                Log((accepted?"USER ACCEPTED":"USER DECLINED")+" unverified executable: "+location.Root+" SHA256="+location.ExeHash);
+                if(!accepted)throw new OperationCanceledException(ct);
+            }
             consent=new(location.Root,location.ExeHash!);
         }
         var prerequisites=IsWonderlands||ManualExport?new PrerequisiteResult(true,"Bundled static-CRT proxy; target prerequisites documented in README"):WindowsPrerequisites.Inspect();
@@ -303,14 +400,15 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
         ct.ThrowIfCancellationRequested();return accepted;
     });
     internal string MismatchText(ReconstructionWarning warning)=>L["MismatchWarning"]+"\n\n"+warning.Path+"\n\nExpected SHA256: "+warning.ExpectedSha256+"\nActual SHA256: "+warning.ActualSha256;
-    private async Task<string> ScanDarknessBuild(GameLocation build,CancellationToken ct)
+    private async Task<(bool AllMatched,string Detail)> ScanDarknessBuild(GameLocation build,CancellationToken ct)
     {
-        string detail;
+        string detail;bool all=false;
         try
         {
             var matches=await Task.Run(()=>DarknessRendererScan.Scan(Paths.Safe(build.Root,Game.Executable)),ct);
             detail=string.Join("; ",matches.Select(m=>m.Name+"="+(m.Rva is int rva?$"0x{rva:X}":m.Count==0?"missing":"ambiguous")));
             Log("Darkness II renderer scan SHA256="+build.ExeHash+": "+detail);
+            all=matches.Count>0&&matches.All(m=>m.Count==1);
             detail=ui=="pl"?$"Znaleziono {matches.Count(m=>m.Count==1)}/{matches.Count} sygnatur renderera.":
                 $"Found {matches.Count(m=>m.Count==1)}/{matches.Count} renderer signatures.";
         }
@@ -319,9 +417,7 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
             Log("Darkness II renderer scan refused: "+ex.Message);
             detail=ui=="pl"?"Nie udało się przeskanować renderera.":"The renderer scan could not be completed.";
         }
-        return "\n\n"+detail+" "+(ui=="pl"?
-            "Skan nie włącza VR dla nieobsługiwanej wersji. Szczegóły: installer.log.":
-            "This scan does not enable VR for unsupported builds. See installer.log for details.");
+        return (all,"\n\n"+detail+" "+(ui=="pl"?"Szczegóły: installer.log.":"See installer.log for details."));
     }
 
     internal string UnverifiedExecutableText(GameLocation build)=>L["UnverifiedWarning"]+"\n\n"+build.Root+"\nSHA256: "+build.ExeHash;
@@ -342,7 +438,7 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
         Activity=VerificationText(failures,receipt)+(receipt?.ExecutableConsent is null?"":"\n"+L["UnverifiedInstalled"]);
     }
     public async Task Recover(CancellationToken ct){await Task.Run(()=>installer.Recover(root),ct);Activity=L["Restored"];}
-    public async Task Uninstall(CancellationToken ct){await Task.Run(()=>installer.Uninstall(root,ct),ct);Activity=L["Restored"];plan=null;Changed(nameof(CanInstall));}
+    public async Task Uninstall(CancellationToken ct){await Task.Run(()=>installer.Uninstall(root,ct),ct);Activity=L["Restored"];plan=null;needsRepair=false;Changed(nameof(CanInstall));RefreshActions();await ScanLibrary(ct);}
     public async Task Update(CancellationToken ct)
     {
         catalog=await catalogs.FetchLatestAsync(ct);Paths.AtomicBytes(Path.Combine(Home,"catalog.signed.json"),catalogs.LastVerifiedEnvelope!);

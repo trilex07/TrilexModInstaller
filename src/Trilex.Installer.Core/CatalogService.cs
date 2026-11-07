@@ -7,6 +7,13 @@ namespace Trilex.Installer.Core;
 public sealed class CatalogService(HttpClient http, string pinnedPublicKey, string repository = "trilex07/TrilexModInstaller")
 {
     public byte[]? LastVerifiedEnvelope{get;private set;}
+    public string? LatestReleaseTag{get;private set;}
+    public string? LatestReleasePage{get;private set;}
+    public static Version? ParseReleaseVersion(string? tag)
+    {
+        var match=tag is null?null:System.Text.RegularExpressions.Regex.Match(tag,@"(\d+)\.(\d+)\.(\d+)");
+        return match is {Success:true}?new Version(int.Parse(match.Groups[1].Value),int.Parse(match.Groups[2].Value),int.Parse(match.Groups[3].Value)):null;
+    }
     public const int MaximumCatalogBytes = 4 * 1024 * 1024;
     public Catalog Verify(byte[] envelopeBytes, DateTimeOffset? now = null)
     {
@@ -28,6 +35,8 @@ public sealed class CatalogService(HttpClient http, string pinnedPublicKey, stri
         await using var input=await response.Content.ReadAsStreamAsync(ct);using var buffer=new MemoryStream();var block=new byte[8192];int count;
         while((count=await input.ReadAsync(block,ct))>0){if(buffer.Length+count>MaximumCatalogBytes)throw new InvalidDataException("Release metadata too large");buffer.Write(block,0,count);}
         using var doc=JsonDocument.Parse(buffer.ToArray());var assets=doc.RootElement.GetProperty("assets");
+        LatestReleaseTag=doc.RootElement.TryGetProperty("tag_name",out var tag)?tag.GetString():null;
+        LatestReleasePage=doc.RootElement.TryGetProperty("html_url",out var page)&&page.GetString() is string html&&html.StartsWith("https://github.com/"+repository+"/releases/",StringComparison.Ordinal)?html:null;
         var link=assets.EnumerateArray().Single(x=>x.GetProperty("name").GetString()=="catalog.signed.json").GetProperty("browser_download_url").GetString()??throw new InvalidDataException("Signed catalog not published");
         return await FetchAsync(new Uri(link),ct); // Release metadata locates, but never authorizes the package. Pinned signature does.
     }

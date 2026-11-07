@@ -21,3 +21,7 @@ Catalog 1.1.0 is the signed 1.0.9 catalog with only the version and five Polish 
 ## Reproduce
 
 Sign `artifacts/installer-1.1.0/catalog.unsigned.json` with the publisher key, then run `scripts/assemble-1.1.0.ps1`.
+
+## November 8: game-reinstall refresh
+
+After a Steam reinstall, leftover or replaced mod files no longer block the installer. Download & install repairs a damaged installation instead of failing with "Modified installed file ... use Repair explicitly". Uninstall leaves files replaced outside the installer untouched and finishes; Update accepts files restored to the Steam original. Same version, catalog and download link; download the ZIP again. 88 Core tests, including leftover-older-mod-file repair after reinstall.

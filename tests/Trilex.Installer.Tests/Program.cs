@@ -450,7 +450,7 @@ await Test("hard process exit recovers durable journal",async()=>
     var f=Fixture();var m=Package(f);var moduleJson=Path.Combine(f.Root,"module.json");Json.Write(moduleJson,m);
     var exe=Path.Combine(AppContext.BaseDirectory,"Trilex.Installer.Tests.exe");
     var start=new System.Diagnostics.ProcessStartInfo(exe){UseShellExecute=false,CreateNoWindow=true};foreach(var a in new[]{"--crash",f.Root,f.State,Archives(f,m)[m.Id],moduleJson})start.ArgumentList.Add(a);
-    using var child=System.Diagnostics.Process.Start(start)!;await child.WaitForExitAsync();Assert(child.ExitCode==86);Assert(File.Exists(Path.Combine(f.Root,"Binaries","trilex-test.dll")));f.Installer.Recover(f.Root);Assert(!File.Exists(Path.Combine(f.Root,"Binaries","trilex-test.dll")));Assert(f.Installer.Receipt(f.Root) is null);
+    using var child=System.Diagnostics.Process.Start(start)!;await child.WaitForExitAsync();Assert(child.ExitCode==86);Assert(File.Exists(Path.Combine(f.Root,"Binaries","trilex-test.dll")));Assert(f.Installer.NeedsRecovery(f.Root));f.Installer.Recover(f.Root);Assert(!f.Installer.NeedsRecovery(f.Root));Assert(!File.Exists(Path.Combine(f.Root,"Binaries","trilex-test.dll")));Assert(f.Installer.Receipt(f.Root) is null);
 });
 await Test("duplicate controlled INI keys fail closed",async()=>{await Reject(()=>Sync(()=>new IniDocument("[Input]\nTest=1\nTest=2\n").Set("Input/Test","3")));});
 await Test("catalog follows trusted GitHub release redirect and verifies signature",async()=>

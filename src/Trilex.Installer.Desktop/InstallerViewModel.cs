@@ -186,10 +186,10 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
             if(ct.IsCancellationRequested)throw;
             Log("Startup update check skipped: "+e.Message);TrustStatus=L["Trust"]+" · catalog "+catalog.Version+" · "+L["OfflineNote"];
         }
+        Activity=L["Initial"];
         await ScanLibrary(ct);
         if(string.IsNullOrWhiteSpace(root)&&Game.State!="coming_soon")await Detect(ct);
-        await AutoVerify(ct);
-        Activity=L["Initial"];
+        else await AutoVerify(ct);
     }
     private async Task ScanLibrary(CancellationToken ct)
     {
@@ -213,6 +213,14 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
     private async Task AutoVerify(CancellationToken ct)
     {
         needsRepair=false;
+        bool interrupted;
+        try{interrupted=!string.IsNullOrWhiteSpace(root)&&installer.NeedsRecovery(root);}
+        catch(Exception e)when(e is ArgumentException or IOException or InvalidDataException or JsonException or UnauthorizedAccessException){interrupted=false;Log("Recovery check failed: "+e.Message);}
+        if(interrupted)
+        {
+            try{await Task.Run(()=>installer.Recover(root),ct);Log("Interrupted installation rolled back automatically: "+root);Activity=L["AutoRecovered"];}
+            catch(Exception e)when(e is IOException or InvalidOperationException or UnauthorizedAccessException or InvalidDataException){Log("Automatic recovery deferred: "+e.Message);Activity=L["RecoveryDeferred"]+"\n"+e.Message;}
+        }
         if(SafeReceipt(root)?.GameId==gameId)
         {
             var failures=await Task.Run(()=>installer.Verify(root),ct);needsRepair=failures.Count>0;

@@ -13,6 +13,11 @@ public sealed class TransactionInstaller(string stateRoot, IProcessGuard process
     {
         Paths.AssertNoLinks(state);Directory.CreateDirectory(state);return new FileStream(Path.Combine(state,"transaction.lock"),FileMode.OpenOrCreate,FileAccess.ReadWrite,FileShare.None);
     }
+    public bool NeedsRecovery(string root)
+    {
+        var path=Path.Combine(StateDirectory(root),"journal.json");
+        return File.Exists(path)&&Json.Read<Journal>(path).Phase!="committed";
+    }
     public void Recover(string root)
     {
         var state=StateDirectory(root);using var gate=Lock(state);RecoverLocked(root,state);

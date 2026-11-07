@@ -15,6 +15,8 @@ public sealed class Localization : INotifyPropertyChanged
         ["ActionUpToDate"]=("✓ Up to date · reinstall","✓ Aktualne · zainstaluj ponownie"),
         ["Uninstall2"]=("Uninstall","Odinstaluj"),
         ["ManualInstall"]=("Manual installation (folder + README)","Instalacja ręczna (folder + README)"),
+        ["AutoRecovered"]=("An interrupted installation was found and the previous state was restored automatically.","Wykryto przerwaną instalację — automatycznie przywrócono poprzedni stan."),
+        ["RecoveryDeferred"]=("An interrupted installation was found but cannot be restored yet (close the game and try again).","Wykryto przerwaną instalację, ale nie można jej jeszcze przywrócić (zamknij grę i spróbuj ponownie)."),
         ["MoreOptions"]=("More options","Więcej opcji"),
         ["InstallerUpdate"]=("Trilex Mod Installer {0} is available (you have {1}).","Dostępny Trilex Mod Installer {0} (masz {1})."),
         ["DownloadUpdate"]=("Download","Pobierz"),

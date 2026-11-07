@@ -344,6 +344,8 @@ await Test("game reinstalled outside installer: repair, uninstall and fresh inst
     File.Delete(dll);File.Delete(ini);
     f.Installer.Uninstall(f.Root,default);Assert(f.Installer.Receipt(f.Root) is null&&!File.Exists(dll));
     await f.Installer.InstallAsync(f.Plan(m),Archives(f,m),null,default);Assert(f.Installer.Verify(f.Root).Count==0);
+    File.WriteAllText(dll,"LEFTOVER-OLDER-MOD");await Reject(()=>f.Installer.InstallAsync(f.Plan(m),Archives(f,m),null,default));
+    await f.Installer.RepairAsync(f.Plan(m),Archives(f,m),null,default);Assert(f.Installer.Verify(f.Root).Count==0);
     File.Delete(dll);File.Delete(ini);var v2=Package(f,"v2");
     await f.Installer.InstallAsync(f.Plan(v2),Archives(f,v2),null,default);Assert(f.Installer.Verify(f.Root).Count==0);
 });

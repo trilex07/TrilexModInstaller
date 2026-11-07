@@ -149,6 +149,7 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
     public Visibility InstallerUpdateVisibility=>installerUpdate.Length>0?Visibility.Visible:Visibility.Collapsed;
     public void OpenInstallerUpdate(){if(installerUpdatePage is not null)Process.Start(new ProcessStartInfo(installerUpdatePage){UseShellExecute=true});}
     private bool needsRepair;
+    public bool NeedsRepair=>needsRepair&&!manualExport&&SafeReceipt(root)?.GameId==gameId;
     private string CatalogGameVersion(GameManifest game)=>game.Modules.FirstOrDefault(m=>m.Required)?.Version??catalog.Version;
     private static string V(string version)=>version.StartsWith('v')?version:"v"+version;
     private InstallReceipt? SafeReceipt(string path)

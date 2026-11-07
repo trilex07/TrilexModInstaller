@@ -28,6 +28,16 @@ ModuleManifest Package(TestFixture f,string suffix="v1",string content="MOD-AUTH
     return new("vr-core",new(){{"en","VR Core"},{"pl","VR Core"}},suffix,"stable",true,[],new FileInfo(archive).Length,"https://github.com/trilex07/TrilexModInstaller/releases/download/test/"+suffix+".zip",Paths.Hash(archive),4096,true,"Synthetic newly authored fixture",[new("Binaries/trilex-test.dll","data/mod.bin",Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(content))),"copy","mod-authored"),new("Binaries/SingularityVR.ini","","","ini","mod-authored",IniValues:new(){{"Input/Test","1"}})],"");
 }
 Dictionary<string,string> Archives(TestFixture f,ModuleManifest m)=>new(){{m.Id,Path.Combine(f.Root,m.Version+".zip")}};
+ModuleManifest MismatchPackage(TestFixture f,bool second=false)
+{
+    var module=Package(f);var recipes=new List<PackageFile>();
+    foreach(var path in second?new[]{"RvGame/CookedPC/test.xxx","RvGame/CookedPC/test2.xxx"}:new[]{"RvGame/CookedPC/test.xxx"})
+    {
+        var target=Paths.Safe(f.Root,path);File.WriteAllText(target,"ORIGINAL");
+        recipes.Add(new(path,"",new string('0',64),"recipe","local-transform",Paths.Hash(target),Recipe:[new("payload",0,3,"data/mod.bin")]));
+    }
+    return module with{Files=[..module.Files,..recipes]};
+}
 byte[] Envelope(Catalog catalog,ECDsa key)
 {
     var payload=JsonSerializer.SerializeToUtf8Bytes(catalog,Json.Options);return JsonSerializer.SerializeToUtf8Bytes(new SignedEnvelope("ECDSA-P256-SHA256-P1363",Convert.ToBase64String(payload),Convert.ToBase64String(key.SignData(payload,HashAlgorithmName.SHA256,DSASignatureFormat.IeeeP1363FixedFieldConcatenation))),Json.Options);
@@ -60,7 +70,85 @@ await Test("multiple Steam libraries and nested VDF",()=>Sync(()=>
     File.WriteAllText(Path.Combine(secondary,"steamapps","appmanifest_42670.acf"),"\"AppState\" { \"appid\" \"42670\" \"installdir\" \"Singularity Test\" }");
     var found=new SingularityGameAdapter().Detect([steam],f.Game()).ToList();Assert(found.Count==1&&found[0].Compatible);
 }));
+await Test("Darkness source consent binds only scoped raw recipes without changing the signed output",async()=>
+{
+    var path="Cache.DLC/PCPatchManifests/Cache.Windows/B.Font.cache";
+    var file=new PackageFile(path,"",new string('A',64),"recipe","local-transform",new string('B',64),Recipe:[new("instructions",0,3,"patch.svrp")]);
+    var bound=DarknessRecipeConsent.Bind("darkness2",file,new string('C',64));
+    Assert(bound.Sha256==file.Sha256&&ReferenceEquals(bound.Recipe,file.Recipe)&&bound.SourceSha256 is null&&bound.BeforeSha256==new string('C',64));
+    foreach(var invalid in new[]{file with{Path="d3d9.dll"},file with{SourcePath=path},file with{Recipe=[new("image",0,3,"patch.svrp")]}})
+        await Reject(()=>Sync(()=>DarknessRecipeConsent.Bind("darkness2",invalid,new string('C',64))));
+    await Reject(()=>Sync(()=>DarknessRecipeConsent.Bind("singularity",file,new string('C',64))));
+    await Reject(()=>Sync(()=>DarknessRecipeConsent.Bind("darkness2",file,null!)));
+});
+await Test("Darkness consented source attempts replacement, binds bytes, and restores exact originals",async()=>
+{
+    foreach(var mode in new[]{"replace","decline-output","changed-source","invalid-range","already-target"})
+    {
+        var f=Fixture();var module=Package(f);var path="Cache.DLC/PCPatchManifests/Cache.Windows/B.Font.cache";
+        var target=Paths.Safe(f.Root,path);Directory.CreateDirectory(Path.GetDirectoryName(target)!);
+        File.WriteAllText(target,mode=="already-target"?"NEW":"OWNED");var original=Paths.Hash(target);
+        var recipePath=Path.Combine(f.Root,"font.svrp");
+        using(var writer=new BinaryWriter(File.Create(recipePath)))
+        {
+            writer.Write("SVRP"u8.ToArray());writer.Write((uint)1);writer.Write((ulong)3);writer.Write((uint)1);
+            writer.Write((byte)0);writer.Write((ulong)(mode=="invalid-range"?999:0));writer.Write((uint)3);
+        }
+        using(var zip=ZipFile.Open(Archives(f,module)[module.Id],ZipArchiveMode.Update)){zip.GetEntry("data/mod.bin")!.Delete();zip.CreateEntryFromFile(recipePath,"font.svrp");}
+        var expected=Convert.ToHexString(SHA256.HashData("NEW"u8.ToArray()));
+        var file=new PackageFile(path,"",expected,"recipe","local-transform",new string('0',64),Recipe:[new("instructions",0,3,"font.svrp")]);
+        var bound=mode=="already-target"?file:DarknessRecipeConsent.Bind("darkness2",file,original);
+        module=module with {ArchiveSha256=Paths.Hash(Archives(f,module)[module.Id]),DownloadBytes=new FileInfo(Archives(f,module)[module.Id]).Length,Files=[bound]};
+        if(mode=="changed-source")File.WriteAllText(target,"LATER");
+        var beforeInstall=Paths.Hash(target);var confirmations=0;
+        bool Confirm(ReconstructionWarning warning){confirmations++;return mode=="replace";}
+        if(mode is "replace" or "already-target")
+        {
+            var receipt=await f.Installer.InstallAsync(f.Plan(module),Archives(f,module),null,default,confirmMismatch:Confirm);
+            Assert(File.ReadAllText(target)==(mode=="replace"?"OWN":"NEW"));
+            Assert(confirmations==(mode=="replace"?1:0)&&receipt.Files.Single().OriginalHash==original);
+            Assert(f.Installer.Verify(f.Root).Count==0);f.Installer.Uninstall(f.Root,default);Assert(Paths.Hash(target)==original);
+        }
+        else
+        {
+            await Reject(()=>f.Installer.InstallAsync(f.Plan(module),Archives(f,module),null,default,confirmMismatch:Confirm));
+            Assert(Paths.Hash(target)==beforeInstall&&f.Installer.Receipt(f.Root) is null);
+            Assert(confirmations==(mode=="decline-output"?1:0));
+        }
+    }
+});
 await Test("manual location and executable mismatch",()=>Sync(()=>{var f=Fixture();var game=f.Game();var adapter=new SingularityGameAdapter();Assert(adapter.Validate(f.Root,game).Compatible);File.AppendAllText(Path.Combine(f.Root,"Binaries","Singularity.exe"),"different build");Assert(!adapter.Validate(f.Root,game).Compatible);Assert(!adapter.Validate(Path.Combine(f.Root,"missing"),game).Compatible);}));
+await Test("unverified disc/GOG executable needs exact explicit consent",async()=>
+{
+    var f=Fixture();var module=Package(f);var game=f.Game(module);var exe=Path.Combine(f.Root,"Binaries","Singularity.exe");
+    var pe=new byte[256];pe[0]=0x4D;pe[1]=0x5A;pe[0x3C]=0x80;pe[0x80]=0x50;pe[0x81]=0x45;pe[0x84]=0x4C;pe[0x85]=1;pe[0x98]=0x0B;pe[0x99]=1;File.WriteAllBytes(exe,pe);
+    var location=new SingularityGameAdapter().Validate(f.Root,game);Assert(!location.Compatible&&ExecutableCompatibility.CanTry(game,location));
+    var choices=new InstallChoices("en","en","en",[]);var consent=new ExecutableConsent(f.Root,location.ExeHash!);
+    await Reject(()=>Sync(()=>PlanBuilder.Build(game,location,choices)));
+    await Reject(()=>Sync(()=>PlanBuilder.Build(game,location,choices,consent with{Sha256=new string('0',64)})));
+    await Reject(()=>Sync(()=>PlanBuilder.Build(game,location,choices,consent with{Root=Path.Combine(f.Root,"other")})));
+    await Reject(()=>Sync(()=>PlanBuilder.Build(game with{State="unavailable"},location,choices,consent)));
+    var plan=PlanBuilder.Build(game,location,choices,consent);Assert(plan.ExecutableConsent==consent&&plan.ExeSha256==location.ExeHash);
+    var installed=await f.Installer.InstallAsync(plan,Archives(f,module),null,default);Assert(installed.ExecutableConsent==consent&&f.Installer.Verify(f.Root).Count==0);
+    Assert(f.Installer.Receipt(f.Root)!.ExecutableConsent==consent);f.Installer.Uninstall(f.Root,default);Assert(Paths.Hash(exe)==location.ExeHash);
+});
+await Test("unverified executable consent preserves integrity and freshness gates",async()=>
+{
+    var f=Fixture();var module=Package(f);var game=f.Game(module);var exe=Path.Combine(f.Root,"Binaries","Singularity.exe");
+    var pe=new byte[256];pe[0]=0x4D;pe[1]=0x5A;pe[0x3C]=0x80;pe[0x80]=0x50;pe[0x81]=0x45;pe[0x84]=0x4C;pe[0x85]=1;pe[0x98]=0x0B;pe[0x99]=1;File.WriteAllBytes(exe,pe);
+    var location=new SingularityGameAdapter().Validate(f.Root,game);var consent=new ExecutableConsent(f.Root,location.ExeHash!);
+    var plan=PlanBuilder.Build(game,location,new("en","en","en",[]),consent);
+    await Reject(()=>f.Installer.InstallAsync(plan with{Modules=[module with{ArchiveSha256=new string('0',64)}]},Archives(f,module),null,default));
+    await Reject(()=>f.Installer.InstallAsync(plan with{ExecutableConsent=consent with{Root=Path.Combine(f.Root,"other")}},Archives(f,module),null,default));
+    File.AppendAllText(exe,"changed after review");await Reject(()=>f.Installer.InstallAsync(plan,Archives(f,module),null,default));
+    Assert(!ExecutableCompatibility.CanTry(game,location));Assert(!File.Exists(Path.Combine(f.Root,"Binaries","d3d9.dll")));
+});
+await Test("missing and non-x86 executable cannot use unverified consent",()=>Sync(()=>
+{
+    var f=Fixture();var game=f.Game();var exe=Path.Combine(f.Root,"Binaries","Singularity.exe");File.AppendAllText(exe,"not a PE");
+    var adapter=new SingularityGameAdapter();Assert(!ExecutableCompatibility.CanTry(game,adapter.Validate(f.Root,game)));
+    File.Delete(exe);Assert(!ExecutableCompatibility.CanTry(game,adapter.Validate(f.Root,game)));
+}));
 await Test("only pinned PSVR2 helper executable can install and restore",async()=>
 {
     var f=Fixture();var module=Package(f);var helper="Binaries/SingularityPsvr2Bridge.exe";
@@ -74,7 +162,102 @@ await Test("only pinned PSVR2 helper executable can install and restore",async()
     await Reject(()=>f.Installer.InstallAsync(f.Plan(bad),Archives(f,bad),null,default));
     Assert(!File.Exists(Paths.Safe(f.Root,helper)));
 });
-await Test("Darkness II remains unavailable",()=>Sync(()=>{var f=Fixture();Assert(!new Darkness2GameAdapter().Validate(f.Root,f.Game()).Compatible);}));
+await Test("Darkness II detects the signed Steam fingerprint and rejects unknown builds",async ()=>{
+    var f=Fixture();
+    var library=Path.Combine(f.Root,"steamapps");
+    var gameRoot=Path.Combine(library,"common","Darkness II");
+    Directory.CreateDirectory(Path.Combine(gameRoot,"Cache.Windows"));
+    var exe=Path.Combine(gameRoot,"DarknessII.exe");
+    File.WriteAllText(exe,"synthetic Darkness II");
+    File.WriteAllText(Path.Combine(library,"appmanifest_67370.acf"),""" "AppState" { "appid" "67370" "installdir" "Darkness II" } """);
+    var module=Package(f);
+    module=module with{Files=[module.Files[0] with{Path="d3d9.dll"}]};
+    var game=new GameManifest("darkness2","Darkness II","preview","Darkness2GameAdapter","67370","DarknessII.exe",[Paths.Hash(exe)],[module]);
+    var adapter=new Darkness2GameAdapter();
+    var location=adapter.Detect([f.Root],game).Single();
+    Assert(location.Compatible);
+    var plan=PlanBuilder.Build(game,location,new("en","en","en",[]));
+    await f.Installer.InstallAsync(plan,Archives(f,module),null,default);
+    Assert(File.Exists(Path.Combine(gameRoot,"d3d9.dll")));
+    f.Installer.Uninstall(gameRoot,default);
+    Assert(!File.Exists(Path.Combine(gameRoot,"d3d9.dll")));
+    Assert(ProcessGuardPolicy.Refusal(gameRoot,1,2,"DarknessII",null)!=null);
+    Assert(ProcessGuardPolicy.Refusal(gameRoot,1,2,"Singularity",null)==null);
+    File.AppendAllText(exe,"changed");
+    await Reject(()=>Sync(()=>PlanBuilder.Build(game,adapter.Validate(gameRoot,game),new("en","en","en",[]))));
+});
+await Test("Darkness II manual x86 build requires exact consent and rejects executable changes",async ()=>{
+    var f=Fixture();
+    Directory.CreateDirectory(Path.Combine(f.Root,"Cache.Windows"));
+    var exe=Path.Combine(f.Root,"DarknessII.exe");
+    var pe=new byte[256];pe[0]=0x4D;pe[1]=0x5A;pe[0x3C]=0x80;pe[0x80]=0x50;pe[0x81]=0x45;
+    pe[0x84]=0x4C;pe[0x85]=1;pe[0x98]=0x0B;pe[0x99]=1;File.WriteAllBytes(exe,pe);
+    var module=Package(f);module=module with{Files=[module.Files[0] with{Path="d3d9.dll"}]};
+    var game=new GameManifest("darkness2","Darkness II","preview","Darkness2GameAdapter","67370","DarknessII.exe",[new string('0',64)],[module]);
+    var adapter=new Darkness2GameAdapter();
+    var location=adapter.Validate(f.Root,game);
+    Assert(!location.Compatible&&ExecutableCompatibility.CanTry(game,location));
+    var choices=new InstallChoices("en","en","en",[]);
+    await Reject(()=>Sync(()=>PlanBuilder.Build(game,location,choices)));
+    var plan=PlanBuilder.Build(game,location,choices,new(f.Root,location.ExeHash!));
+    var receipt=await f.Installer.InstallAsync(plan,Archives(f,module),null,default);
+    Assert(receipt.ExecutableConsent==plan.ExecutableConsent);
+    f.Installer.Uninstall(f.Root,default);
+    pe[0x84]=0x64;pe[0x85]=0x86;File.WriteAllBytes(exe,pe);
+    Assert(!ExecutableCompatibility.CanTry(game,adapter.Validate(f.Root,game)));
+    await Reject(()=>f.Installer.InstallAsync(plan,Archives(f,module),null,default));
+});
+await Test("Only the Darkness II source download accepts changed texture ZIPs",async ()=>{
+    var f=Fixture();
+    var target=Path.Combine(f.Root,"textures.zip");
+    byte[] Zip(string name,byte sample)
+    {
+        using var memory=new MemoryStream();
+        using(var zip=new ZipArchive(memory,ZipArchiveMode.Create,true))
+        using(var entry=zip.CreateEntry(name).Open())entry.Write(new byte[]{137,80,78,71,13,10,26,10,sample});
+        return memory.ToArray();
+    }
+    var first=Zip("weapons/one.png",1);
+    var update=Zip("tentacles/another.png",2);
+    foreach(var bytes in new[]{first,update})
+    {
+        using var http=new HttpClient(new FakeHttp(bytes));
+        await new DarknessTextureDownload(http).SaveAsync(target,null,default);
+        Assert(File.ReadAllBytes(target).SequenceEqual(bytes));
+    }
+    using var bad=new HttpClient(new FakeHttp(Zip("../escape.png",3)));
+    await Reject(()=>new DarknessTextureDownload(bad).SaveAsync(target,null,default));
+    Assert(File.ReadAllBytes(target).SequenceEqual(update));
+    Assert(!Directory.EnumerateFiles(f.Root,"*.part").Any());
+});
+await Test("Darkness texture targets cannot enter a Singularity manifest",async ()=>{
+    var f=Fixture();var m=Package(f);
+    var texture=m with{Files=[m.Files[0] with{Path="Cache.Windows/H.Texture.toc"}]};
+    await Reject(()=>Sync(()=>PlanBuilder.ValidateManifest(f.Game(texture))));
+    var game=new GameManifest("darkness2","Darkness II","preview","Darkness2GameAdapter","67370","DarknessII.exe",[new string('0',64)],[texture]);
+    PlanBuilder.ValidateManifest(game);
+});
+await Test("Local texture conversion rejects unvalidated ZIPs before copying game data",async ()=>{
+    var f=Fixture();var archive=Path.Combine(f.Root,"bad.zip");
+    using(var zip=ZipFile.Open(archive,ZipArchiveMode.Create))
+    using(var output=zip.CreateEntry("../escape.png").Open())output.Write(new byte[]{137,80,78,71,13,10,26,10});
+    var workspace=Path.Combine(f.Root,"conversion");
+    await Reject(()=>DarknessTextureInstall.PrepareAsync(f.Root,f.Installer,workspace,archive,default));
+    Assert(!Directory.Exists(workspace));
+    using var cancellation=new CancellationTokenSource();cancellation.Cancel();
+    try{await DarknessTextureDownload.ValidateArchiveAsync(archive,cancellation.Token);throw new Exception("Expected cancellation");}
+    catch(OperationCanceledException){}
+});
+await Test("Drive package bytes remain hash pinned and redirects cannot leave Drive",async ()=>{
+    var f=Fixture();
+    var m=Package(f) with{DownloadUrl="https://drive.usercontent.google.com/download?id=fixture_123&export=download&confirm=t"};
+    using var http=new HttpClient(new FakeHttp(File.ReadAllBytes(Archives(f,m)[m.Id])));
+    var path=await new PackageDownloader(http,Path.Combine(f.Root,"drive")).GetAsync(m,false,null,default);
+    Assert(Paths.Hash(path)==m.ArchiveSha256);
+    using var bad=new HttpClient(new FakeHttp([]){Redirect="https://release-assets.githubusercontent.com/file"});
+    await Reject(()=>new PackageDownloader(bad,Path.Combine(f.Root,"bad-drive")).GetAsync(m,false,null,default));
+    await Reject(()=>Sync(()=>CatalogService.ValidateReleaseUrl(new Uri(m.DownloadUrl!),"trilex07/TrilexModInstaller")));
+});
 await Test("missing packages and dependency cycles",async()=>
 {
     var f=Fixture();var m=Package(f);await Reject(()=>Sync(()=>PlanBuilder.Build(f.Game(m with{Dependencies=["missing"]}),f.Location(),new("en","en","en",[]))));
@@ -162,6 +345,97 @@ await Test("local reconstruction reads owned originals and verifies output",asyn
 {
     var f=Fixture();var source=Path.Combine(f.Root,"source.bin");File.WriteAllText(source,"ABCD1234");var stage=Path.Combine(f.Root,"stage");Directory.CreateDirectory(stage);File.WriteAllText(Path.Combine(stage,"new.bin"),"MOD");var expected=SHA256.HashData(Encoding.UTF8.GetBytes("ABMOD34"));var recipe=new PackageFile("RvGame/CookedPC/new.xxx","",Convert.ToHexString(expected),"recipe","local-transform",Paths.Hash(source),Recipe:[new("original",0,2),new("payload",0,3,"new.bin"),new("original",6,2)]);Assert(Encoding.UTF8.GetString(PackageExtractor.Reconstruct(source,stage,recipe))=="ABMOD34");await Reject(()=>Sync(()=>PackageExtractor.Reconstruct(source,stage,recipe with{BeforeSha256=new string('0',64)})));
 });
+await Test("reconstruction mismatch identifies output and operation in both output paths",async()=>
+{
+    var f=Fixture();var source=Path.Combine(f.Root,"source.bin");File.WriteAllText(source,"OWNED");
+    var stage=Path.Combine(f.Root,"stage");Directory.CreateDirectory(stage);
+    var actual=Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes("OWNED")));
+    var recipe=new PackageFile("Binaries/vr-assets/failing.bin","",new string('0',64),"recipe","local-transform",Paths.Hash(source),Recipe:[new("original",0,5)],SourcePath:"RvGame/CookedPC/owned.xxx");
+    foreach(var disk in new[]{false,true})
+    {
+        try
+        {
+            if(disk)PackageExtractor.ReconstructTo(source,stage,recipe,Path.Combine(stage,"out.bin"));
+            else PackageExtractor.Reconstruct(source,stage,recipe);
+            throw new Exception("Mismatched output was accepted");
+        }
+        catch(InvalidDataException e)
+        {
+            Assert(e.Message.Contains("Locally reconstructed output hash mismatch: "+recipe.Path));
+            Assert(e.Message.Contains("source="+recipe.SourcePath)&&e.Message.Contains("codec=none")&&e.Message.Contains("operations=original"));
+            Assert(e.Message.Contains("bytes=5")&&e.Message.Contains("expected SHA256="+recipe.Sha256)&&e.Message.Contains("actual SHA256="+actual));
+            Assert(!e.Message.Contains(f.Root));
+        }
+    }
+    await Task.CompletedTask;
+});
+await Test("output mismatch requires explicit approval and records actual bytes for verify and uninstall",async()=>
+{
+    var f=Fixture();var m=MismatchPackage(f);var path="RvGame/CookedPC/test.xxx";var target=Paths.Safe(f.Root,path);var original=Paths.Hash(target);
+    await Reject(()=>f.Installer.InstallAsync(f.Plan(m),Archives(f,m),null,default));
+    var calls=0;await Reject(()=>f.Installer.InstallAsync(f.Plan(m),Archives(f,m),null,default,confirmMismatch:w=>{calls++;return false;}));
+    Assert(calls==1&&Paths.Hash(target)==original&&f.Installer.Receipt(f.Root) is null);
+    var receipt=await f.Installer.InstallAsync(f.Plan(m),Archives(f,m),null,default,confirmMismatch:w=>{calls++;Assert(w.Path==path&&w.ExpectedSha256==new string('0',64));return true;});
+    Assert(calls==2&&File.ReadAllText(target)=="MOD"&&f.Installer.Verify(f.Root).Count==0);
+    var stored=f.Installer.Receipt(f.Root)!;var warning=stored.ReconstructionWarnings!.Single();
+    Assert(warning.ActualSha256==Paths.Hash(target)&&warning.ExpectedSha256!=warning.ActualSha256);
+    Assert(stored.Files.Single(x=>x.Path==path).InstalledHash==warning.ActualSha256);
+    Assert(receipt.ReconstructionWarnings!.Count==1);
+    // Approval is not a persistent bypass for the next regeneration.
+    await Reject(()=>f.Installer.InstallAsync(f.Plan(m),Archives(f,m),null,default));
+    Assert(f.Installer.Receipt(f.Root)!.TransactionId==receipt.TransactionId);
+    File.WriteAllText(target,"DAMAGED");Assert(f.Installer.Verify(f.Root).Count==1);
+    await Reject(()=>f.Installer.RepairAsync(f.Plan(m),Archives(f,m),null,default));
+    Assert(File.ReadAllText(target)=="DAMAGED");
+    await f.Installer.RepairAsync(f.Plan(m),Archives(f,m),null,default,w=>true);
+    Assert(File.ReadAllText(target)=="MOD"&&f.Installer.Verify(f.Root).Count==0);
+    f.Installer.Uninstall(f.Root,default);Assert(Paths.Hash(target)==original);
+    Assert(!File.Exists(Paths.Safe(f.Root,"Binaries/trilex-test.dll"))&&f.Installer.Receipt(f.Root) is null);
+});
+await Test("extractor override accepts only a completed output mismatch in both APIs",async()=>
+{
+    var f=Fixture();var source=Path.Combine(f.Root,"owned.bin");File.WriteAllText(source,"OWNED");var stage=Path.Combine(f.Root,"stage");Directory.CreateDirectory(stage);
+    var file=new PackageFile("RvGame/CookedPC/generated.xxx","",new string('0',64),"recipe","local-transform",Paths.Hash(source),Recipe:[new("original",0,5)]);
+    var calls=0;bool Approve(ReconstructionWarning warning){calls++;Assert(warning.Bytes==5&&warning.ActualSha256==Paths.Hash(source));return true;}
+    Assert(Encoding.UTF8.GetString(PackageExtractor.Reconstruct(source,stage,file,Approve))=="OWNED");
+    var output=Path.Combine(stage,"output.bin");PackageExtractor.ReconstructTo(source,stage,file,output,Approve);Assert(File.ReadAllText(output)=="OWNED"&&calls==2);
+    await Reject(()=>Sync(()=>PackageExtractor.Reconstruct(source,stage,file with{BeforeSha256=new string('1',64)},Approve)));
+    Assert(calls==2);
+});
+await Test("mismatch approval cannot bypass original, archive or game checks",async()=>
+{
+    foreach(var fault in new[]{"source","archive","game"})
+    {
+        var f=Fixture();var m=MismatchPackage(f);var calls=0;
+        if(fault=="source")File.WriteAllText(Paths.Safe(f.Root,"RvGame/CookedPC/test.xxx"),"FOREIGN");
+        var plan=f.Plan(m);
+        if(fault=="archive")File.AppendAllText(Archives(f,m)[m.Id],"TAMPER");
+        if(fault=="game")File.AppendAllText(Paths.Safe(f.Root,"Binaries/Singularity.exe"),"TAMPER");
+        await Reject(()=>f.Installer.InstallAsync(plan,Archives(f,m),null,default,confirmMismatch:w=>{calls++;return true;}));
+        Assert(calls==0&&f.Installer.Receipt(f.Root) is null&&!File.Exists(Paths.Safe(f.Root,"Binaries/trilex-test.dll")));
+    }
+});
+await Test("declining a later mismatch writes no prepared replacements",async()=>
+{
+    var f=Fixture();var m=MismatchPackage(f,true);var calls=0;
+    await Reject(()=>f.Installer.InstallAsync(f.Plan(m),Archives(f,m),null,default,confirmMismatch:w=>++calls==1));
+    Assert(calls==2&&f.Installer.Receipt(f.Root) is null&&!File.Exists(Paths.Safe(f.Root,"Binaries/trilex-test.dll")));
+    foreach(var path in new[]{"RvGame/CookedPC/test.xxx","RvGame/CookedPC/test2.xxx"})Assert(File.ReadAllText(Paths.Safe(f.Root,path))=="ORIGINAL");
+});
+await Test("approved mismatch still rolls back on apply failure and respects cancellation",async()=>
+{
+    var f=Fixture();var m=MismatchPackage(f);var target=Paths.Safe(f.Root,"RvGame/CookedPC/test.xxx");
+    await Reject(()=>f.Installer.InstallAsync(f.Plan(m),Archives(f,m),null,default,i=>{if(i==2)throw new IOException("Synthetic failure after installing the approved mismatch");},confirmMismatch:w=>true));
+    Assert(File.ReadAllText(target)=="ORIGINAL"&&f.Installer.Receipt(f.Root) is null&&!File.Exists(Paths.Safe(f.Root,"Binaries/trilex-test.dll")));
+    using var ct=new CancellationTokenSource();
+    try
+    {
+        await f.Installer.InstallAsync(f.Plan(m),Archives(f,m),null,ct.Token,confirmMismatch:w=>{ct.Cancel();return true;});
+        throw new Exception("Cancellation ignored");
+    }
+    catch(OperationCanceledException){}
+    Assert(File.ReadAllText(target)=="ORIGINAL"&&f.Installer.Receipt(f.Root) is null);
+});
 await Test("download selection cache retries and resumed range",async()=>
 {
     var f=Fixture();var m=Package(f);var payload=File.ReadAllBytes(Archives(f,m)[m.Id]);var handler=new FakeHttp(payload);using var http=new HttpClient(handler);var cache=Path.Combine(f.Root,"cache");Directory.CreateDirectory(cache);File.WriteAllBytes(Path.Combine(cache,m.ArchiveSha256!.ToLowerInvariant()+".zip.part"),payload[..10]);var downloader=new PackageDownloader(http,cache);var path=await downloader.GetAsync(m,false,null,default);Assert(handler.Requests==1&&handler.LastRange==10&&Paths.Same(Paths.Hash(path),m.ArchiveSha256));await downloader.GetAsync(m,true,null,default);Assert(handler.Requests==1);await Reject(()=>downloader.GetAsync(m with{ArchiveSha256=new string('A',64)},true,null,default));
@@ -176,7 +450,7 @@ await Test("hard process exit recovers durable journal",async()=>
     var f=Fixture();var m=Package(f);var moduleJson=Path.Combine(f.Root,"module.json");Json.Write(moduleJson,m);
     var exe=Path.Combine(AppContext.BaseDirectory,"Trilex.Installer.Tests.exe");
     var start=new System.Diagnostics.ProcessStartInfo(exe){UseShellExecute=false,CreateNoWindow=true};foreach(var a in new[]{"--crash",f.Root,f.State,Archives(f,m)[m.Id],moduleJson})start.ArgumentList.Add(a);
-    using var child=System.Diagnostics.Process.Start(start)!;await child.WaitForExitAsync();Assert(child.ExitCode==86);Assert(File.Exists(Path.Combine(f.Root,"Binaries","trilex-test.dll")));f.Installer.Recover(f.Root);Assert(!File.Exists(Path.Combine(f.Root,"Binaries","trilex-test.dll")));Assert(f.Installer.Receipt(f.Root) is null);
+    using var child=System.Diagnostics.Process.Start(start)!;await child.WaitForExitAsync();Assert(child.ExitCode==86);Assert(File.Exists(Path.Combine(f.Root,"Binaries","trilex-test.dll")));Assert(f.Installer.NeedsRecovery(f.Root));f.Installer.Recover(f.Root);Assert(!f.Installer.NeedsRecovery(f.Root));Assert(!File.Exists(Path.Combine(f.Root,"Binaries","trilex-test.dll")));Assert(f.Installer.Receipt(f.Root) is null);
 });
 await Test("duplicate controlled INI keys fail closed",async()=>{await Reject(()=>Sync(()=>new IniDocument("[Input]\nTest=1\nTest=2\n").Set("Input/Test","3")));});
 await Test("catalog follows trusted GitHub release redirect and verifies signature",async()=>
@@ -523,6 +797,78 @@ await Test("process guard blocks only Singularity across Steam/retail drives and
     Assert(Check(124,"unknown",@"C:\Retail\Singularity\Binaries\SINGULARITY.EXE") is not null);
     Assert(Check(124,"SingularityLauncher",@"D:\Retail\SingularityLauncher.exe") is null);
 }));
+await Test("Universal launch prepares only the exact reviewed game EXE and its working directory",async()=>
+{
+    var f=Fixture();var module=Package(f);var game=f.Game(module);var location=f.Location();
+    var receipt=new InstallReceipt("1",f.Root,"singularity","test",new("en","en","en",[]),[],"test");
+    Assert(GameLauncher.CanLaunch(game,location,receipt));
+    var info=GameLauncher.CreateStartInfo(game,location,receipt);
+    Assert(Paths.Same(info.FileName,Paths.Safe(f.Root,game.Executable))&&Paths.Same(info.WorkingDirectory,Path.GetFullPath(f.Root))&&info.Arguments=="");
+    var unknown=location with{Compatible=false};
+    Assert(!GameLauncher.CanLaunch(game,unknown,receipt));
+    var accepted=receipt with{ExecutableConsent=new(f.Root,location.ExeHash!)};
+    Assert(GameLauncher.CanLaunch(game,unknown,accepted));
+    Assert(!GameLauncher.CanLaunch(game,unknown,accepted with{GameId="darkness2"}));
+    Assert(!GameLauncher.CanLaunch(game,unknown,accepted with{Root=f.Root+"-other"}));
+    Assert(!GameLauncher.CanLaunch(game,unknown,accepted with{ExecutableConsent=new(f.Root,new string('0',64))}));
+    File.AppendAllText(Paths.Safe(f.Root,game.Executable),"changed");
+    await Reject(()=>Sync(()=>GameLauncher.CreateStartInfo(game,unknown,accepted)));
+});
+await Test("manual export prepares copy, merged INI and recipe without touching game or receipts",async()=>
+{
+    var f=Fixture();var m=Package(f,content:"MOD");var source=Paths.Safe(f.Root,"RvGame/CookedPC/manual.xxx");File.WriteAllText(source,"ORIGINAL");
+    var recipe=new PackageFile("RvGame/CookedPC/manual.xxx","",m.Files[0].Sha256,"recipe","local-transform",Paths.Hash(source),Recipe:[new("payload",0,3,"data/mod.bin")]);
+    // Fixture payload is MOD, so both the copied file and recipe have the same verified output.
+    m=m with{Files=[..m.Files,recipe]};
+    File.WriteAllText(Paths.Safe(f.Root,"Binaries/SingularityVR.ini"),"[User]\nKeep=1\n");
+    var before=Directory.GetFiles(f.Root,"*",SearchOption.AllDirectories).ToDictionary(p=>p,Paths.Hash);
+    var output=f.Root+"-manual";
+    ManualExporter.Export(f.Plan(m),Archives(f,m),output,f.Installer,null,default);
+    Assert(before.All(p=>Paths.Hash(p.Key)==p.Value)&&Directory.GetFiles(f.Root,"*",SearchOption.AllDirectories).Length==before.Count);
+    Assert(f.Installer.Receipt(f.Root) is null&&!Directory.Exists(f.State));
+    Assert(File.ReadAllText(Paths.Safe(output,"files/RvGame/CookedPC/manual.xxx"))=="MOD");
+    var ini=new IniDocument(File.ReadAllText(Paths.Safe(output,"files/Binaries/SingularityVR.ini")));
+    Assert(ini.Get("User/Keep")=="1"&&ini.Get("Input/Test")=="1");
+    Assert(File.Exists(Paths.Safe(output,"README-EN.md"))&&File.Exists(Paths.Safe(output,"README-PL.md"))&&!Directory.Exists(Paths.Safe(output,"work")));
+    foreach(var row in Json.Read<ManualExportReceipt>(Paths.Safe(output,"manual-manifest.json")).Files)Assert(Paths.Hash(Paths.Safe(output,"files/"+row.Path))==row.Sha256);
+    await Reject(()=>Sync(()=>ManualExporter.Export(f.Plan(m),Archives(f,m),output,f.Installer,null,default)));
+    await Reject(()=>Sync(()=>ManualExporter.Export(f.Plan(m),Archives(f,m),Path.Combine(f.Root,"export"),f.Installer,null,default)));
+});
+await Test("manual export rejects tampering and cancellation without partial deliveries",async()=>
+{
+    var f=Fixture();var m=Package(f,content:"MOD");var output=f.Root+"-manual-cancel";using var cancel=new CancellationTokenSource();cancel.Cancel();
+    var cancelled=false;try{ManualExporter.Export(f.Plan(m),Archives(f,m),output,f.Installer,null,cancel.Token);}catch(OperationCanceledException){cancelled=true;}Assert(cancelled);
+    Assert(!Directory.Exists(output)&&!Directory.GetDirectories(Path.GetDirectoryName(output)!,Path.GetFileName(output)+".partial-*").Any());
+    File.AppendAllText(Archives(f,m)[m.Id],"tampered");
+    await Reject(()=>Sync(()=>ManualExporter.Export(f.Plan(m),Archives(f,m),output,f.Installer,null,default)));
+    Assert(!Directory.Exists(output)&&f.Installer.Receipt(f.Root) is null);
+});
+await Test("manual export uses verified managed originals rather than patching installed output twice",async()=>
+{
+    var f=Fixture();var m=Package(f,content:"MOD");var source=Paths.Safe(f.Root,"RvGame/CookedPC/manual.xxx");File.WriteAllText(source,"ORIGINAL");
+    m=m with{Files=[..m.Files,new("RvGame/CookedPC/manual.xxx","",m.Files[0].Sha256,"recipe","local-transform",Paths.Hash(source),Recipe:[new("payload",0,3,"data/mod.bin")])]};
+    await f.Installer.InstallAsync(f.Plan(m),Archives(f,m),null,default);
+    var before=Paths.Hash(source);var receipt=File.ReadAllBytes(Path.Combine(f.Installer.StateDirectory(f.Root),"installed.json"));
+    ManualExporter.Export(f.Plan(m),Archives(f,m),f.Root+"-managed-export",f.Installer,null,default);
+    Assert(Paths.Hash(source)==before&&receipt.SequenceEqual(File.ReadAllBytes(Path.Combine(f.Installer.StateDirectory(f.Root),"installed.json"))));
+});
+await Test("Wonderlands x64 adapter, unknown hash consent, install/export/restore and DX11 launch",async()=>
+{
+    var f=Fixture();var bin=Paths.Safe(f.Root,"OakGame/Binaries/Win64/xinput1_3.dll");Directory.CreateDirectory(Path.GetDirectoryName(bin)!);Directory.CreateDirectory(Paths.Safe(f.Root,"OakGame/Content"));
+    var exe=Paths.Safe(f.Root,"OakGame/Binaries/Win64/Wonderlands.exe");var pe=new byte[256];
+    using(var stream=new MemoryStream(pe))using(var writer=new BinaryWriter(stream)){writer.Write((ushort)0x5A4D);stream.Position=60;writer.Write(128);stream.Position=128;writer.Write(0x4550);writer.Write((ushort)0x8664);stream.Position=152;writer.Write((ushort)0x20B);}File.WriteAllBytes(exe,pe);
+    var initial=Package(f);var m=initial with{Files=[new("OakGame/Binaries/Win64/xinput1_3.dll","data/mod.bin",initial.Files[0].Sha256,"copy","mod-authored"),new("OakGame/Binaries/Win64/WonderlandsVR.ini","","","ini","mod-authored",IniValues:new(){{"Simulator/Enabled","0"}})]};
+    var game=new GameManifest("wonderlands","Tiny Tina's Wonderlands VR","stable","WonderlandsGameAdapter","1286680","OakGame/Binaries/Win64/Wonderlands.exe",[new string('0',64)],[m]);
+    var location=new WonderlandsGameAdapter().Validate(f.Root,game);Assert(!location.Compatible&&ExecutableCompatibility.CanTry(game,location));
+    var plan=PlanBuilder.Build(game,location,new("en","en","en",[]),new(f.Root,location.ExeHash!));
+    var receipt=await f.Installer.InstallAsync(plan,Archives(f,m),null,default);Assert(f.Installer.Verify(f.Root).Count==0);
+    var start=GameLauncher.CreateStartInfo(game,location,receipt);Assert(start.Arguments=="-dx11"&&Paths.Same(start.WorkingDirectory,Path.GetDirectoryName(exe)));
+    Assert(ProcessGuardPolicy.Refusal(f.Root,1,2,"Wonderlands",exe) is not null&&ProcessGuardPolicy.Refusal(f.Root,1,2,"Steam",null) is null);
+    ManualExporter.Export(plan,Archives(f,m),f.Root+"-tiny-export",f.Installer,null,default);
+    f.Installer.Uninstall(f.Root,default);Assert(!File.Exists(bin)&&File.Exists(exe));
+    await Reject(()=>Sync(()=>PlanBuilder.ValidateManifest(game with{Modules=[m with{Files=[m.Files[0] with{Path="Binaries/foreign.dll"}]}]})));
+    await Reject(()=>Sync(()=>PlanBuilder.ValidateManifest(f.Game(m))));
+});
 var report=new{time=DateTimeOffset.UtcNow,passed=results.Count-failed,failed,fixtureRoot=testRoot,steamAccess="NONE",results};
 Json.Write(Path.Combine(testRoot,"test-report.json"),report);Console.WriteLine(JsonSerializer.Serialize(new{passed=results.Count-failed,failed,report=Path.Combine(testRoot,"test-report.json")}));Environment.ExitCode=failed==0?0:1;
 

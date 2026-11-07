@@ -1,17 +1,15 @@
-# Trilex Mod Installer 1.0.0 RC1 — complete V7 candidate
+# Trilex Mod Installer 1.0.9
 
-Complete self-contained Windows x64 installer with 12 signed V7 modules and a full Polish preset. Includes VR runtime, Polish text/replacement dubbing, local audio remaster, UI/HUD, native-derived hands/TMD/reload resources, HD textures and portable settings. Requires a compatible owned game; no game executable or whole commercial cooked package is shipped.
+Three games: Singularity VR, The Darkness II VR, and Tiny Tina’s Wonderlands VR.
 
-Extract the entire complete ZIP before running the EXE. Selected packages are verified locally; first-time Centurion/audio helper downloads require internet or an existing verified cache. Install, reinstall, repair and uninstall use exact backups and transaction recovery. No Python, .NET SDK or source checkout is required.
+- Adds Tiny Tina’s native x64 runtime, OpenXR loader and portable snapshot of the installed profile. Choose the game ROOT containing OakGame. The installer writes only the approved files under OakGame/Binaries/Win64; Run the game uses -dx11.
+- Adds “Prepare files for manual installation” for every game and its selected modules, including locally reconstructed options. Choose your source game, options, review and output folder. Read README-EN.md or README-PL.md and copy the contents of files to the game root yourself. Source games and managed receipts are not changed by export. Manual installation has no automatic uninstall; make your own backups.
+- Keeps unknown executable hashes warning-only with explicit review consent. Per-hook native checks and signed package/recipe bounds remain.
+- Retains all 1.0.8 Singularity and Darkness packages and optional downloads unchanged, including the latest Darkness warning-only runtime.
+- Tiny Tina profile simulator paths are removed and Simulator.Enabled remains 0. Optional PSVR2 Toolkit is not bundled.
 
-Unresolved third-party permission provenance is explicitly disclosed under signed publisher review; it is not an MIT grant or rights-holder approval. The executable is unsigned. Production Authenticode requirements are unchanged. Clean-PC interaction and physical installer acceptance remain pending; offline results are recorded separately.
+Offline: installer/Core, actual signed Tiny Tina install/verify/manual-export/restore fixtures, Tiny Tina CTest and bilingual WPF checks. No new game launch or headset/FPS claim. Tiny Tina mod remains under development; see its project README for limitations. Evidence JSON is optional, not needed for installation.
 
-## Historical source preview
+Extract the entire ZIP. The installer EXE is not Authenticode signed. Windows x64 is required. No commercial game EXE is distributed.
 
-# Trilex Mod Installer 0.1.0 RC
-
-Installer engineering preview with branded bilingual desktop UI, signed catalogs, verified downloads, offline support and reversible transactions. Singularity is the first supported adapter; Darkness II is Coming Soon.
-
-**Game packs are not yet publicly installable.** Current catalog shows unavailable components until rights-safe local asset reconstruction and package publication are reviewed. No original game content is included. This RC is not a replacement for the separately accepted SingularityVR V7 Steam deployment.
-
-See README, inventory and STATUS for exact evidence and remaining gates. No physical/real-Steam installer PASS is claimed. Production publication requires both catalog signatures and Authenticode signing.
+Darkness II November 7 refresh: stabilized gaze targeting and tentacle throws; brief blinks retain the target, isolated gaze jumps are filtered. Download the refreshed full 1.0.9 ZIP. Other game packages and settings are preserved.

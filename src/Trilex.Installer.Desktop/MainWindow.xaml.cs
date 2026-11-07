@@ -9,16 +9,45 @@ public partial class MainWindow : Window
     {
         InitializeComponent();DataContext=vm;
         Closing+=(s,e)=>{if(vm.Busy){vm.Cancel();e.Cancel=true;}else vm.Dispose();};
+        Loaded+=async(s,e)=>await vm.Run(vm.Startup);
     }
+    private async void Primary_Click(object sender,RoutedEventArgs e){await vm.Run(vm.PrimaryAction);ShowInstallAction();}
+    private async void Manual_Click(object sender,RoutedEventArgs e){await vm.Run(vm.ManualInstall);ShowInstallAction();}
+    private void InstallerUpdate_Click(object sender,RoutedEventArgs e)=>vm.OpenInstallerUpdate();
+    private void ShowInstallAction()
+    {
+        if(!vm.CanInstall)return;
+        UpdateLayout();InstallAction.BringIntoView();InstallAction.Focus();
+    }
+    private async Task SelectAndDetect(string id){vm.SelectGame(id);await vm.Run(vm.Detect);}
     private async void Detect_Click(object sender,RoutedEventArgs e)=>await vm.Run(vm.Detect);
     private async void Validate_Click(object sender,RoutedEventArgs e)=>await vm.Run(vm.Validate);
     private async void Browse_Click(object sender,RoutedEventArgs e)
     {
         var dialog=new OpenFolderDialog{Title=vm.L["Folder"],Multiselect=false};if(dialog.ShowDialog(this)==true){vm.GameRoot=dialog.FolderName;await vm.Run(vm.Validate);}
     }
-    private async void Review_Click(object sender,RoutedEventArgs e)=>await vm.Run(vm.Review);
+    private async void Review_Click(object sender,RoutedEventArgs e)
+    {
+        await vm.Run(vm.Review);
+        if(!vm.CanInstall)return;
+        UpdateLayout();
+        InstallAction.BringIntoView();
+        InstallAction.Focus();
+    }
+    private async void Singularity_Click(object sender,RoutedEventArgs e)=>await SelectAndDetect("singularity");
+    private async void Wonderlands_Click(object sender,RoutedEventArgs e)=>await SelectAndDetect("wonderlands");
+    private async void Darkness_Click(object sender,RoutedEventArgs e)=>await SelectAndDetect("darkness2");
     private async void FullPreset_Click(object sender,RoutedEventArgs e)=>await vm.Run(ct=>{vm.SelectAcceptedPreset();return Task.CompletedTask;});
-    private async void Install_Click(object sender,RoutedEventArgs e)=>await vm.Run(ct=>vm.Execute(ct));
+    private async void Install_Click(object sender,RoutedEventArgs e)
+    {
+        if(vm.ManualExport)
+        {
+            var dialog=new OpenFolderDialog{Title=vm.L["ExportFolder"],Multiselect=false};
+            if(dialog.ShowDialog(this)!=true)return;
+            vm.ExportParent=dialog.FolderName;
+        }
+        await vm.Run(async ct=>{await vm.Execute(ct);await vm.AfterInstall(ct);});
+    }
     private async void Repair_Click(object sender,RoutedEventArgs e)=>await vm.Run(ct=>vm.Execute(ct,true));
     private async void Verify_Click(object sender,RoutedEventArgs e)=>await vm.Run(vm.Verify);
     private async void Update_Click(object sender,RoutedEventArgs e)=>await vm.Run(vm.Update);

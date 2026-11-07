@@ -1,0 +1,105 @@
+{
+  "status": "PASS_RELEASE_READY",
+  "source": "6c38abea084023e8e5f7702385e21b37e71adc9f",
+  "integratedMain": "92fe119c187076defb2f5038e1678ec15c0da137",
+  "gameplayDllSha256": "A16FC1927B215A1A306DBE56CE24B1CB03A042A541EC7C8C4A4CBA1BF6A4A75A",
+  "bridgeSha256": "C4D002A3F09258F311EFF9CFB4FF20ABAD4CEB9CF3967E25A80212DFAF335271",
+  "changedModules": [
+    "vr-core",
+    "portable-settings"
+  ],
+  "unchangedRc6Modules": 10,
+  "settings": {
+    "Render/CinemaMutantAimAssist": "1",
+    "Render/CutsceneStereoCinema": "1",
+    "Haptics/DamagePulses": "1",
+    "Testing/GrantKasimovCenturion": "0",
+    "EyeTracking/Enabled": "1",
+    "EyeTracking/WeaponWheel": "1",
+    "EyeTracking/NisSharpen": "1"
+  },
+  "steamWrites": "NONE",
+  "gameLaunch": "NOT RUN",
+  "physical": "Mutant hit assistance accepted by user; no fresh clean-install HMD pass",
+  "limitations": [
+    "Retail compatibility unverified",
+    "Seeker physical reload remains disabled",
+    "Bink movies remain mono; stereo cinema applies to engine-rendered scenes",
+    "Gaze requires compatible PSVR2 Toolkit installation; no driver bundled",
+    "No FPS or 90Hz guarantee"
+  ],
+  "installerBuildSource": "8a5245d69ba66ce8a0a2fa75e68992656c6eb7f5",
+  "exeSha256": "71092DE52C593D0888F93A5D1B836C0AA594B75B7F4745E32D91EB620197897E",
+  "zipSha256": "74D5EDDE15BC2EBA5216FCB016711552355CA210753AB3ABD5CE5F5F95B96DCA",
+  "zipBytes": 1464057970,
+  "catalogSha256": "45D250973F7123DDF9971632427F56544F0533AFA756EBEA516919093379D184",
+  "lifecycle": {
+    "clean": {
+      "status": "PASS",
+      "catalog": "1.0.0-rc.7",
+      "predecessor": null,
+      "modules": 12,
+      "targets": 373,
+      "originalsRestored": 132,
+      "steps": [
+        "signed catalog",
+        "all bundled archive hashes",
+        "actual PL full preset planning",
+        "install or predecessor upgrade",
+        "verify",
+        "reinstall",
+        "detect damage",
+        "repair",
+        "uninstall",
+        "byte-exact originals"
+      ]
+    },
+    "upgrade": {
+      "status": "PASS",
+      "catalog": "1.0.0-rc.7",
+      "predecessor": "1.0.0-rc.6",
+      "modules": 12,
+      "targets": 373,
+      "originalsRestored": 132,
+      "steps": [
+        "RC6 signed install",
+        "RC7 signed upgrade",
+        "reinstall before intentional damage",
+        "exact current catalog hashes except deliberate damage",
+        "detect damage",
+        "repair",
+        "uninstall",
+        "byte-exact originals"
+      ],
+      "recovery": "Repair preflight refused insufficient disk; only the deliberate fixture damage remained; repaired/uninstalled after freeing finished fixture copies"
+    }
+  },
+  "coreTests": "72 PASS / 0 FAIL",
+  "archiveIntegrity": "PASS",
+  "installerUi": "8 PL/EN layouts PASS, no binding errors",
+  "bundledExporterOffline": "PASS, fresh isolated tool cache, network disabled",
+  "authenticode": "UNSIGNED",
+  "previousInstallerBuildSource": "6820320e1a88c08c994d4c0e85cd308525e9ac31",
+  "previousExeSha256": "50E9D12D9D274C3777A950B0A89F301370DF25F9728948B6E3CCB9DCE0A7E137",
+  "previousZipSha256": "DB86CD84ED51A80492B6172B9F86FD96DFA13379B763CB4EBCAD696565E3FF07",
+  "diagnosticRefresh": {
+    "date": "2026-11-02",
+    "scope": "Output mismatch context only; source checks and recipes unchanged",
+    "bundleComparison": "PASS: only installer EXE, release notes and checksum list differ",
+    "newExeUi": "8 PL/EN layouts PASS; no binding errors",
+    "lifecycle": "Prior RC7 lifecycle evidence retained; not rerun for error-message-only change",
+    "gogCompatibility": "UNVERIFIED; not claimed fixed"
+  },
+  "installerRevision": "rc7-explicit-output-exceptions-20261102",
+  "explicitOutputExceptions": {
+    "approval": "Per generated file, native Yes/No warning; No is default; no persistent global bypass",
+    "scope": "Only final local output mismatch; original/decoded sources, package, game and recipe checks remain strict",
+    "receipt": "Expected and actual hash + identity stored; installed hash is actual; exception completion/verify status",
+    "transactionTests": "PASS: approve/decline, reapproval for repair/reinstall, cancellation, later refusal before writes, rollback after accepted output was written, exact uninstall originals",
+    "publishedExeUi": "8 PL/EN layouts and warning/status producers PASS; native modal interaction not automated",
+    "bundleComparison": "PASS: only EXE, release notes and checksum list differ; catalog and all mod files unchanged",
+    "lifecycle": "Prior full RC7 lifecycle retained as historical evidence; new isolated real transaction fixtures passed; full 373-target lifecycle not repeated",
+    "gogSteamCompatibility": "Mismatch cause not established; accepting output does not prove game compatibility",
+    "steamAccess": "NONE"
+  }
+}

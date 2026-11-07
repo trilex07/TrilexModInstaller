@@ -11,6 +11,7 @@ New-Item -ItemType Directory -Force artifacts | Out-Null
 & (Join-Path $PSScriptRoot 'build-decoder.ps1')
 & (Join-Path $PSScriptRoot 'build-asset-worker.ps1') -InstallDependencies
 & (Join-Path $PSScriptRoot 'build-recipe-maker.ps1')
+& (Join-Path $PSScriptRoot 'build-darkness-textures.ps1') -InstallDependencies
 python tests/test_package_producers.py
 if($LASTEXITCODE){throw 'Package producer regressions failed'}
 

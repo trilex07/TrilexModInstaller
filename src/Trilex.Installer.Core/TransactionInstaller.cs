@@ -13,6 +13,11 @@ public sealed class TransactionInstaller(string stateRoot, IProcessGuard process
     {
         Paths.AssertNoLinks(state);Directory.CreateDirectory(state);return new FileStream(Path.Combine(state,"transaction.lock"),FileMode.OpenOrCreate,FileAccess.ReadWrite,FileShare.None);
     }
+    public bool NeedsRecovery(string root)
+    {
+        var path=Path.Combine(StateDirectory(root),"journal.json");
+        return File.Exists(path)&&Json.Read<Journal>(path).Phase!="committed";
+    }
     public void Recover(string root)
     {
         var state=StateDirectory(root);using var gate=Lock(state);RecoverLocked(root,state);
@@ -34,11 +39,12 @@ public sealed class TransactionInstaller(string stateRoot, IProcessGuard process
         if(journal.PreviousReceipt is null){if(File.Exists(installed))File.Delete(installed);}else Json.Write(installed,journal.PreviousReceipt);
         Json.Write(path,journal with {Phase="committed"});
     }
-    public async Task<InstallReceipt> InstallAsync(InstallPlan plan,Dictionary<string,string> archives,IProgress<ProgressInfo>? progress,CancellationToken ct,Action<int>? faultInjection=null,bool repair=false)
+    public async Task<InstallReceipt> InstallAsync(InstallPlan plan,Dictionary<string,string> archives,IProgress<ProgressInfo>? progress,CancellationToken ct,Action<int>? faultInjection=null,bool repair=false,Func<ReconstructionWarning,bool>? confirmMismatch=null)
     {
         // Caller constructs this plan through signed catalog validation; repeat ownership, game and package checks here.
         processes.RequireIdle(plan.Root);Paths.AssertNoLinks(plan.Root);
         if(!Paths.Same(Paths.Hash(Paths.Safe(plan.Root,plan.Executable)),plan.ExeSha256))throw new InvalidDataException("Executable changed after review");
+        if(plan.ExecutableConsent is not null&&!ExecutableCompatibility.Matches(plan.ExecutableConsent,plan.Root,plan.ExeSha256))throw new InvalidDataException("Executable consent belongs to another build or directory");
         if(plan.Modules.Any(x=>x.State!="stable" || !PlanBuilder.HasDistributionReview(x)))throw new InvalidDataException("Only explicitly reviewed stable modules can install");
         var state=StateDirectory(plan.Root);using var gate=Lock(state);RecoverLocked(plan.Root,state);
         var previous=Receipt(plan.Root);if(previous is not null && previous.GameId!=plan.GameId)throw new IOException("Adapter ownership mismatch");
@@ -70,7 +76,7 @@ public sealed class TransactionInstaller(string stateRoot, IProcessGuard process
             }
             progress?.Report(new("Extract",module.Id,++extracted,plan.Modules.Count));
         }
-        var edits=new List<(string Path,string? Staged)>();var ownership=new List<OwnedFile>();
+        var edits=new List<(string Path,string? Staged)>();var ownership=new List<OwnedFile>();var warnings=new List<ReconstructionWarning>();
         foreach(var (path,(file,stage)) in files)
         {
             progress?.Report(new("Prepare",path,edits.Count,files.Count));
@@ -106,16 +112,25 @@ public sealed class TransactionInstaller(string stateRoot, IProcessGuard process
                     source=sourceOwner?.OriginalHash is not null?Paths.Safe(state,sourceOwner.Backup):Paths.Safe(plan.Root,file.SourcePath);
                 }
                 if(file.SystemSource is not null)source=LocalSources.SystemPath(file.SystemSource);
-                PackageExtractor.ReconstructTo(source,stage,file,prepared);
+                // A manually installed byte-identical target needs no second transform.
+                if(Paths.Same(Paths.HashOrNull(source),file.Sha256))Paths.AtomicCopy(source,prepared);
+                else PackageExtractor.ReconstructTo(source,stage,file,prepared,warning=>
+                {
+                    ct.ThrowIfCancellationRequested();
+                    if(confirmMismatch?.Invoke(warning)!=true)return false;
+                    ct.ThrowIfCancellationRequested();warnings.Add(warning);return true;
+                });
             }
             else Paths.AtomicCopy(Paths.Safe(stage,file.Entry),prepared);
-            var after=Paths.Hash(prepared);var pristine=old is null || old.CanRestoreWhole&&Paths.Same(live,old.InstalledHash);
+            var after=Paths.Hash(prepared);
+            if(file.Kind=="recipe"&&!Paths.Same(after,file.Sha256)&&!warnings.Any(w=>Paths.Same(w.Path,path)&&Paths.Same(w.ActualSha256,after)))throw new InvalidDataException("Reconstructed file changed after approval: "+path);
+            var pristine=old is null || old.CanRestoreWhole&&Paths.Same(live,old.InstalledHash);
             ownership.Add(new(path,original,originalBackup,after,file.Kind,installedIni,originalIni,pristine));edits.Add((path,prepared));
             progress?.Report(new("Prepare",path,edits.Count,files.Count));
         }
         // Deselecting a package restores the user's originals, rather than leaving orphaned files.
         if(previous is not null)foreach(var old in previous.Files.Where(x=>!files.ContainsKey(x.Path)))edits.Add((old.Path,RestoreSource(plan.Root,state,old,txn)));
-        var receipt=new InstallReceipt("trilex-install-v1",Path.GetFullPath(plan.Root),plan.GameId,plan.Version,plan.Choices,ownership,id);
+        var receipt=new InstallReceipt("trilex-install-v1",Path.GetFullPath(plan.Root),plan.GameId,plan.Version,plan.Choices,ownership,id,warnings.Count==0?null:warnings,plan.ExecutableConsent);
         Apply(plan.Root,state,edits,previous,receipt,id,progress,ct,faultInjection);
         await Task.CompletedTask;return receipt;
     }
@@ -189,7 +204,7 @@ public sealed class TransactionInstaller(string stateRoot, IProcessGuard process
         var id=Guid.NewGuid().ToString("N");var txn=Paths.Safe(state,"transactions/"+id);
         var edits=previous.Files.Select(f=>(f.Path,RestoreSource(root,state,f,txn))).ToList();Apply(root,state,edits,previous,null,id,null,ct,null);
     }
-    public async Task<InstallReceipt> RepairAsync(InstallPlan plan,Dictionary<string,string> archives,IProgress<ProgressInfo>? progress,CancellationToken ct)
+    public async Task<InstallReceipt> RepairAsync(InstallPlan plan,Dictionary<string,string> archives,IProgress<ProgressInfo>? progress,CancellationToken ct,Func<ReconstructionWarning,bool>? confirmMismatch=null)
     {
         // Explicit repair acknowledges drift, but preserves the original uninstall backups.
         var state=StateDirectory(plan.Root);var damaged=Verify(plan.Root);
@@ -201,7 +216,7 @@ public sealed class TransactionInstaller(string stateRoot, IProcessGuard process
             if(!plan.Modules.SelectMany(x=>x.Files).Any(x=>Paths.Same(x.Path,path)))throw new IOException("Repair plan does not own damaged file");
         }
         // The same durable transaction snapshots damaged bytes; original uninstall backups stay unchanged.
-        return await InstallAsync(plan,archives,progress,ct,repair:true);
+        return await InstallAsync(plan,archives,progress,ct,repair:true,confirmMismatch:confirmMismatch);
     }
 }
 

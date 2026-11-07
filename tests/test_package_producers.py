@@ -227,4 +227,18 @@ class ProducerTests(unittest.TestCase):
         for image in [b'',b'not an executable']:
             with self.assertRaises((ValueError,struct.error)):pe.inspect(image)
 
+class AudioHeaderRepairTests(unittest.TestCase):
+    def test_signed_recipe_selects_exact_compatible_padding(self):
+        old=b'old-allocation'; new=b'repaired-allocation'
+        with patch.object(audio,'pad_to_allocation',return_value=old), patch.object(audio,'repaired_allocation',return_value=new) as repair:
+            self.assertEqual(audio.accepted_allocation(b'ogg',100,audio.sha(old),'04_weapon_walkiria_ar9'),old)
+            repair.assert_not_called()
+            self.assertEqual(audio.accepted_allocation(b'ogg',100,audio.sha(new),'04_weapon_walkiria_ar9'),new)
+            repair.assert_called_once_with(old,100)
+        with patch.object(audio,'pad_to_allocation',return_value=old), patch.object(audio,'repaired_allocation') as repair:
+            with self.assertRaises(ValueError): audio.accepted_allocation(b'ogg',100,audio.sha(new),'05_weapon_spikeshot_shotgun')
+            repair.assert_not_called()
+        with patch.object(audio,'pad_to_allocation',return_value=old), patch.object(audio,'repaired_allocation',return_value=new):
+            with self.assertRaises(ValueError): audio.accepted_allocation(b'ogg',100,'0'*64,'04_weapon_walkiria_ar9')
+
 if __name__=='__main__':unittest.main()

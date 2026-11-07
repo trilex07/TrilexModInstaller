@@ -18,6 +18,7 @@ internal static class UiSmoke
         foreach(var language in new[]{"en","pl"})foreach(var (width,height,dpi) in new[]{(1440,960,96),(1024,740,96),(1200,900,144),(1200,900,192)})
         {
             var window=new MainWindow();var vm=(InstallerViewModel)window.DataContext;vm.UiLanguage=language;
+            CheckReconstructionWarning(vm);
             Dispatcher.CurrentDispatcher.Invoke(()=>{},DispatcherPriority.Background);
             var root=(FrameworkElement)window.Content;
             root.Measure(new Size(width,height));root.Arrange(new Rect(0,0,width,height));root.UpdateLayout();
@@ -34,14 +35,48 @@ internal static class UiSmoke
                 vm.SelectAcceptedPreset();
             }
             else if(vm.Modules.Count!=7 || vm.Modules.Any(x=>x.Selectable))throw new InvalidDataException("Unapproved packs must remain unavailable");
-            if(Descendants(root).OfType<Button>().Any(b=>b.Content?.ToString()==vm.L["Launch"]&&b.IsEnabled))throw new InvalidDataException("Launch enabled without managed installation");
+            if(Descendants(root).OfType<Button>().Any(b=>b.Content?.ToString()==vm.LaunchLabel&&b.IsEnabled))throw new InvalidDataException("Launch enabled without managed installation");
             var bmp=new RenderTargetBitmap((int)(width*dpi/96.0),(int)(height*dpi/96.0),dpi,dpi,PixelFormats.Pbgra32);bmp.Render(root);
             var file=$"installer-{language}-{width}x{height}-{dpi}dpi.png";using(var stream=File.Create(Path.Combine(output,file))){var encoder=new PngBitmapEncoder();encoder.Frames.Add(BitmapFrame.Create(bmp));encoder.Save(stream);}
             CheckInstallActivity(vm,root,output,$"{language}-{width}x{height}-{dpi}dpi");
-            rows.Add(new{language,width,height,dpi,file,status="PASS",activity="install/busy controls/late progress/error/cancel PASS",scope="WPF layout/bindings/offscreen pixels; not physical DPI/input acceptance"});window.Close();
+            rows.Add(new{language,width,height,dpi,file,status="PASS",activity="install/busy controls/late progress/error/cancel PASS",reconstruction="PL/EN prompt and exception completion/verify status PASS; native modal interaction not automated",scope="WPF layout/bindings/offscreen pixels; not physical DPI/input acceptance"});
+            vm.SelectGame("darkness2");
+            if(vm.Modules.Count==4)
+            {
+                if(vm.Modules.Any(m=>m.Manifest.State!="stable"||m.Manifest.Version.Contains("preview",StringComparison.OrdinalIgnoreCase))||vm.DarknessOptions!=Visibility.Visible||vm.SingularityOptions!=Visibility.Collapsed)throw new InvalidDataException("Darkness release/options incomplete");
+                root.Measure(new Size(width,height));root.Arrange(new Rect(0,0,width,height));root.UpdateLayout();
+                var darkness=new RenderTargetBitmap((int)(width*dpi/96.0),(int)(height*dpi/96.0),dpi,dpi,PixelFormats.Pbgra32);darkness.Render(root);
+                using var darkStream=File.Create(Path.Combine(output,"darkness2-"+file));var darkEncoder=new PngBitmapEncoder();darkEncoder.Frames.Add(BitmapFrame.Create(darkness));darkEncoder.Save(darkStream);
+            }
+            vm.SelectGame("wonderlands");
+            if(vm.IsWonderlands)
+            {
+                if(vm.Modules.Count!=1||!vm.Modules[0].Selected||vm.DarknessOptions!=Visibility.Collapsed||vm.SingularityOptions!=Visibility.Collapsed)throw new InvalidDataException("Wonderlands adapter/options incomplete");
+                vm.ManualExport=true;Dispatcher.CurrentDispatcher.Invoke(()=>{},DispatcherPriority.Background);
+                if(vm.InstallActionLabel!=vm.L["ExportAction"]||vm.L["ManualHint"]=="ManualHint")throw new InvalidDataException("Manual export localization missing");
+                root.Measure(new Size(width,height));root.Arrange(new Rect(0,0,width,height));root.UpdateLayout();
+                var tiny=new RenderTargetBitmap((int)(width*dpi/96.0),(int)(height*dpi/96.0),dpi,dpi,PixelFormats.Pbgra32);tiny.Render(root);
+                using(var stream=File.Create(Path.Combine(output,"wonderlands-manual-"+file))){var encoder=new PngBitmapEncoder();encoder.Frames.Add(BitmapFrame.Create(tiny));encoder.Save(stream);}
+                vm.ManualExport=false;
+            }
+            window.Close();
         }
         if(errors.Messages.Count>0)throw new InvalidDataException(string.Join("\n",errors.Messages));
         Json.Write(Path.Combine(output,"ui-report.json"),new{status="PASS",bindingErrors=errors.Messages,rows});
+    }
+    static void CheckReconstructionWarning(InstallerViewModel vm)
+    {
+        var build=new GameLocation("GOG or disc folder","Manual",false,"Unverified",new string('D',64));
+        var buildWarning=vm.UnverifiedExecutableText(build);
+        if(!buildWarning.Contains(build.Root)||!buildWarning.Contains(build.ExeHash!)||vm.L["UnverifiedTitle"]=="UnverifiedTitle"||buildWarning.Contains("UnverifiedWarning"))throw new InvalidDataException("Executable warning omitted build identity or localization");
+        var warning=new ReconstructionWarning("RvGame/CookedPC/test.xxx","owned.xxx","none","original",5,new string('A',64),new string('B',64));
+        var message=vm.MismatchText(warning);
+        if(!message.Contains(warning.Path)||!message.Contains(warning.ExpectedSha256)||!message.Contains(warning.ActualSha256)||vm.L["MismatchTitle"]=="MismatchTitle"||message.Contains("MismatchWarning"))throw new InvalidDataException("Mismatch warning omitted identity, hashes or localization");
+        var receipt=new InstallReceipt("trilex-install-v1","synthetic","singularity","test",new("en","en","en",[]),[],"synthetic",[warning]);
+        if(!vm.CompletionText(receipt).Contains(vm.L["InstalledExceptions"])||vm.CompletionText(receipt).Contains(vm.L["Done"])||!vm.VerificationText([],receipt).Contains(vm.L["VerifiedExceptions"])||!vm.VerificationText([],receipt).Contains(warning.Path))throw new InvalidDataException("Accepted mismatch was presented as clean verification");
+        if(vm.VerificationText([warning.Path],receipt).Contains(vm.L["VerifiedExceptions"]))throw new InvalidDataException("Exception status concealed later file damage");
+        var clean=receipt with{ReconstructionWarnings=null};
+        if(!vm.CompletionText(clean).Contains(vm.L["Done"])||vm.VerificationText([],clean)!=vm.L["Verified"])throw new InvalidDataException("Strict-mode completion regressed");
     }
     static void CheckInstallActivity(InstallerViewModel vm,FrameworkElement root,string output,string name)
     {

@@ -13,7 +13,7 @@ public sealed class PackageDownloader(HttpClient http,string cache,string reposi
         var target=Paths.Safe(cache,module.ArchiveSha256!.ToLowerInvariant()+".zip");
         if(File.Exists(target)) {if(Paths.Same(Paths.Hash(target),module.ArchiveSha256)&&new FileInfo(target).Length==module.DownloadBytes)return target;File.Delete(target);}
         if(offline)throw new FileNotFoundException("Verified package is not in the offline cache: "+module.Id);
-        var uri=new Uri(module.DownloadUrl??throw new InvalidDataException("Missing package URL"));CatalogService.ValidateReleaseUrl(uri,repository);
+        var uri=new Uri(module.DownloadUrl??throw new InvalidDataException("Missing package URL"));if(!ReleaseTransport.IsDrivePackage(uri))CatalogService.ValidateReleaseUrl(uri,repository);
         var partial=target+".part";
         for(var attempt=0;attempt<3;attempt++)
         {
@@ -25,6 +25,8 @@ public sealed class PackageDownloader(HttpClient http,string cache,string reposi
                 if(start==module.DownloadBytes){if(Paths.Same(Paths.Hash(partial),module.ArchiveSha256)){File.Move(partial,target);return target;}File.Delete(partial);start=0;}
                 using var response=await ReleaseTransport.SendAsync(http,uri,start,ct);
                 response.EnsureSuccessStatusCode();
+                if(ReleaseTransport.IsDrivePackage(uri) && response.Content.Headers.ContentType?.MediaType=="text/html")
+                    throw new InvalidDataException("Google Drive returned a web page instead of the ZIP. Check public access and download quota.");
                 var resume=response.StatusCode==HttpStatusCode.PartialContent;
                 if(resume && (response.Content.Headers.ContentRange?.From!=start || response.Content.Headers.ContentRange?.Length!=module.DownloadBytes))throw new InvalidDataException("Incorrect download range");
                 if(!resume)start=0;
@@ -46,15 +48,22 @@ public sealed class PackageDownloader(HttpClient http,string cache,string reposi
 }
 public static class ReleaseTransport
 {
+    public static bool IsDrivePackage(Uri uri)=>uri.Scheme=="https" && uri.IsDefaultPort &&
+        uri.UserInfo.Length==0 && uri.Fragment.Length==0 &&
+        uri.Host=="drive.usercontent.google.com" && uri.AbsolutePath=="/download" &&
+        System.Text.RegularExpressions.Regex.IsMatch(uri.Query,@"^\?id=[A-Za-z0-9_-]+&export=download&confirm=t$");
+
     public static async Task<HttpResponseMessage> SendAsync(HttpClient http,Uri uri,long start,CancellationToken ct)
     {
+        var drive=IsDrivePackage(uri);
         for(var redirect=0;redirect<5;redirect++)
         {
             using var request=new HttpRequestMessage(HttpMethod.Get,uri);if(start>0)request.Headers.Range=new RangeHeaderValue(start,null);
             var response=await http.SendAsync(request,HttpCompletionOption.ResponseHeadersRead,ct);
             if((int)response.StatusCode is not (301 or 302 or 303 or 307 or 308))return response;
-            var next=response.Headers.Location is { } location?new Uri(uri,location):throw new InvalidDataException("Empty redirect");response.Dispose();
-            if(next.Scheme!="https" || !next.IsDefaultPort || !string.IsNullOrEmpty(next.UserInfo) || next.Host is not ("release-assets.githubusercontent.com" or "objects.githubusercontent.com" or "github-releases.githubusercontent.com"))throw new InvalidDataException("Untrusted release redirect");
+            var location=response.Headers.Location;response.Dispose();
+            var next=location is not null?new Uri(uri,location):throw new InvalidDataException("Empty redirect");
+            if(next.Scheme!="https" || !next.IsDefaultPort || !string.IsNullOrEmpty(next.UserInfo) || (drive ? next.Host!="drive.usercontent.google.com" : next.Host is not ("release-assets.githubusercontent.com" or "objects.githubusercontent.com" or "github-releases.githubusercontent.com")))throw new InvalidDataException("Untrusted release redirect");
             uri=next;
         }
         throw new InvalidDataException("Too many release redirects");
@@ -91,15 +100,24 @@ public static class PackageExtractor
             if(file.Kind=="copy" && file.Path.EndsWith(".xxx",StringComparison.OrdinalIgnoreCase))throw new InvalidDataException("Original cooked packages must be reconstructed locally, never shipped whole");
         }
     }
-    public static byte[] Reconstruct(string original,string staging,PackageFile file)
+    public static byte[] Reconstruct(string original,string staging,PackageFile file,Func<ReconstructionWarning,bool>? confirmMismatch=null)
     {
-        using var output=new MemoryStream();WriteReconstruction(original,staging,file,output);var result=output.ToArray();if(!Paths.Same(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(result)),file.Sha256))throw new InvalidDataException("Locally reconstructed output hash mismatch");return result;
+        using var output=new MemoryStream();WriteReconstruction(original,staging,file,output);var result=output.ToArray();VerifyReconstruction(file,Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(result)),result.LongLength,confirmMismatch);return result;
     }
-    public static void ReconstructTo(string original,string staging,PackageFile file,string target)
+    public static void ReconstructTo(string original,string staging,PackageFile file,string target,Func<ReconstructionWarning,bool>? confirmMismatch=null)
     {
         Paths.AssertNoLinks(target);Directory.CreateDirectory(Path.GetDirectoryName(target)!);
         using(var output=new FileStream(target,FileMode.CreateNew,FileAccess.Write,FileShare.None)){WriteReconstruction(original,staging,file,output);output.Flush(true);}
-        if(!Paths.Same(Paths.Hash(target),file.Sha256))throw new InvalidDataException("Locally reconstructed output hash mismatch");
+        VerifyReconstruction(file,Paths.Hash(target),new FileInfo(target).Length,confirmMismatch);
+    }
+    private static void VerifyReconstruction(PackageFile file,string actual,long bytes,Func<ReconstructionWarning,bool>? confirmMismatch)
+    {
+        if(Paths.Same(actual,file.Sha256))return;
+        // Source identity was checked before running the recipe. Name the failed
+        // output and operation rather than incorrectly diagnosing a store edition.
+        var operations=string.Join(",",(file.Recipe??[]).Select(x=>x.Source).Distinct());
+        var warning=new ReconstructionWarning(file.Path,file.SourcePath??file.SystemSource??file.Path,file.SourceCodec??"none",operations,bytes,file.Sha256,actual);
+        if(confirmMismatch?.Invoke(warning)!=true)throw new InvalidDataException(warning.Describe());
     }
     private static void WriteReconstruction(string original,string staging,PackageFile file,Stream output)
     {
@@ -110,7 +128,7 @@ public static class PackageExtractor
         original=LocalDecoder.Decode(original,staging,file);
         foreach(var part in file.Recipe)
         {
-            if(part.Length<0 || part.Offset<0 || part.Length>256*1024*1024 || output.Length+part.Length>int.MaxValue)throw new InvalidDataException("Unsafe reconstruction range");
+            if(part.Length<0 || part.Offset<0 || part.Length>256*1024*1024 || output.Length+part.Length>16L*1024*1024*1024)throw new InvalidDataException("Unsafe reconstruction range");
             if(part.Source is "centurion-clip" or "centurion-shell" or "centurion-animation"){if(part.Offset!=0||part.Entry is not null)throw new InvalidDataException("Centurion operation accepts no package code");LocalImageGenerator.ApplyCenturion(original,ownedSource,staging,part.Source[10..],output,part.Length);continue;}
             if(part.Source=="knife"){if(part.Offset!=0)throw new InvalidDataException("Knife offset must be zero");LocalImageGenerator.ApplyKnife(original,staging,Paths.Safe(staging,part.Entry??""),output,part.Length);continue;}
             if(part.Source=="image"){if(part.Offset!=0)throw new InvalidDataException("Image offset must be zero");LocalImageGenerator.Apply(original,staging,Paths.Safe(staging,part.Entry??""),output,part.Length,ownedSource,file);continue;}

@@ -1,2 +1,2 @@
 <Project Sdk="Microsoft.NET.Sdk"><ItemGroup><EmbeddedResource Include="../../.build/ue3decode/Trilex.Ue3Decode.exe" LogicalName="Trilex.Ue3Decode.exe"/></ItemGroup>  <ItemGroup><EmbeddedResource Include="../../.build/asset-worker/Trilex.AssetWorker.exe" LogicalName="Trilex.AssetWorker.exe" /></ItemGroup>
-</Project>
+<ItemGroup><EmbeddedResource Include="../../.build/darkness-textures/Trilex.DarknessTextures.exe" LogicalName="Trilex.DarknessTextures.exe" /></ItemGroup></Project>

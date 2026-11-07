@@ -46,7 +46,7 @@ public partial class MainWindow : Window
             if(dialog.ShowDialog(this)!=true)return;
             vm.ExportParent=dialog.FolderName;
         }
-        await vm.Run(async ct=>{await vm.Execute(ct);await vm.AfterInstall(ct);});
+        await vm.Run(async ct=>{await vm.Execute(ct,vm.NeedsRepair);await vm.AfterInstall(ct);});
     }
     private async void Repair_Click(object sender,RoutedEventArgs e)=>await vm.Run(ct=>vm.Execute(ct,true));
     private async void Verify_Click(object sender,RoutedEventArgs e)=>await vm.Run(vm.Verify);

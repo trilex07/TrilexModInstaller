@@ -149,6 +149,7 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
     public Visibility InstallerUpdateVisibility=>installerUpdate.Length>0?Visibility.Visible:Visibility.Collapsed;
     public void OpenInstallerUpdate(){if(installerUpdatePage is not null)Process.Start(new ProcessStartInfo(installerUpdatePage){UseShellExecute=true});}
     private bool needsRepair;
+    public bool NeedsRepair=>needsRepair&&!manualExport&&SafeReceipt(root)?.GameId==gameId;
     private string CatalogGameVersion(GameManifest game)=>game.Modules.FirstOrDefault(m=>m.Required)?.Version??catalog.Version;
     private static string V(string version)=>version.StartsWith('v')?version:"v"+version;
     private InstallReceipt? SafeReceipt(string path)
@@ -446,7 +447,9 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
         Activity=VerificationText(failures,receipt)+(receipt?.ExecutableConsent is null?"":"\n"+L["UnverifiedInstalled"]);
     }
     public async Task Recover(CancellationToken ct){await Task.Run(()=>installer.Recover(root),ct);Activity=L["Restored"];}
-    public async Task Uninstall(CancellationToken ct){await Task.Run(()=>installer.Uninstall(root,ct),ct);Activity=L["Restored"];plan=null;needsRepair=false;Changed(nameof(CanInstall));RefreshActions();await ScanLibrary(ct);}
+    public async Task Uninstall(CancellationToken ct){var kept=await Task.Run(()=>installer.Uninstall(root,ct),ct);
+        if(kept.Count>0)Log("Uninstall left files changed outside the installer in place: "+string.Join(", ",kept));
+        Activity=L["Restored"]+(kept.Count==0?"":"\n"+L["KeptExternal"]+" "+kept.Count);plan=null;needsRepair=false;Changed(nameof(CanInstall));RefreshActions();await ScanLibrary(ct);}
     public async Task Update(CancellationToken ct)
     {
         catalog=await catalogs.FetchLatestAsync(ct);Paths.AtomicBytes(Path.Combine(Home,"catalog.signed.json"),catalogs.LastVerifiedEnvelope!);

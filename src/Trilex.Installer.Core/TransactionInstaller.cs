@@ -84,7 +84,7 @@ public sealed class TransactionInstaller(string stateRoot, IProcessGuard process
             var old=previous?.Files.SingleOrDefault(x=>Paths.Same(x.Path,path));
             var original=old is not null?old.OriginalHash:live;var originalBackup=old?.Backup??("originals/"+id+"/"+path);
             if(old is null && live is not null && file.Kind!="ini" && !Paths.Same(live,file.BeforeSha256) && !Paths.Same(live,file.Sha256))throw new IOException("Unowned file conflict: "+path);
-            if(!repair && old is not null && file.Kind!="ini" && !Paths.Same(live,old.InstalledHash))throw new IOException("Modified installed file: "+path+"; use Repair explicitly");
+            if(!repair && old is not null && file.Kind!="ini" && !Paths.Same(live,old.InstalledHash) && live is not null && !Paths.Same(live,old.OriginalHash))throw new IOException("Modified installed file: "+path+"; use Repair explicitly");
             if(old is null && live is not null){var backup=Paths.Safe(state,originalBackup);Directory.CreateDirectory(Path.GetDirectoryName(backup)!);Paths.AtomicCopy(target,backup);}
             var prepared=Paths.Safe(txn,"prepared/"+path);Dictionary<string,string>? installedIni=null;Dictionary<string,string?>? originalIni=null;
             if(file.Kind=="ini")
@@ -129,10 +129,18 @@ public sealed class TransactionInstaller(string stateRoot, IProcessGuard process
             progress?.Report(new("Prepare",path,edits.Count,files.Count));
         }
         // Deselecting a package restores the user's originals, rather than leaving orphaned files.
-        if(previous is not null)foreach(var old in previous.Files.Where(x=>!files.ContainsKey(x.Path)))edits.Add((old.Path,RestoreSource(plan.Root,state,old,txn)));
+        if(previous is not null)foreach(var old in previous.Files.Where(x=>!files.ContainsKey(x.Path)&&!LeaveInPlace(plan.Root,x)))edits.Add((old.Path,RestoreSource(plan.Root,state,old,txn)));
         var receipt=new InstallReceipt("trilex-install-v1",Path.GetFullPath(plan.Root),plan.GameId,plan.Version,plan.Choices,ownership,id,warnings.Count==0?null:warnings,plan.ExecutableConsent);
         Apply(plan.Root,state,edits,previous,receipt,id,progress,ct,faultInjection);
         await Task.CompletedTask;return receipt;
+    }
+    // A file replaced outside the installer (game reinstall, Steam verify, user edit) is no longer ours:
+    // keep it as it is instead of blocking uninstall or upgrade.
+    private static bool LeaveInPlace(string root,OwnedFile file)
+    {
+        if(file.Kind=="ini")return false;
+        var live=Paths.HashOrNull(Paths.Safe(root,file.Path));
+        return !Paths.Same(live,file.InstalledHash)&&(live is not null||file.OriginalHash is null);
     }
     private string? RestoreSource(string root,string state,OwnedFile file,string txn)
     {
@@ -150,7 +158,8 @@ public sealed class TransactionInstaller(string stateRoot, IProcessGuard process
             if(file.OriginalHash is null && string.IsNullOrWhiteSpace(ini.ToString()))return null;
             var prepared=Paths.Safe(txn,"restore/"+file.Path);Paths.AtomicBytes(prepared,Encoding.UTF8.GetBytes(ini.ToString()));return prepared;
         }
-        if(!Paths.Same(Paths.HashOrNull(target),file.InstalledHash))throw new IOException("Uninstall conflict; preserving externally modified file: "+file.Path);
+        var live=Paths.HashOrNull(target);
+        if(live is not null&&!Paths.Same(live,file.InstalledHash))throw new IOException("Uninstall conflict; preserving externally modified file: "+file.Path);
         if(file.OriginalHash is null)return null;
         var backup=Paths.Safe(state,file.Backup);if(!Paths.Same(Paths.Hash(backup),file.OriginalHash))throw new IOException("Original backup checksum mismatch");return backup;
     }
@@ -198,23 +207,20 @@ public sealed class TransactionInstaller(string stateRoot, IProcessGuard process
         }
         return failures;
     }
-    public void Uninstall(string root,CancellationToken ct)
+    public List<string> Uninstall(string root,CancellationToken ct)
     {
         var state=StateDirectory(root);using var gate=Lock(state);RecoverLocked(root,state);var previous=Receipt(root)??throw new InvalidOperationException("No managed installation");
         var id=Guid.NewGuid().ToString("N");var txn=Paths.Safe(state,"transactions/"+id);
-        var edits=previous.Files.Select(f=>(f.Path,RestoreSource(root,state,f,txn))).ToList();Apply(root,state,edits,previous,null,id,null,ct,null);
+        var kept=previous.Files.Where(f=>LeaveInPlace(root,f)).Select(f=>f.Path).ToList();
+        var edits=previous.Files.Where(f=>!kept.Contains(f.Path)).Select(f=>(f.Path,RestoreSource(root,state,f,txn))).ToList();Apply(root,state,edits,previous,null,id,null,ct,null);
+        return kept;
     }
     public async Task<InstallReceipt> RepairAsync(InstallPlan plan,Dictionary<string,string> archives,IProgress<ProgressInfo>? progress,CancellationToken ct,Func<ReconstructionWarning,bool>? confirmMismatch=null)
     {
         // Explicit repair acknowledges drift, but preserves the original uninstall backups.
         var state=StateDirectory(plan.Root);var damaged=Verify(plan.Root);
         if(damaged.Count==0)return Receipt(plan.Root)!;
-        var previous=Receipt(plan.Root)!;
-        foreach(var path in damaged)
-        {
-            var old=previous.Files.Single(x=>Paths.Same(x.Path,path));if(old.Kind=="ini")continue;
-            if(!plan.Modules.SelectMany(x=>x.Files).Any(x=>Paths.Same(x.Path,path)))throw new IOException("Repair plan does not own damaged file");
-        }
+        // Damaged files outside the current plan are left in place by the deselection path.
         // The same durable transaction snapshots damaged bytes; original uninstall backups stay unchanged.
         return await InstallAsync(plan,archives,progress,ct,repair:true,confirmMismatch:confirmMismatch);
     }

@@ -333,7 +333,19 @@ await Test("repair corrupt and missing file retains original backup",async()=>
 });
 await Test("foreign mod and external edits preserved",async()=>
 {
-    var f=Fixture();var m=Package(f);var target=Path.Combine(f.Root,"Binaries","trilex-test.dll");File.WriteAllText(target,"OTHER-MOD");await Reject(()=>f.Installer.InstallAsync(f.Plan(m),Archives(f,m),null,default));Assert(File.ReadAllText(target)=="OTHER-MOD");File.Delete(target);await f.Installer.InstallAsync(f.Plan(m),Archives(f,m),null,default);File.WriteAllText(target,"USER-EDIT");await Reject(()=>Sync(()=>f.Installer.Uninstall(f.Root,default)));Assert(File.ReadAllText(target)=="USER-EDIT");
+    var f=Fixture();var m=Package(f);var target=Path.Combine(f.Root,"Binaries","trilex-test.dll");File.WriteAllText(target,"OTHER-MOD");await Reject(()=>f.Installer.InstallAsync(f.Plan(m),Archives(f,m),null,default));Assert(File.ReadAllText(target)=="OTHER-MOD");File.Delete(target);await f.Installer.InstallAsync(f.Plan(m),Archives(f,m),null,default);File.WriteAllText(target,"USER-EDIT");var kept=f.Installer.Uninstall(f.Root,default);Assert(kept.Count==1&&File.ReadAllText(target)=="USER-EDIT"&&f.Installer.Receipt(f.Root) is null);
+});
+await Test("game reinstalled outside installer: repair, uninstall and fresh install still work",async()=>
+{
+    var f=Fixture();var m=Package(f);await f.Installer.InstallAsync(f.Plan(m),Archives(f,m),null,default);
+    var dll=Path.Combine(f.Root,"Binaries","trilex-test.dll");var ini=Path.Combine(f.Root,"Binaries","SingularityVR.ini");
+    File.Delete(dll);File.Delete(ini);Assert(f.Installer.Verify(f.Root).Count==2);
+    await f.Installer.RepairAsync(f.Plan(m),Archives(f,m),null,default);Assert(f.Installer.Verify(f.Root).Count==0);
+    File.Delete(dll);File.Delete(ini);
+    f.Installer.Uninstall(f.Root,default);Assert(f.Installer.Receipt(f.Root) is null&&!File.Exists(dll));
+    await f.Installer.InstallAsync(f.Plan(m),Archives(f,m),null,default);Assert(f.Installer.Verify(f.Root).Count==0);
+    File.Delete(dll);File.Delete(ini);var v2=Package(f,"v2");
+    await f.Installer.InstallAsync(f.Plan(v2),Archives(f,v2),null,default);Assert(f.Installer.Verify(f.Root).Count==0);
 });
 await Test("user INI changes preserved across upgrade and uninstall",async()=>
 {

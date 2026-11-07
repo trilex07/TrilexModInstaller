@@ -446,7 +446,9 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
         Activity=VerificationText(failures,receipt)+(receipt?.ExecutableConsent is null?"":"\n"+L["UnverifiedInstalled"]);
     }
     public async Task Recover(CancellationToken ct){await Task.Run(()=>installer.Recover(root),ct);Activity=L["Restored"];}
-    public async Task Uninstall(CancellationToken ct){await Task.Run(()=>installer.Uninstall(root,ct),ct);Activity=L["Restored"];plan=null;needsRepair=false;Changed(nameof(CanInstall));RefreshActions();await ScanLibrary(ct);}
+    public async Task Uninstall(CancellationToken ct){var kept=await Task.Run(()=>installer.Uninstall(root,ct),ct);
+        if(kept.Count>0)Log("Uninstall left files changed outside the installer in place: "+string.Join(", ",kept));
+        Activity=L["Restored"]+(kept.Count==0?"":"\n"+L["KeptExternal"]+" "+kept.Count);plan=null;needsRepair=false;Changed(nameof(CanInstall));RefreshActions();await ScanLibrary(ct);}
     public async Task Update(CancellationToken ct)
     {
         catalog=await catalogs.FetchLatestAsync(ct);Paths.AtomicBytes(Path.Combine(Home,"catalog.signed.json"),catalogs.LastVerifiedEnvelope!);

@@ -817,7 +817,7 @@ await Test("Universal launch prepares only the exact reviewed game EXE and its w
     var receipt=new InstallReceipt("1",f.Root,"singularity","test",new("en","en","en",[]),[],"test");
     Assert(GameLauncher.CanLaunch(game,location,receipt));
     var info=GameLauncher.CreateStartInfo(game,location,receipt);
-    Assert(Paths.Same(info.FileName,Paths.Safe(f.Root,game.Executable))&&Paths.Same(info.WorkingDirectory,Path.GetFullPath(f.Root))&&info.Arguments=="");
+    Assert(Paths.Same(info.FileName,Paths.Safe(f.Root,game.Executable))&&Paths.Same(info.WorkingDirectory,Path.GetDirectoryName(info.FileName))&&info.Arguments=="");
     var unknown=location with{Compatible=false};
     Assert(!GameLauncher.CanLaunch(game,unknown,receipt));
     var accepted=receipt with{ExecutableConsent=new(f.Root,location.ExeHash!)};
@@ -827,6 +827,33 @@ await Test("Universal launch prepares only the exact reviewed game EXE and its w
     Assert(!GameLauncher.CanLaunch(game,unknown,accepted with{ExecutableConsent=new(f.Root,new string('0',64))}));
     File.AppendAllText(Paths.Safe(f.Root,game.Executable),"changed");
     await Reject(()=>Sync(()=>GameLauncher.CreateStartInfo(game,unknown,accepted)));
+});
+await Test("Steam launch requires matching library manifest; retail and malformed manifests stay direct",async()=>
+{
+    var f=Fixture();var m=Package(f);var game=f.Game(m);
+    var root=Path.Combine(f.Root,"library","steamapps","common","Singularity");
+    var exe=Paths.Safe(root,game.Executable);Directory.CreateDirectory(Path.GetDirectoryName(exe)!);File.WriteAllText(exe,"fixture never executed");
+    var hash=Paths.Hash(exe);var loc=new GameLocation(root,"Manual",false,"Unknown hash",hash);
+    var receipt=new InstallReceipt("1",root,game.Id,"test",new("en","en","en",[]),[],"test",ExecutableConsent:new(root,hash));
+    Assert(!GameLauncher.IsSteamInstallation(game,root));
+    var manifest=Path.Combine(f.Root,"library","steamapps","appmanifest_"+game.SteamAppId+".acf");
+    void Write(string app,string folder)=>File.WriteAllText(manifest,"\"AppState\" { \"appid\" \""+app+"\" \"installdir\" \""+folder+"\" }");
+    Write(game.SteamAppId,"Singularity");
+    var start=GameLauncher.CreateStartInfo(game,loc,receipt);
+    Assert(start.FileName=="steam://rungameid/"+game.SteamAppId&&start.UseShellExecute&&start.Arguments=="");
+    var tiny=game with{Id="wonderlands"};
+    Assert(GameLauncher.CreateStartInfo(tiny,loc,receipt with{GameId="wonderlands"}).FileName=="steam://run/"+game.SteamAppId+"//-dx11/");
+    var dark=game with{Id="darkness2"};
+    Assert(GameLauncher.CreateStartInfo(dark,loc,receipt with{GameId="darkness2"}).FileName=="steam://rungameid/"+game.SteamAppId);
+    Assert(!GameLauncher.IsSteamInstallation(game with{SteamAppId="42/anything"},root));
+    Write("99999","Singularity");Assert(!GameLauncher.IsSteamInstallation(game,root));
+    Write(game.SteamAppId,"Another copy");Assert(!GameLauncher.IsSteamInstallation(game,root));
+    Write(game.SteamAppId,"../outside");Assert(!GameLauncher.IsSteamInstallation(game,root));
+    File.WriteAllText(manifest,"\"AppState\" {");Assert(!GameLauncher.IsSteamInstallation(game,root));
+    var direct=GameLauncher.CreateStartInfo(game,loc,receipt);
+    Assert(Paths.Same(direct.FileName,exe)&&Paths.Same(direct.WorkingDirectory,Path.GetDirectoryName(exe)));
+    Write(game.SteamAppId,"Singularity");File.AppendAllText(exe,"changed");
+    await Reject(()=>Sync(()=>GameLauncher.CreateStartInfo(game,loc,receipt)));
 });
 await Test("manual export prepares copy, merged INI and recipe without touching game or receipts",async()=>
 {

@@ -505,7 +505,9 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
         return accepted;
     }
     public void Launch(){if(!CanLaunch)throw new InvalidOperationException("Verify a managed installation first");
-        Process.Start(GameLauncher.CreateStartInfo(Game,location!,installer.Receipt(root)!));}
+        var start=GameLauncher.CreateStartInfo(Game,location!,installer.Receipt(root)!);
+        Log("Launch requested: "+Game.Id+"; route="+(start.FileName.StartsWith("steam://",StringComparison.OrdinalIgnoreCase)?"Steam appmanifest":"direct EXE")+"; target="+start.FileName+"; cwd="+start.WorkingDirectory);
+        Process.Start(start);}
     public void OpenLogs()=>Process.Start(new ProcessStartInfo(Home){UseShellExecute=true});
     public void Dispose(){cancellation?.Cancel();http.Dispose();}
 }

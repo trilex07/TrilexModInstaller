@@ -47,3 +47,11 @@ After a Steam reinstall, leftover or replaced mod files no longer block the inst
 - Matches the exact hand model installed in Trilex's game, including closed wrist caps across all five detail levels and original textures. Included in normal installation, repair and manual export, independently of optional VR fixes and HD textures.
 - Uses normal verified backups and transactional restoration. No game models are downloaded or redistributed; the Darkness DLL, settings and existing runtime ZIPs are unchanged.
 - Download the full installer ZIP again, then select Update for Darkness II. Old installer executables do not contain this asset reconstruction even after refreshing their catalog. Player headset tests remain pending.
+
+## November 9: Steam-aware Run the game
+
+Player report: Singularity under D:/SteamLibrary/steamapps/common/Singularity produced Steam Application load error 5:0000065434 from Run the game. Confirmed installer defect: all copies launched their EXE directly; Singularity also inherited the root directory instead of Binaries. The screenshot alone does not prove the remote Steam client's state or that this is the only cause of the error.
+
+Run the game now verifies the reviewed EXE and managed receipt as before, then checks the adjacent Steam appmanifest: matching AppID, exact installed folder and steamapps/common layout are required. A matching Steam copy starts through Steam; manually browsed copies work as well. GOG/disc/manual folders without that matching manifest retain direct EXE launch with the executable's own directory. Tiny Tina keeps -dx11 on both routes. Unknown hash consent is preserved. No Steam DLLs, game EXE or appid files are injected or edited. Launch requests log route and target; startup exceptions use the existing visible error handler.
+
+101 Core tests pass, including Steam/manual/unknown hash routing, bad and mismatched manifests, changed EXE rejection, and DX11 preservation. Release x64 build checked; no game was launched by these tests. The remote player's successful launch is PENDING. Temporary workaround for this report: launch Singularity from its Steam library rather than the older installer's Run the game button.

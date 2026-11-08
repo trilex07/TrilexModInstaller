@@ -883,6 +883,7 @@ await Test("Wonderlands x64 adapter, unknown hash consent, install/export/restor
     await Reject(()=>Sync(()=>PlanBuilder.ValidateManifest(game with{Modules=[m with{Files=[m.Files[0] with{Path="Binaries/foreign.dll"}]}]})));
     await Reject(()=>Sync(()=>PlanBuilder.ValidateManifest(f.Game(m))));
 });
+await Psvr2ToolkitTests.Run(Test,testRoot);
 var report=new{time=DateTimeOffset.UtcNow,passed=results.Count-failed,failed,fixtureRoot=testRoot,steamAccess="NONE",results};
 Json.Write(Path.Combine(testRoot,"test-report.json"),report);Console.WriteLine(JsonSerializer.Serialize(new{passed=results.Count-failed,failed,report=Path.Combine(testRoot,"test-report.json")}));Environment.ExitCode=failed==0?0:1;
 

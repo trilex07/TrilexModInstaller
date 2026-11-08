@@ -237,7 +237,24 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
     }
     public async Task ManualInstall(CancellationToken ct){SetManualExport(true);await Review(ct);}
     private void SetManualExport(bool value){if(manualExport==value)return;manualExport=value;Invalidate();Changed(nameof(ManualExport));Changed(nameof(InstallActionLabel));}
-    public async Task AfterInstall(CancellationToken ct){if(!manualExport){await AutoVerify(ct);await ScanLibrary(ct);}}
+    public async Task AfterInstall(CancellationToken ct)
+    {
+        if(manualExport)return;
+        await AutoVerify(ct);await ScanLibrary(ct);
+        await ConfigurePsvr2(ct);
+    }
+    public async Task ConfigurePsvr2(CancellationToken ct)
+    {
+        var previous=Activity;
+        try { await Psvr2ToolkitSetup.Offer(http,Home,ui=="pl",Offline,message=>{Activity=message;Log(message);},ct); }
+        catch(OperationCanceledException){Activity=previous+"\n"+(ui=="pl"?"Konfiguracja PSVR2 anulowana.":"PSVR2 setup cancelled.");}
+        catch(Exception e)
+        {
+            Log("PSVR2 Toolkit setup: "+e);
+            Activity=previous+"\nPSVR2 Toolkit: "+e.Message;
+            MessageBox.Show(Application.Current.MainWindow,(ui=="pl"?"Konfiguracja PSVR2 Toolkit nie została zakończona. Instalacja moda gry pozostaje bez zmian. Możesz ponowić przyciskiem PSVR2 Toolkit.\n\n":"PSVR2 Toolkit setup did not finish. The game mod installation is unchanged. Retry using the PSVR2 Toolkit button.\n\n")+e.Message,"PSVR2 Toolkit",MessageBoxButton.OK,MessageBoxImage.Warning);
+        }
+    }
     public async Task Detect(CancellationToken ct)
     {
         var locations=await Task.Run(()=>adapter.Detect(SteamRoots.Discover(),Game).ToList(),ct);

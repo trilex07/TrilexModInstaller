@@ -57,6 +57,7 @@ public partial class MainWindow : Window
     private void Back_Click(object sender,RoutedEventArgs e){if(!vm.Busy)vm.GameRoot=vm.GameRoot;}
     private void Launch_Click(object sender,RoutedEventArgs e)=>vm.Launch();
     private void Logs_Click(object sender,RoutedEventArgs e)=>vm.OpenLogs();
+    private async void Psvr2_Click(object sender,RoutedEventArgs e)=>await vm.Run(vm.ConfigurePsvr2);
     private void Prerequisite_Click(object sender,RoutedEventArgs e)=>System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(Trilex.Installer.Core.WindowsPrerequisites.VisualCppX86Url){UseShellExecute=true});
     private void PrerequisiteX64_Click(object sender,RoutedEventArgs e)=>System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(Trilex.Installer.Core.WindowsPrerequisites.VisualCppX64Url){UseShellExecute=true});
     private async void Import_Click(object sender,RoutedEventArgs e){var dialog=new OpenFileDialog{Filter="Signed catalog|*.json",Multiselect=false};if(dialog.ShowDialog(this)==true)await vm.Run(ct=>{vm.ImportCatalog(dialog.FileName);return Task.CompletedTask;});}

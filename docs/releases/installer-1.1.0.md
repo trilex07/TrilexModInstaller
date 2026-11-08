@@ -31,3 +31,12 @@ After a Steam reinstall, leftover or replaced mod files no longer block the inst
 - Singularity vr-core v7-20261108-gravity-fix: d3d9.dll E0E08775 (SingularityVR fa4c3151). Removes the black rectangles in gravity scenes (modulate decal draws, `[Diagnostic] DropDecalLocalTangent=1`) and holds the last tracked wrist correction to stop left-hand flicker (`[Input] TrackedGripWrist=1`). Diagnostic audit traces stay off. User confirmed both on PSVR2.
 - Tiny Tina's Wonderlands vr-core 1.1.0-20261108: xinput1_3.dll 87641E55 (TinyTinaVR f638d1b). Unarmed arms follow the controller with elbow IK, shoulder anchor at the neck pivot, forearm twist, deferred graphics apply in VR (menu crash guard), presentation modes and per-weapon grip default. Profile equals the installed accepted INI except local simulator paths.
 - All other modules unchanged. Verified: signed Wonderlands package install/export/restore exercise, Singularity vr-core fixture install/verify/repair/uninstall, UI smoke. Same installer version and download link; installed players see Update on the game tile.
+
+## November 8: optional PSVR2 Toolkit and eye calibration
+
+- After installing a game mod, the installer offers to download and install PSVR2 Toolkit. This is optional and available for all three games. More options → PSVR2 Toolkit can repeat setup independently.
+- Downloads the upstream BnuuySolutions experimental-3 Windows driver and CAPIApps, with pinned SHA256 and size checks. Preserves the Sony driver and backs up affected files. Requires SteamVR and the PlayStation VR2 App to be closed.
+- After installation, a second question offers eye tracking calibration. On acceptance, downloads upstream UnitySetup 1.1.0, starts SteamVR and launches UnitySetup. Put on the headset and select Eye Tracking / Gaze Calibration there.
+- Polish and English prompts. Declining or a Toolkit setup error leaves the installed game mod intact. Existing game packages and signed catalog are unchanged.
+- Verification: 97/97 core tests, including real upstream package hashes and synthetic driver install/recovery; self-contained Windows x64 build and eight WPF smoke cases passed. Physical PSVR2 installation/calibration awaits player testing.
+- Same version and download link. Download the ZIP again to receive this installer change; refreshing the game catalog alone does not update the installer executable.

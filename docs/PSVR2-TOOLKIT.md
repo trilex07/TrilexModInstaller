@@ -43,8 +43,9 @@ Launching the tool is not treated as proof of successful eye calibration.
 
 Validation must distinguish synthetic file transaction/download tests and WPF
 build/layout checks from an actual Sony driver installation and PSVR2 calibration.
-The latter require a user headset test. This feature does not change game runtime
-packages, publish a release or overwrite the existing public download.
+The latter require a user headset test. Game runtime packages and the signed
+catalog remain unchanged in the public installer refresh. The existing 1.1.0
+download URL is retained; players must download the ZIP again for this feature.
 
 Validation on November 8, 2026: 97/97 core regressions passed (including real
 upstream ZIP hashes, extraction and driver installation in a synthetic app folder).

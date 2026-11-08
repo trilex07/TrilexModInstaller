@@ -75,8 +75,9 @@ public static class ManualExporter
                     });
                 }
                 else Paths.AtomicCopy(Paths.Safe(stage,file.Entry),target);
+                var languageConfig=DarknessLanguageSettings.ApplyPrepared(plan,file,target);
                 var hash=Paths.Hash(target);
-                if(file.Kind!="ini"&&!Paths.Same(hash,file.Sha256)&&!warnings.Any(w=>Paths.Same(w.Path,path)&&Paths.Same(w.ActualSha256,hash)))throw new InvalidDataException("Export payload checksum mismatch: "+path);
+                if(!languageConfig&&file.Kind!="ini"&&!Paths.Same(hash,file.Sha256)&&!warnings.Any(w=>Paths.Same(w.Path,path)&&Paths.Same(w.ActualSha256,hash)))throw new InvalidDataException("Export payload checksum mismatch: "+path);
                 rows.Add(new(path,hash,Paths.HashOrNull(live)));progress?.Report(new("Prepare",path,rows.Count,files.Count));
             }
             ct.ThrowIfCancellationRequested();

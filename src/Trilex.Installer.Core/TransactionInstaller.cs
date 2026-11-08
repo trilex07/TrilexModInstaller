@@ -122,6 +122,7 @@ public sealed class TransactionInstaller(string stateRoot, IProcessGuard process
                 });
             }
             else Paths.AtomicCopy(Paths.Safe(stage,file.Entry),prepared);
+            DarknessLanguageSettings.ApplyPrepared(plan,file,prepared);
             var after=Paths.Hash(prepared);
             if(file.Kind=="recipe"&&!Paths.Same(after,file.Sha256)&&!warnings.Any(w=>Paths.Same(w.Path,path)&&Paths.Same(w.ActualSha256,after)))throw new InvalidDataException("Reconstructed file changed after approval: "+path);
             var pristine=old is null || old.CanRestoreWhole&&Paths.Same(live,old.InstalledHash);

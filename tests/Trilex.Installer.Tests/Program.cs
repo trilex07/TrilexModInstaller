@@ -884,6 +884,48 @@ await Test("Wonderlands x64 adapter, unknown hash consent, install/export/restor
     await Reject(()=>Sync(()=>PlanBuilder.ValidateManifest(f.Game(m))));
 });
 await Psvr2ToolkitTests.Run(Test,testRoot);
+await Test("Darkness English choices override legacy Polish defaults in install and manual export",async()=>
+{
+    var f=Fixture();var original=Package(f,content:"[Render]\r\nSubmitMode=4\r\n[VRSettings]\r\nPolishText=1\r\nPolishVoice=1\r\nAppliedPolishText=1\r\nAppliedPolishVoice=1\r\n");
+    var module=original with{Files=[new("Darkness2VR.ini","data/mod.bin",original.Files[0].Sha256,"copy","mod-authored")]};
+    var plan=f.Plan(module) with{GameId="darkness2"};var archives=Archives(f,module);
+    var exported=ManualExporter.Export(plan,archives,f.Root+"-dark-en",f.Installer,null,default);
+    var text=new IniDocument(File.ReadAllText(Path.Combine(exported,"files","Darkness2VR.ini")));
+    Assert(text.Get("VRSettings/PolishText")=="0"&&text.Get("VRSettings/PolishVoice")=="0");
+    Assert(!File.Exists(Path.Combine(f.Root,"Darkness2VR.ini")));
+    var receipt=await f.Installer.InstallAsync(plan,archives,null,default);
+    var installed=new IniDocument(File.ReadAllText(Path.Combine(f.Root,"Darkness2VR.ini")));
+    foreach(var key in new[]{"PolishText","PolishVoice","AppliedPolishText","AppliedPolishVoice","LanguageError"})Assert(installed.Get("VRSettings/"+key)=="0");
+    Assert(installed.Get("Render/SubmitMode")=="4"&&f.Installer.Verify(f.Root).Count==0);
+    Assert(receipt.Files.Single().InstalledHash!=module.Files[0].Sha256);
+    f.Installer.Uninstall(f.Root,default);Assert(!File.Exists(Path.Combine(f.Root,"Darkness2VR.ini")));
+});
+await Test("Darkness language config requires matching resources and rejects tampering",async()=>
+{
+    var f=Fixture();var m=Package(f,content:"[VRSettings]\nPolishText=0\nPolishVoice=1\n");
+    var file=new PackageFile("Darkness2VR.ini","data/mod.bin",m.Files[0].Sha256,"copy","mod-authored");
+    var prepared=Path.Combine(f.Root,"prepared.ini");
+    var plan=f.Plan(m) with{GameId="darkness2",Choices=new("pl","en","en",[])};
+    File.WriteAllText(prepared,"[VRSettings]\nPolishText=0\nPolishVoice=1\n");
+    await Reject(()=>Sync(()=>DarknessLanguageSettings.ApplyPrepared(plan,file,prepared)));
+    var polish=m with{Id="polish-text",Required=false};plan=plan with{Modules=[m,polish]};
+    Assert(DarknessLanguageSettings.ApplyPrepared(plan,file,prepared));
+    var ini=new IniDocument(File.ReadAllText(prepared));Assert(ini.Get("VRSettings/PolishText")=="1"&&ini.Get("VRSettings/PolishVoice")=="0");
+    await Reject(()=>Sync(()=>DarknessLanguageSettings.ApplyPrepared(plan,file,prepared)));
+    Assert(!DarknessLanguageSettings.ApplyPrepared(plan with{GameId="singularity"},file,prepared));
+});
+await Test("Darkness text choice selects matching native menu resources",()=>Sync(()=>
+{
+    var f=Fixture();var fixture=Package(f);
+    var core=fixture with{Files=[new("d3d9.dll","data/mod.bin",fixture.Files[0].Sha256,"copy","mod-authored")]};
+    var english=fixture with{Id="darkness-menu",Required=false,Dependencies=["vr-core"],Files=[new("Cache.Windows/H.Misc.cache","",fixture.Files[0].Sha256,"recipe","local-transform",fixture.Files[0].Sha256,Recipe:[new("payload",0,3,"data/mod.bin")])]};
+    var polish=english with{Id="polish-text"};
+    var game=f.Game(core,english,polish) with{Id="darkness2",Adapter="Darkness2GameAdapter",SteamAppId="67370",Executable="DarknessII.exe"};
+    var en=PlanBuilder.Build(game,f.Location(),new("en","en","en",[]));
+    Assert(en.Modules.Any(m=>m.Id=="darkness-menu")&&!en.Modules.Any(m=>m.Id=="polish-text"));
+    var pl=PlanBuilder.Build(game,f.Location(),new("pl","en","en",["darkness-menu"]));
+    Assert(pl.Modules.Any(m=>m.Id=="polish-text")&&!pl.Modules.Any(m=>m.Id=="darkness-menu"));
+}));
 await DarknessHandsTests.Run(Test,testRoot);
 var report=new{time=DateTimeOffset.UtcNow,passed=results.Count-failed,failed,fixtureRoot=testRoot,steamAccess="NONE",results};
 Json.Write(Path.Combine(testRoot,"test-report.json"),report);Console.WriteLine(JsonSerializer.Serialize(new{passed=results.Count-failed,failed,report=Path.Combine(testRoot,"test-report.json")}));Environment.ExitCode=failed==0?0:1;

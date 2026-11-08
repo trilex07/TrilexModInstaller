@@ -108,6 +108,7 @@ public static class PlanBuilder
             ids.Add("polish-text");
             if(game.Id=="darkness2")ids.Remove("darkness-menu");
         }
+        if(game.Id=="darkness2" && choices.TextLanguage=="en" && game.Modules.Any(m=>m.Id=="darkness-menu"))ids.Add("darkness-menu");
         if(choices.VoiceLanguage=="pl")ids.Add("polish-dubbing");
         if(choices.TextLanguage=="en" && ids.Contains("polish-text") || choices.VoiceLanguage=="en" && ids.Contains("polish-dubbing"))throw new InvalidOperationException("Language choices conflict with selected packs");
         var result=new List<ModuleManifest>();var visiting=new HashSet<string>();var done=new HashSet<string>();

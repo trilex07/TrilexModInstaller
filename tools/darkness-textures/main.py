@@ -18,6 +18,10 @@ def native_raw_payload(tag,format,data):
     return (deinterleave_dxt1_stream if format=="DXT1" else deinterleave_dxt5_stream)(data)
 
 def main():
+    if sys.argv[1:2] == ['--hands']:
+        import hands
+        hands.prepare(sys.argv[2], sys.argv[3], Path(getattr(sys,"_MEIPASS",Path(__file__).parent)))
+        return
     original,png,output=map(Path,sys.argv[1:])
     print("Preparing native texture cache",flush=True)
     if output.exists():raise ValueError("Fresh output required")

@@ -40,3 +40,10 @@ After a Steam reinstall, leftover or replaced mod files no longer block the inst
 - Polish and English prompts. Declining or a Toolkit setup error leaves the installed game mod intact. Existing game packages and signed catalog are unchanged.
 - Verification: 97/97 core tests, including real upstream package hashes and synthetic driver install/recovery; self-contained Windows x64 build and eight WPF smoke cases passed. Physical PSVR2 installation/calibration awaits player testing.
 - Same version and download link. Download the ZIP again to receive this installer change; refreshing the game catalog alone does not update the installer executable.
+
+## November 8: Darkness II missing hands asset
+
+- Fixed a missing installer component: Darkness II now automatically reconstructs the closed-wrist hands without forearms from the player's own game files. Previously the installer omitted this local B.Misc mesh modification, so players received full character arms.
+- Matches the exact hand model installed in Trilex's game, including closed wrist caps across all five detail levels and original textures. Included in normal installation, repair and manual export, independently of optional VR fixes and HD textures.
+- Uses normal verified backups and transactional restoration. No game models are downloaded or redistributed; the Darkness DLL, settings and existing runtime ZIPs are unchanged.
+- Download the full installer ZIP again, then select Update for Darkness II. Old installer executables do not contain this asset reconstruction even after refreshing their catalog. Player headset tests remain pending.

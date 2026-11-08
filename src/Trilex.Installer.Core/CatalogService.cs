@@ -82,6 +82,8 @@ public static class PlanBuilder
                 LocalSources.Validate(f,Path.GetTempPath());
                 var target=f.Path.Replace('\\','/');
                 var darknessTarget=Paths.Same(target,"d3d9.dll")||Paths.Same(target,"Darkness2VR.ini") || Paths.Same(target,"openxr_loader.dll")||Paths.Same(target,"Darkness2VR-diagnostic.ini")||Paths.DarknessAssetTarget(target)||Paths.DarknessTextTarget(target)||DarknessTextureInstall.IsTarget(target);
+                darknessTarget|=DarknessHandsInstall.IsTarget(target);
+                if(DarknessHandsInstall.IsTarget(target)&&(m.Id!="hands-only"||f.Kind!="recipe"||f.Ownership!="local-transform"))throw new InvalidDataException("Darkness II hands require a local reconstruction");
                 if((game.Id=="wonderlands")!=Paths.WonderlandsTarget(target))throw new InvalidDataException("Target belongs to another game");
                 if((game.Id=="darkness2")!=darknessTarget)throw new InvalidDataException("Target belongs to another game");
                 if(game.Id=="darkness2" && Paths.DarknessTextTarget(target) && (m.Id is not ("polish-text" or "darkness-menu") || f.Kind!="recipe"))

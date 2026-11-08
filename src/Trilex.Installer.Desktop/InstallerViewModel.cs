@@ -344,6 +344,7 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
         plan=reviewed;
         ReviewText=$"{plan.Root}\n\nv{plan.Version} · {plan.DownloadBytes/1048576.0:F1} MB download · {plan.ExpandedBytes/1048576.0:F1} MB payload\nText: {choices.TextLanguage} / Voice: {choices.VoiceLanguage}\n\n"+string.Join("\n",plan.Modules.Select(x=>$"{x.Label(ui)} · {x.Version} · [{string.Join(", ",x.Dependencies)}]"));
         if(gameId=="darkness2"&&HdTextures)ReviewText+="\n\n"+L["HdTextureHint"];
+        if(gameId=="darkness2")ReviewText+="\n\n"+(ui=="pl"?"Dłonie bez przedramion zostaną odtworzone lokalnie z plików gry (wszystkie poziomy szczegółowości, zamknięte nadgarstki).":"Closed-wrist hands without forearms will be reconstructed locally from game files, at every detail level.");
         if(plan.ExecutableConsent is not null)ReviewText+="\n\n"+L["UnverifiedInstalled"]+"\nSHA256: "+plan.ExeSha256;
         if(LocalAudioTools.Required(plan.Modules))ReviewText+="\n\n"+(ui=="pl"?"Remaster audio: przetwarzanie lokalne z własnej kopii gry. Dodatkowy kodek FFmpeg 9.0.2 (GPLv3), około 109 MB z gyan.dev; bez pobierania nagrań.":"Audio remaster: generated locally from your own game. Additional FFmpeg 9.0.2 codec (GPLv3), approximately 109 MB from gyan.dev; no recording download.");
         if(LocalExtractorTools.Required(plan.Modules))ReviewText+="\n\n"+(ui=="pl"?"Zasoby Centuriona powstaną z własnej kopii gry. Pełny ZIP zawiera zweryfikowany UE Viewer w folderze tools; nie wymaga pobierania z gildor.org ani pobierania modeli gry.":"Centurion assets are generated from your own game. The complete ZIP includes a verified UE Viewer in its tools folder; no gildor.org download or game-model download is needed.");
@@ -377,9 +378,18 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
                 };
             }
         }
-        string? textureWork=null;
+        string? textureWork=null,handsWork=null;
         try
         {
+        if(chosen.GameId=="darkness2")
+        {
+            handsWork=Path.Combine(Home,"hands-work",Guid.NewGuid().ToString("N"));
+            Activity=ui=="pl"?"Przygotowywanie dłoni VR z plików gry…":"Preparing VR hands from game files…";
+            var hands=await Task.Run(()=>DarknessHandsInstall.PrepareAsync(chosen.Root,installer,handsWork,ct),ct);
+            chosen=chosen with {Modules=[..chosen.Modules,hands.Module],Choices=chosen.Choices with {SelectedModules=[..chosen.Choices.SelectedModules,"hands-only"]}};
+            packages[hands.Module.Id]=hands.Archive;
+            Log("Closed-wrist hands prepared from owned game files; included in install/export transaction");
+        }
         if(chosen.GameId=="darkness2"&&HdTextures)
         {
             if(offline)throw new IOException(L["TexturesOnline"]);
@@ -416,7 +426,7 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
         Activity=CompletionText(result)+(result.ExecutableConsent is null?"":"\n"+L["UnverifiedInstalled"]);
         Percent=100;Log(exceptions.Count==0?"Install verified "+result.Version:"Install completed with user-approved reconstruction exceptions: "+exceptions.Count);
         }
-        finally{if(textureWork is not null&&Directory.Exists(textureWork))Directory.Delete(textureWork,true);}
+        finally{foreach(var work in new[]{textureWork,handsWork})if(work is not null&&Directory.Exists(work)){Paths.AssertNoLinks(work);Directory.Delete(work,true);}}
     }
     private bool ConfirmReconstructionMismatch(ReconstructionWarning warning,CancellationToken ct)=>Application.Current.Dispatcher.Invoke(()=>
     {

@@ -25,3 +25,9 @@ Sign `artifacts/installer-1.1.0/catalog.unsigned.json` with the publisher key, t
 ## November 8: game-reinstall refresh
 
 After a Steam reinstall, leftover or replaced mod files no longer block the installer. Download & install repairs a damaged installation instead of failing with "Modified installed file ... use Repair explicitly". Uninstall leaves files replaced outside the installer untouched and finishes; Update accepts files restored to the Steam original. Same version, catalog and download link; download the ZIP again. 88 Core tests, including leftover-older-mod-file repair after reinstall.
+
+## November 8: Singularity and Tiny Tina's Wonderlands runtime refresh (catalog 1.1.1)
+
+- Singularity vr-core v7-20261108-gravity-fix: d3d9.dll E0E08775 (SingularityVR fa4c3151). Removes the black rectangles in gravity scenes (modulate decal draws, `[Diagnostic] DropDecalLocalTangent=1`) and holds the last tracked wrist correction to stop left-hand flicker (`[Input] TrackedGripWrist=1`). Diagnostic audit traces stay off. User confirmed both on PSVR2.
+- Tiny Tina's Wonderlands vr-core 1.1.0-20261108: xinput1_3.dll 87641E55 (TinyTinaVR f638d1b). Unarmed arms follow the controller with elbow IK, shoulder anchor at the neck pivot, forearm twist, deferred graphics apply in VR (menu crash guard), presentation modes and per-weapon grip default. Profile equals the installed accepted INI except local simulator paths.
+- All other modules unchanged. Verified: signed Wonderlands package install/export/restore exercise, Singularity vr-core fixture install/verify/repair/uninstall, UI smoke. Same installer version and download link; installed players see Update on the game tile.

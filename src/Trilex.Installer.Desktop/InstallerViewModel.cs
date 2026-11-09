@@ -506,10 +506,15 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
         Log((accepted?"USER ACCEPTED":"USER DECLINED")+" Darkness II: "+detail);
         return accepted;
     }
-    public void Launch(){if(!CanLaunch)throw new InvalidOperationException("Verify a managed installation first");
-        var start=GameLauncher.CreateStartInfo(Game,location!,installer.Receipt(root)!);
+    public void Launch()=>Launch(start=>Process.Start(start));
+    internal void Launch(Action<ProcessStartInfo> startProcess){
+        // Run owns Busy while executing this action. CanLaunch is a UI availability
+        // gate and therefore false here; validate ownership/consent independently.
+        var receipt=SafeReceipt(root);
+        if(!GameLauncher.CanLaunch(Game,location,receipt))throw new InvalidOperationException("Verify a managed installation first");
+        var start=GameLauncher.CreateStartInfo(Game,location!,receipt!);
         Log("Launch requested: "+Game.Id+"; route="+(start.FileName.StartsWith("steam://",StringComparison.OrdinalIgnoreCase)?"Steam appmanifest":"direct EXE")+"; target="+start.FileName+"; cwd="+start.WorkingDirectory);
-        Process.Start(start);}
+        startProcess(start);}
     public void OpenLogs()=>Process.Start(new ProcessStartInfo(Home){UseShellExecute=true});
     public void Dispose(){cancellation?.Cancel();http.Dispose();}
 }

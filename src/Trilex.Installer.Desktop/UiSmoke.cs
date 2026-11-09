@@ -39,6 +39,7 @@ internal static class UiSmoke
             var bmp=new RenderTargetBitmap((int)(width*dpi/96.0),(int)(height*dpi/96.0),dpi,dpi,PixelFormats.Pbgra32);bmp.Render(root);
             var file=$"installer-{language}-{width}x{height}-{dpi}dpi.png";using(var stream=File.Create(Path.Combine(output,file))){var encoder=new PngBitmapEncoder();encoder.Frames.Add(BitmapFrame.Create(bmp));encoder.Save(stream);}
             CheckInstallActivity(vm,root,output,$"{language}-{width}x{height}-{dpi}dpi");
+            CheckLaunchFlow(vm,output,$"{language}-{width}x{height}-{dpi}dpi");
             rows.Add(new{language,width,height,dpi,file,status="PASS",activity="install/busy controls/late progress/error/cancel PASS",reconstruction="PL/EN prompt and exception completion/verify status PASS; native modal interaction not automated",scope="WPF layout/bindings/offscreen pixels; not physical DPI/input acceptance"});
             vm.SelectGame("darkness2");
             if(vm.Modules.Count==4)
@@ -63,6 +64,41 @@ internal static class UiSmoke
         }
         if(errors.Messages.Count>0)throw new InvalidDataException(string.Join("\n",errors.Messages));
         Json.Write(Path.Combine(output,"ui-report.json"),new{status="PASS",bindingErrors=errors.Messages,rows});
+    }
+    static void CheckLaunchFlow(InstallerViewModel vm,string output,string name)
+    {
+        var flags=System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic;
+        foreach(var id in new[]{"singularity","darkness2","wonderlands"})
+        {
+            vm.SelectGame(id);
+            var game=(GameManifest)typeof(InstallerViewModel).GetProperty("Game",flags)!.GetValue(vm)!;
+            var folder=Path.GetFullPath(Path.Combine(output,"launch-fixtures",name,id));
+            var exe=Paths.Safe(folder,game.Executable);Directory.CreateDirectory(Path.GetDirectoryName(exe)!);
+            File.WriteAllText(exe,"synthetic launch fixture; never executed");
+            vm.GameRoot=folder;
+            var location=new GameLocation(folder,"Manual",false,"Synthetic accepted unknown build",Paths.Hash(exe));
+            typeof(InstallerViewModel).GetField("location",flags)!.SetValue(vm,location);
+            var calls=0;
+            void Start(ProcessStartInfo start)
+            {
+                if(!vm.Busy||vm.CanLaunch||start.FileName!=exe)throw new InvalidDataException("Launch escaped busy wrapper or selected wrong EXE");
+                calls++;
+            }
+            vm.Run(ct=>{vm.Launch(Start);return Task.CompletedTask;}).GetAwaiter().GetResult();
+            if(calls!=0)throw new InvalidDataException("Launch allowed without receipt");
+            var installer=new TransactionInstaller(Path.Combine(vm.Home,"installations"),new WindowsProcessGuard());
+            var state=installer.StateDirectory(folder);Directory.CreateDirectory(state);
+            var receipt=new InstallReceipt("trilex-install-v1",folder,id,"fixture",new("en","en","en",[]),[],"fixture",ExecutableConsent:new(folder,location.ExeHash!));
+            Json.Write(Path.Combine(state,"installed.json"),receipt);
+            if(!vm.CanLaunch)throw new InvalidDataException("Reviewed launch unavailable before operation");
+            vm.Run(ct=>{vm.Launch(Start);return Task.CompletedTask;}).GetAwaiter().GetResult();
+            if(calls!=1||!vm.CanLaunch)throw new InvalidDataException("Busy wrapper refused valid launch");
+            File.AppendAllText(exe,"changed");
+            vm.Run(ct=>{vm.Launch(Start);return Task.CompletedTask;}).GetAwaiter().GetResult();
+            if(calls!=1||!vm.Activity.Contains("Executable changed after review"))throw new InvalidDataException("Launch accepted changed executable");
+        }
+        vm.SelectGame("singularity");
+        File.WriteAllText(Path.Combine(output,"launch-"+name+".txt"),"PASS all three games: busy wrapped launch, accepted unknown EXE, missing receipt refusal and changed EXE refusal; no process started");
     }
     static void CheckReconstructionWarning(InstallerViewModel vm)
     {

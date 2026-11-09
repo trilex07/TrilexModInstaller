@@ -125,6 +125,7 @@ public static class PlanBuilder
             throw new InvalidDataException("Darkness II Polish resources require Polish game text");
         if(game.Adapter=="SingularityGameAdapter")result=SingularityV7Settings.Apply(result,choices);
         result=LocalSources.BindCurrentSystem(result);
+        result=Psvr2ClientRuntime.Configure(game.Id,result,Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
         var paths=result.SelectMany(x=>x.Files).Where(x=>x.Kind!="ini").Select(x=>x.Path).ToList();
         if(paths.Distinct(StringComparer.OrdinalIgnoreCase).Count()!=paths.Count)throw new InvalidDataException("Two modules own the same target");
         return new(game.Id,game.Modules.First(x=>x.Required).Version,location.Root,location.ExeHash,choices,result,game.Executable,verified?null:consent);

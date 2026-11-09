@@ -54,13 +54,10 @@ internal static class Psvr2ToolkitSetup
         status(T("Pobieranie i weryfikacja PSVR2 Toolkit…", "Downloading and verifying PSVR2 Toolkit…"));
         var cache = Path.Combine(home, "psvr2-toolkit", "cache");
         var archive = await Psvr2Toolkit.DownloadAsync(http, Psvr2Toolkit.Driver, cache, ct);
-        var capi = await Psvr2Toolkit.DownloadAsync(http, Psvr2Toolkit.CapiApps, cache, ct);
-        var utilities = Paths.Safe(Path.Combine(home, "psvr2-toolkit"), "capiapps-" + Guid.NewGuid().ToString("N"));
         var stage = Paths.Safe(Path.Combine(home, "psvr2-toolkit"), "driver-" + Guid.NewGuid().ToString("N"));
         await Task.Run(() =>
         {
             Psvr2Toolkit.Extract(archive, stage);
-            Psvr2Toolkit.Extract(capi, utilities);
             ct.ThrowIfCancellationRequested();
             Psvr2Toolkit.InstallDriver(root, stage, () => RequireIdle(root));
         }, ct);

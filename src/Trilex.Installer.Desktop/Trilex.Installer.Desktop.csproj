@@ -4,10 +4,13 @@
     <ApplicationIcon>Assets/Trilex_mod_installer.ico</ApplicationIcon><ApplicationManifest>app.manifest</ApplicationManifest>
     <AssemblyName>TrilexModInstaller</AssemblyName><PublishTrimmed>false</PublishTrimmed>
     <BootstrapCatalog Condition="'$(BootstrapCatalog)'==''">../../catalog/bootstrap.json</BootstrapCatalog>
+    <Psvr2ClientAssets Condition="'$(Psvr2ClientAssets)'==''">../../artifacts/psvr2-client-runtime</Psvr2ClientAssets>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../Trilex.Installer.Core/Trilex.Installer.Core.csproj"/><Resource Include="Assets/*"/>
     <EmbeddedResource Include="$(BootstrapCatalog)" LogicalName="Trilex.Installer.Desktop.bootstrap.json"/>
     <EmbeddedResource Include="../../catalog/trusted-publisher.pem" Link="trusted-publisher.pem"/>
+    <EmbeddedResource Include="$(Psvr2ClientAssets)/psvr2_toolkit_capi_loader.dll" LogicalName="Trilex.Psvr2.psvr2_toolkit_capi_loader.dll"/>
+    <EmbeddedResource Include="$(Psvr2ClientAssets)/darkness/Darkness2Psvr2Bridge.exe" LogicalName="Trilex.Psvr2.Darkness2Psvr2Bridge.exe"/>
   </ItemGroup>
 </Project>

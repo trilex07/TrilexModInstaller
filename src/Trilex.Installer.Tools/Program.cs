@@ -20,7 +20,9 @@ try
         var location=new WonderlandsGameAdapter().Validate(gameRoot,game);
         var plan=PlanBuilder.Build(game,location,new("en","en","en",[]),new(gameRoot,location.ExeHash!));
         var archives=plan.Modules.ToDictionary(m=>m.Id,m=>BundleSource.ArchiveAt(exerciseBundle,m,game.Id)??throw new IOException("Missing bundled package"));
-        var installer=new TransactionInstaller(Path.Combine(exercise,"state"),new WindowsProcessGuard());
+        // This command created a fresh synthetic PE under gameRoot above.
+        // Keep the fixture bounded there; an unrelated live game is untouched.
+        var installer=new TransactionInstaller(Path.Combine(exercise,"state"),new FixtureGuard(gameRoot));
         var receipt=await installer.InstallAsync(plan,archives,null,default);if(installer.Verify(gameRoot).Count>0)throw new IOException("Installed fixture differs");
         var export=ManualExporter.Export(plan,archives,Path.Combine(exercise,"manual"),installer,null,default);
         var manual=Json.Read<ManualExportReceipt>(Path.Combine(export,"manual-manifest.json"));

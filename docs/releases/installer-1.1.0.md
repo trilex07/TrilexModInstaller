@@ -55,3 +55,12 @@ Player report: Singularity under D:/SteamLibrary/steamapps/common/Singularity pr
 Run the game now verifies the reviewed EXE and managed receipt as before, then checks the adjacent Steam appmanifest: matching AppID, exact installed folder and steamapps/common layout are required. A matching Steam copy starts through Steam; manually browsed copies work as well. GOG/disc/manual folders without that matching manifest retain direct EXE launch with the executable's own directory. Tiny Tina keeps -dx11 on both routes. Unknown hash consent is preserved. No Steam DLLs, game EXE or appid files are injected or edited. Launch requests log route and target; startup exceptions use the existing visible error handler.
 
 101 Core tests pass, including Steam/manual/unknown hash routing, bad and mismatched manifests, changed EXE rejection, and DX11 preservation. Release x64 build checked; no game was launched by these tests. The remote player's successful launch is PENDING. Temporary workaround for this report: launch Singularity from its Steam library rather than the older installer's Run the game button.
+
+
+## November 9: Wonderlands accepted DX12 runtime refresh (catalog 1.1.4)
+
+- Wonderlands module `1.1.0-20261109`, source `927c98a`, DLL SHA256 `504885E44AA1EE13D75C7958670D80FFD41E9389091FAA0C365FC083D0B260A2`. Matches the locally installed DLL and the PSVR2 baseline accepted on November 9. Includes per-eye reconstruction support, tracked native scope weapon, melee grip/animation and DX12 rendering improvements.
+- Run the game now selects `-dx12` for `[VR] D3D12=1` and `-dx11` otherwise, for both Steam and direct launch. The manual kit documents both paths.
+- Portable profile uses the current local settings, removes simulator paths, and disables DLSS by default. Optional DLSS requires the user's separately installed official `nvngx_dlss.dll`; NVIDIA SDK/runtime binaries are not included. Select DLSS in VR settings and restart after adding the official runtime. No new physical acceptance is claimed for this distribution profile.
+- Other games and modules are preserved byte-for-byte. Redownload the complete installer ZIP at the existing 1.1.0 link, then update Wonderlands. Existing user-edited INI keys remain governed by the installer's preservation policy.
+- Known open reports include second-firearm/melee switching, action-skill camera placement, sprint-arm occlusion, enemy health/loot focus and heavier-scene performance. This package does not claim those fixed or universal 90 FPS.

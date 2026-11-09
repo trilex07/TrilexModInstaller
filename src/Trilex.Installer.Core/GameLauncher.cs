@@ -18,9 +18,16 @@ public static class GameLauncher
         if(!Paths.Same(Paths.Hash(exe),location.ExeHash))throw new IOException("Executable changed after review");
         // Steam-owned copies must enter through Steam so its launcher/DRM context
         // is initialized. Never infer ownership from an EXE hash or Source label.
+        var arguments=GraphicsArguments(game,exe);
         if(IsSteamInstallation(game,location.Root))
-            return new(game.Id=="wonderlands"?"steam://run/"+game.SteamAppId+"//-dx11/":"steam://rungameid/"+game.SteamAppId){UseShellExecute=true};
-        return new(exe){UseShellExecute=true,WorkingDirectory=Path.GetDirectoryName(exe)!,Arguments=game.Id=="wonderlands"?"-dx11":""};
+            return new(game.Id=="wonderlands"?"steam://run/"+game.SteamAppId+"//"+arguments+"/":"steam://rungameid/"+game.SteamAppId){UseShellExecute=true};
+        return new(exe){UseShellExecute=true,WorkingDirectory=Path.GetDirectoryName(exe)!,Arguments=arguments};
+    }
+    private static string GraphicsArguments(GameManifest game,string exe)
+    {
+        if(game.Id!="wonderlands")return "";
+        var ini=Path.Combine(Path.GetDirectoryName(exe)!,"WonderlandsVR.ini");
+        return File.Exists(ini)&&new IniDocument(File.ReadAllText(ini)).Get("VR/D3D12")=="1"?"-dx12":"-dx11";
     }
     public static bool IsSteamInstallation(GameManifest game,string root)
     {

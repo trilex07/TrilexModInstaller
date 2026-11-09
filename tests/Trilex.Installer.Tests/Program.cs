@@ -843,6 +843,10 @@ await Test("Steam launch requires matching library manifest; retail and malforme
     Assert(start.FileName=="steam://rungameid/"+game.SteamAppId&&start.UseShellExecute&&start.Arguments=="");
     var tiny=game with{Id="wonderlands"};
     Assert(GameLauncher.CreateStartInfo(tiny,loc,receipt with{GameId="wonderlands"}).FileName=="steam://run/"+game.SteamAppId+"//-dx11/");
+    var graphicsIni=Path.Combine(Path.GetDirectoryName(exe)!,"WonderlandsVR.ini");
+    File.WriteAllText(graphicsIni,"[VR]\nD3D12=1\n");
+    Assert(GameLauncher.CreateStartInfo(tiny,loc,receipt with{GameId="wonderlands"}).FileName=="steam://run/"+game.SteamAppId+"//-dx12/");
+    File.Delete(graphicsIni);
     var dark=game with{Id="darkness2"};
     Assert(GameLauncher.CreateStartInfo(dark,loc,receipt with{GameId="darkness2"}).FileName=="steam://rungameid/"+game.SteamAppId);
     Assert(!GameLauncher.IsSteamInstallation(game with{SteamAppId="42/anything"},root));
@@ -904,6 +908,10 @@ await Test("Wonderlands x64 adapter, unknown hash consent, install/export/restor
     var plan=PlanBuilder.Build(game,location,new("en","en","en",[]),new(f.Root,location.ExeHash!));
     var receipt=await f.Installer.InstallAsync(plan,Archives(f,m),null,default);Assert(f.Installer.Verify(f.Root).Count==0);
     var start=GameLauncher.CreateStartInfo(game,location,receipt);Assert(start.Arguments=="-dx11"&&Paths.Same(start.WorkingDirectory,Path.GetDirectoryName(exe)));
+    var graphicsIni=Path.Combine(Path.GetDirectoryName(exe)!,"WonderlandsVR.ini");
+    File.WriteAllText(graphicsIni,"[VR]\nD3D12=1\n");
+    Assert(GameLauncher.CreateStartInfo(game,location,receipt).Arguments=="-dx12");
+    File.WriteAllText(graphicsIni,"[Simulator]\nEnabled=0\n");
     Assert(ProcessGuardPolicy.Refusal(f.Root,1,2,"Wonderlands",exe) is not null&&ProcessGuardPolicy.Refusal(f.Root,1,2,"Steam",null) is null);
     ManualExporter.Export(plan,Archives(f,m),f.Root+"-tiny-export",f.Installer,null,default);
     f.Installer.Uninstall(f.Root,default);Assert(!File.Exists(bin)&&File.Exists(exe));

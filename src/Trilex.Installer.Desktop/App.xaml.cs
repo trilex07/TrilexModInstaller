@@ -6,6 +6,22 @@ public partial class App : Application
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+        if(e.Args is ["--psvr2-client-smoke",var clientOutput])
+        {
+            ShutdownMode=ShutdownMode.OnExplicitShutdown;
+            try
+            {
+                var destination=Path.GetFullPath(clientOutput);
+                if(Directory.Exists(destination)||File.Exists(destination))throw new IOException("Client fixture must be a fresh directory");
+                var payload=Psvr2ClientSetup.Payload();
+                Trilex.Installer.Core.Psvr2ClientRuntime.Install(destination,payload,()=>{});
+                Trilex.Installer.Core.Psvr2ClientRuntime.Install(destination,payload,()=>{});
+                Psvr2ClientSetup.Export(destination);
+                File.WriteAllText(Path.Combine(destination,"PASS.txt"),"PASS embedded resource hashes, fresh per-user client install/reinstall and manual kit; no hardware initialized");
+                Shutdown(0);
+            }
+            catch(Exception ex){File.WriteAllText(Path.GetFullPath(clientOutput)+".failure.txt",ex.ToString());Shutdown(1);}return;
+        }
         if(e.Args is ["--render-smoke",var output])
         {
             ShutdownMode=ShutdownMode.OnExplicitShutdown;

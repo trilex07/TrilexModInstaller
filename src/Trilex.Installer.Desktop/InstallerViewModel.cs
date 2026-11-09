@@ -246,7 +246,7 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
     public async Task ConfigurePsvr2(CancellationToken ct)
     {
         var previous=Activity;
-        try { await Psvr2ToolkitSetup.Offer(http,Home,ui=="pl",Offline,message=>{Activity=message;Log(message);},ct); }
+        try { Psvr2ClientSetup.Install();Log("PSVR2 per-user clients verified; Toolkit driver/calibration is a separate step.");await Psvr2ToolkitSetup.Offer(http,Home,ui=="pl",Offline,message=>{Activity=message;Log(message);},ct); }
         catch(OperationCanceledException){Activity=previous+"\n"+(ui=="pl"?"Konfiguracja PSVR2 anulowana.":"PSVR2 setup cancelled.");}
         catch(Exception e)
         {
@@ -417,9 +417,11 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
             if(string.IsNullOrWhiteSpace(ExportParent))throw new IOException(L["ExportFolder"]);
             var destination=Path.Combine(ExportParent,$"Trilex-{chosen.GameId}-{catalog.Version}-{DateTime.Now:yyyyMMdd-HHmmss}-{Guid.NewGuid().ToString("N")[..6]}");
             var exported=await Task.Run(()=>ManualExporter.Export(chosen,packages,destination,installer,progress,ct,Confirm),ct);
+            Psvr2ClientSetup.Export(exported);
             Activity=L["ExportDone"]+"\n"+exported;Percent=100;Log("Manual export complete: "+exported+"; source game unchanged");
             return;
         }
+        Psvr2ClientSetup.Install();Log("PSVR2 per-user clients installed/verified (no driver changes)");
         var result=await Task.Run(async()=>repair?await installer.RepairAsync(chosen,packages,progress,ct,Confirm):await installer.InstallAsync(chosen,packages,progress,ct,confirmMismatch:Confirm),ct);
         Log("Verify installed files");var failures=await Task.Run(()=>installer.Verify(chosen.Root),ct);if(failures.Count>0)throw new IOException("Post-install verification failed: "+string.Join(", ",failures));
         var exceptions=result.ReconstructionWarnings??[];

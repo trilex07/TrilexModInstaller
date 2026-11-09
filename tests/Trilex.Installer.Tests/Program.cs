@@ -919,6 +919,7 @@ await Test("Wonderlands x64 adapter, unknown hash consent, install/export/restor
     await Reject(()=>Sync(()=>PlanBuilder.ValidateManifest(f.Game(m))));
 });
 await Psvr2ToolkitTests.Run(Test,testRoot);
+await Psvr2ClientTests.Run(Test,testRoot);
 await Test("Darkness English choices override legacy Polish defaults in install and manual export",async()=>
 {
     var f=Fixture();var original=Package(f,content:"[Render]\r\nSubmitMode=4\r\n[VRSettings]\r\nPolishText=1\r\nPolishVoice=1\r\nAppliedPolishText=1\r\nAppliedPolishVoice=1\r\n");

@@ -9,6 +9,15 @@
 
 No extracted PSK/DDS/audio, full commercial cooked package or publisher private key belongs in this source repository. The separate first-edition payload includes authored files and local reconstruction instructions; replacement dubbing literals are acknowledged as replacement media, not disguised as license-free metadata.
 
+## PSVR2 per-user clients
+
+The bundled x64 CAPI loader is from Bnuuy Solutions PSVR2Toolkit
+v1.0.0-experimental-3 (MIT). The Darkness2VR x64 helper is source-built from
+the Trilex/letsgosportsteam runtime (MIT), including KHARVOX-derived interop
+(Copyright 2026 CactusVRStudios, MIT). Full notices and license grant accompany
+the per-user clients and portable bundle. Driver installation remains a separate
+optional upstream download. No Sony proprietary DLL is bundled with these clients.
+
 ## Bundled standalone UE3 decoder
 
 The embedded `Trilex.Ue3Decode.exe` helper is GPL-2.0-or-later, including miniLZO attribution by Markus F. X. J. Oberhumer and upstream decoder attribution to letsgosportsteam. It runs as a separate process; no decoder object code is linked into the MIT application or VR runtime. Full license and corresponding source, including the bounded wrapper and build script, accompany portable releases under `licenses/ue3decode-corresponding-source`. From that directory run `powershell -File scripts/build-decoder.ps1` with Visual Studio C++ tools installed. No proprietary assets are needed to rebuild it.

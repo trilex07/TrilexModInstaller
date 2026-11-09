@@ -113,11 +113,11 @@ def pack(logical, whole):
 
 def accepted_allocation(encoded, size, expected, profile):
     # Preserve all previously signed recipes byte-for-byte. Only the reviewed
-    # Valkyrie revision opts in through its exact expected output hash.
+    # weapon revisions opt in through their exact expected output hash.
     original = pad_to_allocation(encoded, size)
     if sha(original) == expected:
         return original
-    if profile == '04_weapon_walkiria_ar9':
+    if profile in ('04_weapon_walkiria_ar9', '05_weapon_spikeshot_shotgun'):
         repaired = repaired_allocation(original, size)
         if sha(repaired) == expected:
             return repaired

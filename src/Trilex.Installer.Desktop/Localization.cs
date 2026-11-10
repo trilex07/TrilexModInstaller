@@ -10,6 +10,7 @@ public sealed class Localization : INotifyPropertyChanged
     private static readonly Dictionary<string,(string En,string Pl)> Words=new()
     {
         ["ActionInstall"]=("Install","Zainstaluj"),
+        ["InstallSelected"]=("Install selected","Zainstaluj wybrane"),
         ["ActionUpdate"]=("Update to","Aktualizuj do"),
         ["ActionRepair"]=("Repair installation","Napraw instalację"),
         ["ActionUpToDate"]=("✓ Up to date · reinstall","✓ Aktualne · zainstaluj ponownie"),

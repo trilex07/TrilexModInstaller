@@ -20,7 +20,7 @@ public sealed class TransactionInstaller(string stateRoot, IProcessGuard process
     }
     public void Recover(string root)
     {
-        var state=StateDirectory(root);using var gate=Lock(state);RecoverLocked(root,state);
+        var state=StateDirectory(root);using var gate=Lock(state);RecoverLocked(root,state);CleanupStagingLocked(state,null);
     }
     private void RecoverLocked(string root,string state)
     {
@@ -46,9 +46,11 @@ public sealed class TransactionInstaller(string stateRoot, IProcessGuard process
         if(!Paths.Same(Paths.Hash(Paths.Safe(plan.Root,plan.Executable)),plan.ExeSha256))throw new InvalidDataException("Executable changed after review");
         if(plan.ExecutableConsent is not null&&!ExecutableCompatibility.Matches(plan.ExecutableConsent,plan.Root,plan.ExeSha256))throw new InvalidDataException("Executable consent belongs to another build or directory");
         if(plan.Modules.Any(x=>x.State!="stable" || !PlanBuilder.HasDistributionReview(x)))throw new InvalidDataException("Only explicitly reviewed stable modules can install");
-        var state=StateDirectory(plan.Root);using var gate=Lock(state);RecoverLocked(plan.Root,state);
+        var state=StateDirectory(plan.Root);using var gate=Lock(state);RecoverLocked(plan.Root,state);CleanupStagingLocked(state,progress);
         var previous=Receipt(plan.Root);if(previous is not null && previous.GameId!=plan.GameId)throw new IOException("Adapter ownership mismatch");
         var id=Guid.NewGuid().ToString("N");var txn=Path.Combine(state,"transactions",id);Directory.CreateDirectory(txn);
+        try
+        {
         var existingBytes=plan.Modules.SelectMany(m=>m.Files).Select(f=>f.Path).Concat(previous?.Files.Select(f=>f.Path)??[]).Distinct(StringComparer.OrdinalIgnoreCase).Sum(p=>{var target=Paths.Safe(plan.Root,p);return File.Exists(target)?new FileInfo(target).Length:0;});
         var budgets=new Dictionary<string,long>(StringComparer.OrdinalIgnoreCase);
         void Reserve(string folder,long bytes){var drive=Path.GetPathRoot(Path.GetFullPath(folder))!;budgets[drive]=checked(budgets.GetValueOrDefault(drive)+bytes+16*1024*1024);}
@@ -134,6 +136,44 @@ public sealed class TransactionInstaller(string stateRoot, IProcessGuard process
         var receipt=new InstallReceipt("trilex-install-v1",Path.GetFullPath(plan.Root),plan.GameId,plan.Version,plan.Choices,ownership,id,warnings.Count==0?null:warnings,plan.ExecutableConsent);
         Apply(plan.Root,state,edits,previous,receipt,id,progress,ct,faultInjection);
         await Task.CompletedTask;return receipt;
+        }
+        finally { CleanupStagingLocked(state,progress); }
+    }
+    // The caller holds transaction.lock. Pending recovery retains ALL staging.
+    // Originals and journal rollback snapshots are never part of this cleanup.
+    private static void CleanupStagingLocked(string state,IProgress<ProgressInfo>? progress)
+    {
+        try
+        {
+            var journal=Path.Combine(state,"journal.json");
+            if(File.Exists(journal)&&Json.Read<Journal>(journal).Phase!="committed")return;
+            var transactions=Paths.Safe(state,"transactions");
+            if(!Directory.Exists(transactions))return;
+            foreach(var transaction in Directory.EnumerateDirectories(transactions))
+            {
+                var id=Path.GetFileName(transaction);
+                if(!Guid.TryParseExact(id,"N",out _))continue;
+                foreach(var name in new[]{"packages","prepared","restore"})
+                {
+                    var staging=Paths.Safe(state,"transactions/"+id+"/"+name);
+                    if(!Directory.Exists(staging))continue;
+                    var pending=new Stack<string>();pending.Push(staging);
+                    while(pending.TryPop(out var directory))foreach(var entry in Directory.EnumerateFileSystemEntries(directory))
+                    {
+                        var attributes=File.GetAttributes(entry);
+                        if((attributes&FileAttributes.ReparsePoint)!=0)throw new IOException("Reparse point in transaction staging");
+                        if((attributes&FileAttributes.Directory)!=0)pending.Push(entry);
+                    }
+                    Directory.Delete(staging,true);
+                }
+            }
+        }
+        catch(Exception e)when(e is IOException or UnauthorizedAccessException or InvalidDataException)
+        {
+            // A locked/foreign staging file must not undo a committed installation.
+            System.Diagnostics.Trace.TraceWarning("Installer staging cleanup: "+e.Message);
+            progress?.Report(new("Cleanup",e.Message,0,1));
+        }
     }
     // A file replaced outside the installer (game reinstall, Steam verify, user edit) is no longer ours:
     // keep it as it is instead of blocking uninstall or upgrade.
@@ -211,10 +251,15 @@ public sealed class TransactionInstaller(string stateRoot, IProcessGuard process
     public List<string> Uninstall(string root,CancellationToken ct)
     {
         var state=StateDirectory(root);using var gate=Lock(state);RecoverLocked(root,state);var previous=Receipt(root)??throw new InvalidOperationException("No managed installation");
+        CleanupStagingLocked(state,null);
+        try
+        {
         var id=Guid.NewGuid().ToString("N");var txn=Paths.Safe(state,"transactions/"+id);
         var kept=previous.Files.Where(f=>LeaveInPlace(root,f)).Select(f=>f.Path).ToList();
         var edits=previous.Files.Where(f=>!kept.Contains(f.Path)).Select(f=>(f.Path,RestoreSource(root,state,f,txn))).ToList();Apply(root,state,edits,previous,null,id,null,ct,null);
         return kept;
+        }
+        finally { CleanupStagingLocked(state,null); }
     }
     public async Task<InstallReceipt> RepairAsync(InstallPlan plan,Dictionary<string,string> archives,IProgress<ProgressInfo>? progress,CancellationToken ct,Func<ReconstructionWarning,bool>? confirmMismatch=null)
     {

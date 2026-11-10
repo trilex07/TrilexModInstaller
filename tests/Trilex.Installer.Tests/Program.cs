@@ -15,6 +15,8 @@ if(args is ["--crash",var childRoot,var childState,var childArchive,var moduleJs
 var results=new List<object>();int failed=0;
 async Task Test(string name,Func<Task> body)
 {
+    var filter=Environment.GetEnvironmentVariable("TRILEX_TEST_FILTER");
+    if(!string.IsNullOrEmpty(filter)&&!name.Contains(filter,StringComparison.OrdinalIgnoreCase))return;
     try{await body();results.Add(new{name,status="PASS"});Console.WriteLine("PASS "+name);}
     catch(Exception e){failed++;results.Add(new{name,status="FAIL",error=e.ToString()});Console.WriteLine("FAIL "+name+": "+e);}
 }
@@ -28,6 +30,62 @@ ModuleManifest Package(TestFixture f,string suffix="v1",string content="MOD-AUTH
     return new("vr-core",new(){{"en","VR Core"},{"pl","VR Core"}},suffix,"stable",true,[],new FileInfo(archive).Length,"https://github.com/trilex07/TrilexModInstaller/releases/download/test/"+suffix+".zip",Paths.Hash(archive),4096,true,"Synthetic newly authored fixture",[new("Binaries/trilex-test.dll","data/mod.bin",Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(content))),"copy","mod-authored"),new("Binaries/SingularityVR.ini","","","ini","mod-authored",IniValues:new(){{"Input/Test","1"}})],"");
 }
 Dictionary<string,string> Archives(TestFixture f,ModuleManifest m)=>new(){{m.Id,Path.Combine(f.Root,m.Version+".zip")}};
+void AssertStagingEmpty(TestFixture f)
+{
+    var transactions=Path.Combine(f.Installer.StateDirectory(f.Root),"transactions");
+    foreach(var transaction in Directory.Exists(transactions)?Directory.GetDirectories(transactions):[])
+        foreach(var name in new[]{"packages","prepared","restore"})
+            Assert(!Directory.Exists(Path.Combine(transaction,name)),"Retained staging: "+Path.Combine(transaction,name));
+}
+await Test("transaction cleanup preserves originals across install repair uninstall",async()=>
+{
+    var f=Fixture();var m=Package(f);var target=Paths.Safe(f.Root,m.Files[0].Path);
+    File.WriteAllText(target,"ORIGINAL DLL");var original=Paths.Hash(target);
+    m=m with{Files=[m.Files[0] with{BeforeSha256=original},m.Files[1]]};
+    var receipt=await f.Installer.InstallAsync(f.Plan(m),Archives(f,m),null,default);
+    AssertStagingEmpty(f);Assert(f.Installer.Verify(f.Root).Count==0);
+    var backup=Paths.Safe(f.Installer.StateDirectory(f.Root),receipt.Files[0].Backup);
+    Assert(Paths.Hash(backup)==original);
+    var rollback=Paths.Safe(f.Installer.StateDirectory(f.Root),"transactions/"+receipt.TransactionId+"/rollback/"+m.Files[0].Path);
+    Assert(Paths.Hash(rollback)==original,"Rollback snapshot removed");
+    File.WriteAllText(target,"DAMAGED");await f.Installer.RepairAsync(f.Plan(m),Archives(f,m),null,default);
+    AssertStagingEmpty(f);Assert(f.Installer.Verify(f.Root).Count==0&&Paths.Hash(backup)==original);
+    f.Installer.Uninstall(f.Root,default);AssertStagingEmpty(f);Assert(Paths.Hash(target)==original);
+});
+await Test("transaction cleanup removes cancelled preparation without touching game",async()=>
+{
+    var f=Fixture();var m=Package(f);using var cancelled=new CancellationTokenSource();
+    var progress=new InlineProgress(p=>{if(p.Stage=="Prepare")cancelled.Cancel();});
+    var caught=false;try{await f.Installer.InstallAsync(f.Plan(m),Archives(f,m),progress,cancelled.Token);}catch(OperationCanceledException){caught=true;}
+    Assert(caught);AssertStagingEmpty(f);Assert(f.Installer.Receipt(f.Root)is null&&!File.Exists(Paths.Safe(f.Root,m.Files[0].Path)));
+});
+await Test("transaction cleanup retains pending recovery until game becomes idle",async()=>
+{
+    var f=Fixture();var m=Package(f);
+    await Reject(()=>f.Installer.InstallAsync(f.Plan(m),Archives(f,m),null,default,_=>{f.Guard.Busy=true;throw new IOException("Interrupted apply");}));
+    Assert(f.Installer.NeedsRecovery(f.Root));
+    var state=f.Installer.StateDirectory(f.Root);var journal=Json.Read<Journal>(Path.Combine(state,"journal.json"));
+    Assert(Directory.Exists(Paths.Safe(state,"transactions/"+journal.TransactionId+"/prepared")));
+    f.Guard.Busy=false;f.Installer.Recover(f.Root);AssertStagingEmpty(f);
+    Assert(!f.Installer.NeedsRecovery(f.Root)&&f.Installer.Receipt(f.Root)is null&&!File.Exists(Paths.Safe(f.Root,m.Files[0].Path)));
+});
+await Test("transaction cleanup locked staging does not fail committed install",async()=>
+{
+    var f=Fixture();var m=Package(f);FileStream? locked=null;
+    try
+    {
+        var progress=new InlineProgress(p=>
+        {
+            if(p.Stage!="Install"||locked is not null)return;
+            var transaction=Directory.GetDirectories(Path.Combine(f.Installer.StateDirectory(f.Root),"transactions")).Single();
+            locked=File.Open(Paths.Safe(transaction,"prepared/"+m.Files[0].Path),FileMode.Open,FileAccess.Read,FileShare.None);
+        });
+        await f.Installer.InstallAsync(f.Plan(m),Archives(f,m),progress,default);
+        Assert(!f.Installer.NeedsRecovery(f.Root)&&f.Installer.Verify(f.Root).Count==0);
+    }
+    finally{locked?.Dispose();}
+    f.Installer.Recover(f.Root);AssertStagingEmpty(f);Assert(f.Installer.Verify(f.Root).Count==0);
+});
 ModuleManifest MismatchPackage(TestFixture f,bool second=false)
 {
     var module=Package(f);var recipes=new List<PackageFile>();

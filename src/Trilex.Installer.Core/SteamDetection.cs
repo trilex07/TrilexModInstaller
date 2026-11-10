@@ -34,7 +34,7 @@ public abstract class SteamGameAdapter : IGameAdapter
 {
     public abstract string Id { get; }
     protected abstract string DataDirectory { get; }
-    public IEnumerable<GameLocation> Detect(IEnumerable<string> steamRoots,GameManifest manifest)
+    public virtual IEnumerable<GameLocation> Detect(IEnumerable<string> steamRoots,GameManifest manifest)
     {
         var libraries=new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         foreach(var root in steamRoots.Where(Directory.Exists))
@@ -77,8 +77,19 @@ public sealed class Darkness2GameAdapter : SteamGameAdapter
     protected override string DataDirectory=>"Cache.Windows";
 }
 
-public sealed class WonderlandsGameAdapter : SteamGameAdapter
+public sealed class WonderlandsGameAdapter(string? epicManifests = null) : SteamGameAdapter
 {
     public override string Id=>"wonderlands";
     protected override string DataDirectory=>"OakGame/Content";
+    public override IEnumerable<GameLocation> Detect(IEnumerable<string> steamRoots,GameManifest manifest)
+    {
+        var seen=new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach(var found in base.Detect(steamRoots,manifest))if(seen.Add(Path.GetFullPath(found.Root)))yield return found;
+        var directory=epicManifests??Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),"Epic","EpicGamesLauncher","Data","Manifests");
+        foreach(var root in EpicGameLocations.ReadRoots(directory))
+        {
+            var found=Validate(root,manifest);
+            if(found.ExeHash is not null&&seen.Add(Path.GetFullPath(found.Root)))yield return found with{Source="Epic Games manifest"};
+        }
+    }
 }

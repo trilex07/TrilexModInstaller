@@ -83,5 +83,20 @@ internal static class GameBuildRoutingTests
             catch(InvalidDataException){return Task.CompletedTask;}
             throw new Exception("Wrong build archive accepted");
         });
+        await test("Epic manifest discovery checks actual game layout and preserves unknown hash consent",()=>
+        {
+            var f=Fixture();var manifests=f.Root+"-manifests";Directory.CreateDirectory(manifests);
+            void Write(string name,object value)=>File.WriteAllText(Path.Combine(manifests,name+".item"),System.Text.Json.JsonSerializer.Serialize(value));
+            Write("real",new{InstallLocation=f.Root,LaunchExecutable="DO-NOT-EXECUTE.exe"});
+            Write("duplicate",new{InstallLocation=f.Root});Write("relative",new{InstallLocation="relative/path"});
+            Write("foreign",new{InstallLocation=f.Root+"-other"});Write("wrong-type",new{InstallLocation=42});
+            File.WriteAllText(Path.Combine(manifests,"malformed.item"),"{");
+            File.WriteAllBytes(Path.Combine(manifests,"oversized.item"),new byte[256*1024+1]);
+            var adapter=new WonderlandsGameAdapter(manifests);
+            var found=adapter.Detect([],f.Game).ToList();Check(found.Count==1&&found[0].Compatible&&found[0].Source=="Epic Games manifest");
+            Check(adapter.Detect([],f.Game with{ExeSha256=[new string('0',64)]}).Single().Compatible==false);
+            Check(!new WonderlandsGameAdapter(manifests+"-missing").Detect([],f.Game).Any());
+            return Task.CompletedTask;
+        });
     }
 }

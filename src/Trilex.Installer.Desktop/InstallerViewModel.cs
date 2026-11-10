@@ -39,7 +39,8 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
     public bool IsSingularity=>gameId=="singularity";
     public bool IsWonderlands=>gameId=="wonderlands";
     private bool manualExport;
-    public bool ManualExport {get=>manualExport;set{if(Busy||manualExport==value)return;manualExport=value;Invalidate();Changed();Changed(nameof(InstallActionLabel));}}
+    public bool ManualExport {get=>manualExport;set{if(Busy||manualExport==value)return;manualExport=value;Invalidate();Changed();Changed(nameof(InstallActionLabel));Changed(nameof(ManualActionVisibility));}}
+    public Visibility ManualActionVisibility=>ManualExport?Visibility.Visible:Visibility.Collapsed;
     public string ExportParent {get;set;}="";
     public string InstallActionLabel=>L[ManualExport?"ExportAction":"Download"];
     private bool hdTextures;
@@ -69,6 +70,8 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
         }
         root=value;location=null;needsRepair=false;Invalidate();Changed();RefreshActions();}}
     public string Activity{get=>activity;private set{activity=value;Changed();}}
+    private string workDetail="";
+    public string WorkDetail{get=>workDetail;private set{workDetail=value;Changed();}}
     public string DetectionStatus{get=>detection;private set{detection=value;Changed();}}
     public string ReviewText{get=>review;private set{review=value;Changed();}}
     public string TrustStatus{get=>trust;private set{trust=value;Changed();}}
@@ -134,7 +137,7 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
         try{await action(cancellation.Token);}
         catch(OperationCanceledException){Activity=L["Cancelled"];Log("Cancelled");}
         catch(Exception e){Activity=L["Error"]+": "+e.Message;Log(e.GetType().Name+": "+e.Message);}
-        finally{Busy=false;cancellation.Dispose();cancellation=null;}
+        finally{Busy=false;WorkDetail="";cancellation.Dispose();cancellation=null;}
     }
     public void Cancel()=>cancellation?.Cancel();
 
@@ -157,17 +160,7 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
         if(string.IsNullOrWhiteSpace(path))return null;
         try{return installer.Receipt(path);}catch(Exception e)when(e is ArgumentException or IOException or InvalidDataException or JsonException or UnauthorizedAccessException){return null;}
     }
-    public string PrimaryActionLabel
-    {
-        get
-        {
-            var receipt=SafeReceipt(root);
-            if(receipt is null||receipt.GameId!=gameId)return L["ActionInstall"];
-            if(needsRepair)return L["ActionRepair"];
-            var latest=CatalogGameVersion(Game);
-            return receipt.Version==latest?L["ActionUpToDate"]+" "+V(latest):L["ActionUpdate"]+" "+V(latest);
-        }
-    }
+    public string PrimaryActionLabel=>L["InstallSelected"];
     private void RefreshActions(){Changed(nameof(PrimaryActionLabel));Changed(nameof(CanManage));Changed(nameof(CanLaunch));}
 
     public async Task Startup(CancellationToken ct)
@@ -234,9 +227,11 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
         SetManualExport(false);
         if(needsRepair&&SafeReceipt(root)?.GameId==gameId){await Execute(ct,true);await AutoVerify(ct);await ScanLibrary(ct);return;}
         await Review(ct);
+        await Execute(ct,NeedsRepair);
+        await AfterInstall(ct);
     }
     public async Task ManualInstall(CancellationToken ct){SetManualExport(true);await Review(ct);}
-    private void SetManualExport(bool value){if(manualExport==value)return;manualExport=value;Invalidate();Changed(nameof(ManualExport));Changed(nameof(InstallActionLabel));}
+    private void SetManualExport(bool value){if(manualExport==value)return;manualExport=value;Invalidate();Changed(nameof(ManualExport));Changed(nameof(InstallActionLabel));Changed(nameof(ManualActionVisibility));}
     public async Task AfterInstall(CancellationToken ct)
     {
         if(manualExport)return;
@@ -351,7 +346,7 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
         var fanContent=plan.Modules.Where(m=>!m.RightsVerified&&m.PublisherReview is not null).ToList();
         if(fanContent.Count>0)ReviewText+="\n\n"+(ui=="pl"?"Fanowskie dodatki zatwierdzone do paczki przez Trilexa. Prawa osób trzecich pozostają zastrzeżone; to nie jest potwierdzenie licencji ani poparcia wydawcy gry.":"Fan-made additions approved for this package by Trilex. Third-party rights remain reserved; this is not verification of licenses or endorsement by the game publisher.")+"\n"+string.Join("\n",fanContent.Select(m=>m.Label(ui)+": "+m.PublisherReview!.Notice));
         if(ManualExport)ReviewText+="\n\n"+L["ManualHint"];
-        showReview=true;Changed(nameof(ReviewVisibility));Changed(nameof(CanInstall));Activity=L["ReviewHint"]; Log("Review ready; awaiting Download & install");
+        showReview=true;Changed(nameof(ReviewVisibility));Changed(nameof(CanInstall));Activity=L["ReviewHint"]; Log(ManualExport?"Manual export ready; awaiting destination confirmation":"Selection validated; ready to install");
     }
     public async Task Execute(CancellationToken ct,bool repair=false)
     {
@@ -364,7 +359,7 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
         var downloader=new PackageDownloader(http,Path.Combine(Home,"cache"));var packages=new Dictionary<string,string>();
         foreach(var module in chosen.Modules.ToArray())
         {
-            try{packages[module.Id]=BundleSource.ArchiveAt(AppContext.BaseDirectory,module,chosen.GameId)??await downloader.GetAsync(module,offline,progress,ct);}
+            try{packages[module.Id]=BundleSource.ArchiveAt(AppContext.BaseDirectory,module,chosen.GameId,Log)??await downloader.GetAsync(module,offline,progress,ct);}
             catch(Exception e) when(chosen.GameId=="darkness2"&&!repair&&!module.Required&&
                 (e is FileNotFoundException or HttpRequestException)&&!chosen.Modules.Any(m=>m.Dependencies.Contains(module.Id)))
             {
@@ -400,7 +395,7 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
             {
             await new DarknessTextureDownload(http).SaveAsync(pngZip,progress,ct);
             Activity=L["TexturesConverting"];
-            var prepared=await Task.Run(()=>DarknessTextureInstall.PrepareAsync(chosen.Root,installer,textureWork,pngZip,ct),ct);
+            var prepared=await Task.Run(()=>DarknessTextureInstall.PrepareAsync(chosen.Root,installer,textureWork,pngZip,ct,progress),ct);
             chosen=chosen with {Modules=[..chosen.Modules,prepared.Module],
                 Choices=chosen.Choices with {SelectedModules=[..chosen.Choices.SelectedModules,"hd-textures"]}};
             packages[prepared.Module.Id]=prepared.Archive;
@@ -467,7 +462,11 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
         string? lastProgress=null;
         // Preparation can dominate the runtime; phase percentages are not overall progress.
         // Keep one stable user-facing message and record details only on phase/item changes.
-        return new Progress<ProgressInfo>(p=>{var detail=p.Stage+" · "+p.Item;if(detail!=lastProgress){lastProgress=detail;Log(detail);}});
+        return new Progress<ProgressInfo>(p=>{
+            if(!Busy)return;
+            if(p.Stage=="TextureConvert"&&p.Total>0)WorkDetail=(ui=="pl"?"Przetworzone tekstury: ":"Textures processed: ")+p.Completed+" / "+p.Total;
+            var detail=p.Stage+" · "+p.Item+(p.Stage=="TextureConvert"?" "+p.Completed+"/"+p.Total:"");if(detail!=lastProgress){lastProgress=detail;Log(detail);}
+        });
     }
     public async Task Verify(CancellationToken ct)
     {

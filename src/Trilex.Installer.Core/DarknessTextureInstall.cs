@@ -10,7 +10,7 @@ public static class DarknessTextureInstall
         .Any(stem=>Paths.Same(path,"Cache.Windows/"+stem+".cache")||Paths.Same(path,"Cache.Windows/"+stem+".toc"));
 
     public static async Task<(ModuleManifest Module,string Archive)> PrepareAsync(
-        string root,TransactionInstaller installer,string workspace,string pngZip,CancellationToken ct)
+        string root,TransactionInstaller installer,string workspace,string pngZip,CancellationToken ct,IProgress<ProgressInfo>? progress=null)
     {
         // Local callers and offline fixtures must meet the same contract as downloads.
         await DarknessTextureDownload.ValidateArchiveAsync(pngZip,ct);
@@ -22,6 +22,7 @@ public static class DarknessTextureInstall
         {
             ct.ThrowIfCancellationRequested();
             var relative="Cache.Windows/"+stem+ext;
+            progress?.Report(new("TexturePrepare",relative,0,0));
             var owner=receipt?.Files.SingleOrDefault(f=>Paths.Same(f.Path,relative));
             var source=owner is not null?Paths.Safe(installer.StateDirectory(root),owner.Backup):Paths.Safe(root,relative);
             if(owner is not null&&!Paths.Same(Paths.Hash(source),owner.OriginalHash))throw new IOException("Texture original backup mismatch: "+relative);
@@ -46,8 +47,20 @@ public static class DarknessTextureInstall
         var info=new ProcessStartInfo(worker){UseShellExecute=false,CreateNoWindow=true,RedirectStandardOutput=true,RedirectStandardError=true};
         foreach(var argument in new[]{inputs,png,generated})info.ArgumentList.Add(argument);
         using var process=Process.Start(info)??throw new IOException("Cannot start texture conversion");
-        var stdout=process.StandardOutput.ReadToEndAsync();var stderr=process.StandardError.ReadToEndAsync();
-        try{await process.WaitForExitAsync(ct);}
+        try{process.PriorityClass=ProcessPriorityClass.BelowNormal;}
+        catch(Exception e)when(e is System.ComponentModel.Win32Exception or InvalidOperationException){/* Optional scheduling hint; conversion remains bounded. */}
+        async Task ReadProgress()
+        {
+            while(await process.StandardOutput.ReadLineAsync(ct) is { } line)
+            {
+                if(!line.StartsWith("PROGRESS ",StringComparison.Ordinal))continue;
+                var parts=line.Split(' ',3);var counts=parts[1].Split('/');
+                if(counts.Length==2&&int.TryParse(counts[0],out var done)&&int.TryParse(counts[1],out var total)&&done>=0&&done<=total&&total<=128)
+                    progress?.Report(new("TextureConvert","HD textures",done,total));
+            }
+        }
+        var stdout=ReadProgress();var stderr=process.StandardError.ReadToEndAsync();
+        try{await process.WaitForExitAsync(ct);await stdout;}
         catch{if(!process.HasExited)process.Kill(true);await process.WaitForExitAsync();throw;}
         var detail=await stderr;await stdout;
         if(process.ExitCode!=0)throw new IOException("Texture conversion failed: "+detail[^Math.Min(detail.Length,1600)..]);
@@ -60,6 +73,7 @@ public static class DarknessTextureInstall
         foreach(var row in rows)
         {
             ct.ThrowIfCancellationRequested();
+            progress?.Report(new("TexturePackage",row.Path,0,0));
             var payload=row.Append??row.Payload??throw new InvalidDataException("Missing texture output");
             var source=Paths.Safe(generated,payload);
             var entry=zip.CreateEntry(payload,CompressionLevel.Fastest);

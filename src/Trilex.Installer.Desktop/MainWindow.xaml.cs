@@ -16,7 +16,7 @@ public partial class MainWindow : Window
     private void InstallerUpdate_Click(object sender,RoutedEventArgs e)=>vm.OpenInstallerUpdate();
     private void ShowInstallAction()
     {
-        if(!vm.CanInstall)return;
+        if(!vm.ManualExport||!vm.CanInstall)return;
         UpdateLayout();InstallAction.BringIntoView();InstallAction.Focus();
     }
     private async Task SelectAndDetect(string id){vm.SelectGame(id);await vm.Run(vm.Detect);}

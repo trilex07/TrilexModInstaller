@@ -23,6 +23,11 @@ internal static class UiSmoke
             var root=(FrameworkElement)window.Content;
             root.Measure(new Size(width,height));root.Arrange(new Rect(0,0,width,height));root.UpdateLayout();
             var labels=Descendants(root).OfType<TextBlock>().Select(x=>x.Text).ToList();
+            var details=Descendants(root).OfType<ScrollViewer>().Single(x=>x.Name=="ReviewDetails");
+            if(details.VerticalScrollBarVisibility!=ScrollBarVisibility.Auto||details.MaxHeight!=230||vm.PrimaryActionLabel!=vm.L["InstallSelected"])
+                throw new InvalidDataException("Single install action or bounded review scroll missing");
+            if(Descendants(root).OfType<Button>().Single(x=>x.Name=="InstallAction").Visibility!=Visibility.Collapsed)
+                throw new InvalidDataException("Duplicate download/install action visible in managed mode");
             if(!labels.Contains(vm.L["Options"]) || !labels.Contains(vm.L["Modules"]))throw new InvalidDataException("Localized module content missing");
             if(vm.Modules.Any(m=>m.Manifest.Id=="portable-settings"&&m.Manifest.State=="stable"))
             {
@@ -121,8 +126,15 @@ internal static class UiSmoke
         var language=vm.UiLanguage;
         vm.UiLanguage=language;vm.UiLanguage=language=="pl"?"en":"pl";
         progress!.Report(new("Extract","vr-core",1,12));progress.Report(new("Prepare","Binaries/texture.dds",47,178));
+        progress.Report(new("TextureConvert","HD textures",17,64));
         Dispatcher.CurrentDispatcher.Invoke(()=>{},DispatcherPriority.Background);root.UpdateLayout();
         if(!vm.Busy||vm.Activity!=vm.L["Installing"]||vm.UiLanguage!=language||vm.Percent!=0)throw new InvalidDataException("Installation message reset or displayed misleading phase percentage");
+        if(!vm.WorkDetail.EndsWith("17 / 64"))throw new InvalidDataException("Texture progress missing");
+        var activity=Descendants(root).OfType<FrameworkElement>().Single(x=>x.Name=="ActivityPanel");
+        for(DependencyObject? parent=activity;parent is not null;parent=VisualTreeHelper.GetParent(parent))
+            if(parent is ScrollViewer)throw new InvalidDataException("Activity still scrolls out of view");
+        var bounds=activity.TransformToAncestor(root).TransformBounds(new Rect(0,0,activity.ActualWidth,activity.ActualHeight));
+        if(bounds.Bottom>root.ActualHeight||bounds.Top<0)throw new InvalidDataException("Activity clipped below window");
         if(Descendants(root).OfType<Button>().Single(b=>b.Content?.ToString()==vm.L["Back"]).IsEnabled||Descendants(root).OfType<ComboBox>().Single(c=>System.Windows.Automation.AutomationProperties.GetName(c)=="Installer language").IsEnabled)throw new InvalidDataException("Busy navigation/language guard missing");
         if(!Descendants(root).OfType<Button>().Single(b=>b.Content?.ToString()==vm.L["Cancel"]).IsEnabled||!Descendants(root).OfType<ProgressBar>().Single().IsIndeterminate)throw new InvalidDataException("Busy feedback/cancellation unavailable");
         Descendants(root).OfType<TextBlock>().Single(t=>t.Text==vm.L["Installing"]).BringIntoView();root.UpdateLayout();

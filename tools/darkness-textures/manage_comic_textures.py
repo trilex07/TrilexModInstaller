@@ -60,6 +60,22 @@ def assert_game_closed():
 
 
 def encode_dxt1_blocks_np(pil_img: Image.Image) -> tuple[np.ndarray, np.ndarray]:
+    """Encode independent 4x4 blocks in 64-row strips, preserving exact block order.
+
+    A whole 4096 image materialized two float64 Nx16x4x3 distance arrays
+    (over 3 GiB). Bound that working set instead of starving the VR compositor.
+    """
+    w, h = pil_img.size
+    if min(w, h) < 4:
+        return _encode_dxt1_strip(pil_img)
+    if w % 4 or h % 4:
+        raise ValueError("BC texture dimensions must align to four pixels")
+    chunks = [_encode_dxt1_strip(pil_img.crop((0, y, w, min(y + 64, h))))
+              for y in range(0, h, 64)]
+    return tuple(np.concatenate([chunk[i] for chunk in chunks]) for i in (0, 1))
+
+
+def _encode_dxt1_strip(pil_img: Image.Image) -> tuple[np.ndarray, np.ndarray]:
     """
     Fast vectorized NumPy DXT1 block encoder.
     Returns (endpoints_u32, indices_u32) of shape (N_blocks,) each.
@@ -371,8 +387,7 @@ def build_package(cache_dir: Path, upscaled_dir: Path, package_dir: Path):
                 "b_sha256": hashlib.sha256(b_new).hexdigest(),
                 "f_sha256": f_sha,
             })
-            if idx % 16 == 0 or idx == len(targets):
-                print(f"  Encoded & verified [{idx:2d}/{len(targets)}] ({rel} -> {fmt_str} {full_w}x{full_h})")
+            print(f"PROGRESS {idx}/{len(targets)} {Path(rel).name}", flush=True)
 
     manifest = {
         "schema": 1,

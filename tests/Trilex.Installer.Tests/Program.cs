@@ -774,6 +774,21 @@ await Test("Complete bundle uses pinned signed catalog and exact adjacent packag
     await Reject(()=>Sync(()=>BundleSource.ArchiveAt(f.Root,m with{Id="../foreign"})));
     File.WriteAllText(Path.Combine(f.Root,"catalog.signed.json"),"{\"algorithm\":\"untrusted\",\"payload\":\"\",\"signature\":\"\"}");await Reject(()=>Sync(()=>BundleSource.CatalogAt(f.Root,service)));
 });
+await Test("Stale portable archive falls back to signed download or exact offline cache without bypassing hashes",async()=>
+{
+    var f=Fixture();var m=Package(f);var bytes=File.ReadAllBytes(Archives(f,m)[m.Id]);
+    Directory.CreateDirectory(Path.Combine(f.Root,"packages"));
+    var adjacent=Path.Combine(f.Root,"packages/vr-core.zip");File.WriteAllText(adjacent,"older signed catalog package");
+    var notes=new List<string>();Assert(BundleSource.ArchiveAt(f.Root,m,rejected:notes.Add) is null&&notes.Count==1);
+    var handler=new FakeHttp(bytes);using var http=new HttpClient(handler);var downloader=new PackageDownloader(http,Path.Combine(f.Root,"fallback"));
+    await Reject(()=>downloader.GetAsync(m,true,null,default));Assert(handler.Requests==0);
+    var resolved=BundleSource.ArchiveAt(f.Root,m,rejected:notes.Add)??await downloader.GetAsync(m,false,null,default);
+    Assert(Paths.Hash(resolved)==m.ArchiveSha256&&handler.Requests==1);
+    Assert((await downloader.GetAsync(m,true,null,default))==resolved&&handler.Requests==1);
+    Assert(File.ReadAllText(adjacent)=="older signed catalog package");
+    using var bad=new HttpClient(new FakeHttp(new byte[bytes.Length]));
+    await Reject(()=>new PackageDownloader(bad,Path.Combine(f.Root,"corrupt-fallback")).GetAsync(m,false,null,default));
+});
 await Test("Windows dependency binds locally without changing pinned game assets or accepting arbitrary targets",async()=>
 {
     var f=Fixture();var m=Package(f);var original=m.Files[0] with{Path="Binaries/dinput8_orig.dll",Kind="recipe",Ownership="local-transform",Entry="",SystemSource="windows-directinput8-x86",SourceSha256=new string('0',64),UseCurrentSystemVersion=true,Recipe=[new("original",0,1)]};

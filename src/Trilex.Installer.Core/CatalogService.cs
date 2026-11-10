@@ -66,6 +66,7 @@ public static class PlanBuilder
         !string.IsNullOrWhiteSpace(review.Evidence)&&!string.IsNullOrWhiteSpace(review.Notice);
     public static void ValidateManifest(GameManifest game)
     {
+        GameBuildRouting.Validate(game);
         if(game.Modules.Select(x=>x.Id).Distinct(StringComparer.OrdinalIgnoreCase).Count()!=game.Modules.Count)throw new InvalidDataException("Duplicate module ID");
         if(game.Id=="darkness2" && game.State is ("stable" or "preview") &&
             (game.Adapter!="Darkness2GameAdapter" || game.SteamAppId!="67370" || game.Executable!="DarknessII.exe" ||
@@ -101,6 +102,7 @@ public static class PlanBuilder
         var verified=location.Compatible&&game.ExeSha256.Any(x=>Paths.Same(x,location.ExeHash));
         var acknowledged=location.ExeHash is not null&&ExecutableCompatibility.Matches(consent,location.Root,location.ExeHash)&&ExecutableCompatibility.CanTry(game,location);
         if(game.State is not ("stable" or "preview") || location.ExeHash is null || (!verified&&!acknowledged))throw new InvalidOperationException("Game is not compatible or not released; unverified builds require explicit review consent");
+        game=GameBuildRouting.Select(game,location);
         if(choices.TextLanguage is not ("en" or "pl") || choices.VoiceLanguage is not ("en" or "pl") || choices.UiLanguage is not ("en" or "pl"))throw new InvalidDataException("Unsupported language");
         var ids=choices.SelectedModules.Concat(game.Modules.Where(x=>x.Required).Select(x=>x.Id)).ToHashSet(StringComparer.Ordinal);
         if(choices.TextLanguage=="pl")

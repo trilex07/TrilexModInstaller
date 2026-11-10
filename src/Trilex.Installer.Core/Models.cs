@@ -10,7 +10,9 @@ public static class Json
     public static void Write<T>(string path, T value) => Paths.AtomicBytes(Path.GetFullPath(path),JsonSerializer.SerializeToUtf8Bytes(value,Options));
 }
 public sealed record Catalog(int SchemaVersion, string Version, DateTimeOffset ExpiresUtc, List<GameManifest> Games);
-public sealed record GameManifest(string Id, string Name, string State, string Adapter, string SteamAppId, string Executable, List<string> ExeSha256, List<ModuleManifest> Modules);
+public sealed record GameManifest(string Id, string Name, string State, string Adapter, string SteamAppId, string Executable, List<string> ExeSha256, List<ModuleManifest> Modules, List<GameBuildProfile>? BuildProfiles = null);
+public sealed record GameBuildProfile(string Id, List<ExecutableProbe> Probes, List<ModuleManifest> Modules);
+public sealed record ExecutableProbe(int Rva, int Length, string Sha256);
 public sealed record ModuleManifest(string Id, Dictionary<string,string> Labels, string Version, string State, bool Required, List<string> Dependencies, long DownloadBytes, string? DownloadUrl, string? ArchiveSha256, long ExpandedBytes, bool RightsVerified, string RightsEvidence, List<PackageFile> Files, string Reason, Dictionary<string,string>? LocalizedReasons = null, PublisherReview? PublisherReview = null)
 {
     public string Label(string language) => Labels.GetValueOrDefault(language, Labels.GetValueOrDefault("en", Id));

@@ -527,6 +527,15 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
         var start=GameLauncher.CreateStartInfo(Game,location!,receipt!);
         Log("Launch requested: "+Game.Id+"; route="+(start.FileName.StartsWith("steam://",StringComparison.OrdinalIgnoreCase)?"Steam appmanifest":"direct EXE")+"; target="+start.FileName+"; cwd="+start.WorkingDirectory);
         startProcess(start);}
+    public async Task ExportVrDiagnostics(string destination,CancellationToken ct)
+    {
+        if(gameId!="darkness2"||string.IsNullOrWhiteSpace(root))throw new InvalidOperationException(L["VrDiagnosticsPickGame"]);
+        var gameRoot=root;
+        var hashes=Game.ExeSha256;
+        var local=Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        await Task.Run(()=>DarknessStartupDiagnostics.Export(gameRoot,local,destination,hashes,ct),ct);
+        Activity=L["VrDiagnosticsSaved"];
+    }
     public void OpenLogs()=>Process.Start(new ProcessStartInfo(Home){UseShellExecute=true});
     public void Dispose(){cancellation?.Cancel();http.Dispose();}
 }

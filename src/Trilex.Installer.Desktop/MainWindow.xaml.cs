@@ -56,6 +56,12 @@ public partial class MainWindow : Window
     private void Cancel_Click(object sender,RoutedEventArgs e)=>vm.Cancel();
     private void Back_Click(object sender,RoutedEventArgs e){if(!vm.Busy)vm.GameRoot=vm.GameRoot;}
     private async void Launch_Click(object sender,RoutedEventArgs e)=>await vm.Run(ct=>{vm.Launch();return Task.CompletedTask;});
+    private async void SaveVrDiagnostics_Click(object sender,RoutedEventArgs e)
+    {
+        if(string.IsNullOrWhiteSpace(vm.GameRoot)){MessageBox.Show(this,vm.L["VrDiagnosticsPickGame"]);return;}
+        var dialog=new SaveFileDialog{Title=vm.L["SaveVrDiagnostics"],Filter="JSON (*.json)|*.json",FileName="Darkness2VR-startup.json"};
+        if(dialog.ShowDialog(this)==true)await vm.Run(ct=>vm.ExportVrDiagnostics(dialog.FileName,ct));
+    }
     private void Logs_Click(object sender,RoutedEventArgs e)=>vm.OpenLogs();
     private async void Psvr2_Click(object sender,RoutedEventArgs e)=>await vm.Run(vm.ConfigurePsvr2);
     private void Prerequisite_Click(object sender,RoutedEventArgs e)=>System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(Trilex.Installer.Core.WindowsPrerequisites.VisualCppX86Url){UseShellExecute=true});

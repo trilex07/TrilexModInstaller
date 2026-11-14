@@ -26,3 +26,5 @@ packages and embedded PSVR2 client fixture. Candidate ZIP: SHA256
 No Steam, live client install, release publication, or physical headset validation.
 The external flat-start incident remains open; collect the XRStartup lines from
 the affected run before treating it as solved.
+
+Follow-up: see [local startup reporting](darkness-startup-report.md) for the optional, bounded diagnostic export.

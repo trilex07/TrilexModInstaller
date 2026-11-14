@@ -965,6 +965,73 @@ await Test("Darkness language config requires matching resources and rejects tam
     await Reject(()=>Sync(()=>DarknessLanguageSettings.ApplyPrepared(plan,file,prepared)));
     Assert(!DarknessLanguageSettings.ApplyPrepared(plan with{GameId="singularity"},file,prepared));
 });
+await Test("Darkness startup export contains only allowlisted status, hashes and settings",()=>Sync(()=>
+{
+    var root=Path.Combine(testRoot,"private-alice-"+Guid.NewGuid().ToString("N"));Directory.CreateDirectory(root);
+    var local=Path.Combine(root,"profile");var logFolder=Path.Combine(local,"Darkness2VR");Directory.CreateDirectory(logFolder);
+    var game=Path.Combine(root,"Darkness II");Directory.CreateDirectory(game);
+    var exe=Path.Combine(game,"DarknessII.exe");File.WriteAllText(exe,"private executable fixture");
+    var expected=Paths.Hash(exe);
+    File.WriteAllText(Path.Combine(game,"Darkness2VR.ini"),"[Render]\nStartupMode=2\nDisableOpenXR=0\nStereoMode=alice-private\n[Private]\nToken=alice-secret\n");
+    File.WriteAllText(Path.Combine(game,"Darkness2VR-diagnostic.ini"),"[Diagnostics]\nImagePreservingPresent=1\n[Private]\nToken=alice-secret\n");
+    File.WriteAllText(Path.Combine(logFolder,"Darkness2VR.ini"),"[Render]\nSubmitMode=3\n");
+    File.WriteAllText(Path.Combine(logFolder,"d3d9.log"),"""
+alice-private log path C:\Users\alice\Darkness
+[Startup] stage=1 DllMain alice-private-data
+[EffectiveConfig] RenderPipelineTrace=0 FrameBoundaryPolicy=1 DisableOpenXR=0 SubmitMode=3 StereoMode=1 StartupMode=2 HookMask=0xFF PresentHookLevel=0
+[ImagePresent] raw-present returned entry=1 target=1CEA87EA sc=023C7030 caller=006A2176 callerQualifies=1 created=1 qualified=1 readyBefore=0 readyAfter=1 hr=00000000 thread=9101
+[XRStartup] readyPresent boundaryRequest=1 reason=C:\Users\alice policy=1 submit=3 stereo=1 disabled=0
+[XRStartup] readyPresent boundaryRequest=0 reason=reset-active policy=1 submit=3 stereo=1 disabled=0
+[XRStartup] initAttempt processBits=32 loaderLoaded=1
+[XRStartup] instance result=0 runtime=C:\Users\alice\private.json propertiesResult=0
+[XRStartup] xrGetSystem result=-35
+[XRSession] state=3
+[XRStartup] instance result=0 runtime=SteamVR/OpenXR propertiesResult=0
+"""
+        +"\n[XRStartup] xrBeginFrame result=0");
+    var output=Path.Combine(root,"share.json");
+    DarknessStartupDiagnostics.Export(game,local,output,[expected],default);
+    var contents=File.ReadAllText(output);
+    foreach(var excluded in new[]{"alice","private executable","1CEA87EA","thread"})
+        Assert(!contents.Contains(excluded,StringComparison.OrdinalIgnoreCase),"Private data exported: "+excluded);
+    using var doc=JsonDocument.Parse(contents);var data=doc.RootElement;var selected=data.GetProperty("selectedFolder");
+    Assert(selected.GetProperty("fingerprintKnown").GetBoolean()&&selected.GetProperty("exeSha256").GetString()==expected);
+    var settings=selected.GetProperty("mainIni").GetProperty("values");
+    Assert(settings.GetProperty("Render/StartupMode").GetInt32()==2&&!settings.TryGetProperty("Render/StereoMode",out _));
+    Assert(data.GetProperty("localAppDataFallbackIni").GetProperty("values").GetProperty("Render/SubmitMode").GetInt32()==3);
+    var runtimeLog=data.GetProperty("runtimeLog");
+    Assert(runtimeLog.GetProperty("lastWriteUtc").GetDateTime()==File.GetLastWriteTimeUtc(Path.Combine(logFolder,"d3d9.log")));
+    var events=runtimeLog.GetProperty("events");
+    var present=events.EnumerateArray().Single(e=>e.GetProperty("stage").GetString()=="nativePresent");
+    Assert(present.GetProperty("fields").GetProperty("readyAfter").GetInt32()==1);
+    var gates=events.EnumerateArray().Where(e=>e.GetProperty("stage").GetString()=="readyPresent").ToArray();
+    Assert(gates[1].GetProperty("reason").GetString()=="reset-active");
+    var gate=gates[0].GetProperty("fields");
+    Assert(gate.GetProperty("boundaryRequest").GetInt32()==1&&gate.GetProperty("policy").GetInt32()==1&&
+        gate.GetProperty("submit").GetInt32()==3&&gate.GetProperty("stereo").GetInt32()==1&&gate.GetProperty("disabled").GetInt32()==0);
+    var init=events.EnumerateArray().Single(e=>e.GetProperty("stage").GetString()=="initAttempt").GetProperty("fields");
+    Assert(init.GetProperty("processBits").GetInt32()==32&&init.GetProperty("loaderLoaded").GetInt32()==1);
+    var effective=events.EnumerateArray().Single(e=>e.GetProperty("stage").GetString()=="effectiveConfig");
+    Assert(effective.GetProperty("fields").GetProperty("frameBoundaryPolicy").GetInt32()==1);
+    Assert(events.EnumerateArray().Count(e=>e.TryGetProperty("runtime",out var v)&&v.ValueKind==JsonValueKind.String)==2);
+    Assert(contents.Contains("unrecognized")&&contents.Contains("SteamVR")&&contents.Contains("-35")&&!contents.Contains("xrBeginFrame"));
+    Assert(Paths.Hash(exe)==expected);
+}));
+await Test("Darkness startup export limits log scan and refuses game folder outputs",async()=>
+{
+    var root=Path.Combine(testRoot,Guid.NewGuid().ToString("N"));var game=Path.Combine(root,"game");
+    var local=Path.Combine(root,"local");var logFolder=Path.Combine(local,"Darkness2VR");
+    Directory.CreateDirectory(game);Directory.CreateDirectory(logFolder);
+    var log=Path.Combine(logFolder,"d3d9.log");
+    File.WriteAllText(log,"[Startup] stage=1 attach\n"+new string('a',2*1024*1024)+"\n[XRStartup] xrBeginFrame result=0\n");
+    var output=Path.Combine(root,"share.json");var rejected=Path.Combine(game,"share.json");
+    await Reject(()=>Sync(()=>DarknessStartupDiagnostics.Export(game,local,rejected,[],default)));
+    Assert(!File.Exists(rejected));
+    DarknessStartupDiagnostics.Export(game,local,output,[],default);
+    using var doc=JsonDocument.Parse(File.ReadAllText(output));var runtime=doc.RootElement.GetProperty("runtimeLog");
+    Assert(runtime.GetProperty("scanTruncated").GetBoolean()&&runtime.GetProperty("events").GetArrayLength()==1);
+    Assert(doc.RootElement.GetProperty("selectedFolder").GetProperty("exeSha256").ValueKind==JsonValueKind.Null);
+});
 await Test("Darkness text choice selects matching native menu resources",()=>Sync(()=>
 {
     var f=Fixture();var fixture=Package(f);

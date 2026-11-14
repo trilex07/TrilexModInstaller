@@ -163,11 +163,23 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
     public string PrimaryActionLabel=>L["InstallSelected"];
     private void RefreshActions(){Changed(nameof(PrimaryActionLabel));Changed(nameof(CanManage));Changed(nameof(CanLaunch));}
 
+    private async Task RefreshLatestCatalog(CancellationToken ct)
+    {
+        var latest=await catalogs.FetchLatestAsync(ct);
+        if(catalog.ExpiresUtc>DateTimeOffset.UtcNow&&Version.TryParse(catalog.Version,out var current)&&
+           Version.TryParse(latest.Version,out var incoming)&&incoming<current)
+        {
+            Log("Kept newer verified catalog "+catalog.Version+" over online catalog "+latest.Version);
+            return;
+        }
+        catalog=latest;
+        Paths.AtomicBytes(Path.Combine(Home,"catalog.signed.json"),catalogs.LastVerifiedEnvelope!);
+    }
     public async Task Startup(CancellationToken ct)
     {
         try
         {
-            catalog=await catalogs.FetchLatestAsync(ct);Paths.AtomicBytes(Path.Combine(Home,"catalog.signed.json"),catalogs.LastVerifiedEnvelope!);
+            await RefreshLatestCatalog(ct);
             if(!catalog.Games.Any(x=>x.Id==gameId))gameId=catalog.Games[0].Id;
             RefreshModules();TrustStatus=L["Trust"]+" · catalog "+catalog.Version;
             var latest=CatalogService.ParseReleaseVersion(catalogs.LatestReleaseTag);
@@ -241,7 +253,8 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
     public async Task ConfigurePsvr2(CancellationToken ct)
     {
         var previous=Activity;
-        try { Psvr2ClientSetup.Install();Log("PSVR2 per-user clients verified; Toolkit driver/calibration is a separate step.");await Psvr2ToolkitSetup.Offer(http,Home,ui=="pl",Offline,message=>{Activity=message;Log(message);},ct); }
+        try { await Psvr2ToolkitSetup.Offer(http,Home,ui=="pl",Offline,message=>{Activity=previous+"\n"+message;Log(message);},
+            ()=>{Psvr2ClientSetup.Install();Log("Optional PSVR2 per-user clients verified; no driver changes.");},ct); }
         catch(OperationCanceledException){Activity=previous+"\n"+(ui=="pl"?"Konfiguracja PSVR2 anulowana.":"PSVR2 setup cancelled.");}
         catch(Exception e)
         {
@@ -272,7 +285,7 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
             // Hash mismatches alone (Steam patches, regional builds) have not broken real installs;
             // only a failed renderer signature scan still asks the user.
             var scan=Game.Id=="darkness2"?await ScanDarknessBuild(location,ct):(AllMatched:true,Detail:"");
-            if(scan.AllMatched)Log("AUTO ACCEPTED unrecognized executable: "+location.Root+" SHA256="+location.ExeHash);
+            if(scan.AllMatched)Log("Unknown executable fingerprint; installation allowed, VR runtime not tested. SHA256="+location.ExeHash);
             else
             {
                 var accepted=MessageBox.Show(Application.Current.MainWindow,UnverifiedExecutableText(location)+scan.Detail,L["UnverifiedTitle"],MessageBoxButton.YesNo,MessageBoxImage.Warning,MessageBoxResult.No)==MessageBoxResult.Yes;
@@ -340,7 +353,7 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
         ReviewText=$"{plan.Root}\n\nv{plan.Version} · {plan.DownloadBytes/1048576.0:F1} MB download · {plan.ExpandedBytes/1048576.0:F1} MB payload\nText: {choices.TextLanguage} / Voice: {choices.VoiceLanguage}\n\n"+string.Join("\n",plan.Modules.Select(x=>$"{x.Label(ui)} · {x.Version} · [{string.Join(", ",x.Dependencies)}]"));
         if(gameId=="darkness2"&&HdTextures)ReviewText+="\n\n"+L["HdTextureHint"];
         if(gameId=="darkness2")ReviewText+="\n\n"+(ui=="pl"?"Dłonie bez przedramion zostaną odtworzone lokalnie z plików gry (wszystkie poziomy szczegółowości, zamknięte nadgarstki).":"Closed-wrist hands without forearms will be reconstructed locally from game files, at every detail level.");
-        if(plan.ExecutableConsent is not null)ReviewText+="\n\n"+L["UnverifiedInstalled"]+"\nSHA256: "+plan.ExeSha256;
+        ReviewText+="\n\n"+RuntimeStatus(plan.ExecutableConsent is not null)+"\nSHA256: "+plan.ExeSha256;
         if(LocalAudioTools.Required(plan.Modules))ReviewText+="\n\n"+(ui=="pl"?"Remaster audio: przetwarzanie lokalne z własnej kopii gry. Dodatkowy kodek FFmpeg 9.0.2 (GPLv3), około 109 MB z gyan.dev; bez pobierania nagrań.":"Audio remaster: generated locally from your own game. Additional FFmpeg 9.0.2 codec (GPLv3), approximately 109 MB from gyan.dev; no recording download.");
         if(LocalExtractorTools.Required(plan.Modules))ReviewText+="\n\n"+(ui=="pl"?"Zasoby Centuriona powstaną z własnej kopii gry. Pełny ZIP zawiera zweryfikowany UE Viewer w folderze tools; nie wymaga pobierania z gildor.org ani pobierania modeli gry.":"Centurion assets are generated from your own game. The complete ZIP includes a verified UE Viewer in its tools folder; no gildor.org download or game-model download is needed.");
         var fanContent=plan.Modules.Where(m=>!m.RightsVerified&&m.PublisherReview is not null).ToList();
@@ -416,11 +429,10 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
             Activity=L["ExportDone"]+"\n"+exported;Percent=100;Log("Manual export complete: "+exported+"; source game unchanged");
             return;
         }
-        Psvr2ClientSetup.Install();Log("PSVR2 per-user clients installed/verified (no driver changes)");
         var result=await Task.Run(async()=>repair?await installer.RepairAsync(chosen,packages,progress,ct,Confirm):await installer.InstallAsync(chosen,packages,progress,ct,confirmMismatch:Confirm),ct);
         Log("Verify installed files");var failures=await Task.Run(()=>installer.Verify(chosen.Root),ct);if(failures.Count>0)throw new IOException("Post-install verification failed: "+string.Join(", ",failures));
         var exceptions=result.ReconstructionWarnings??[];
-        Activity=CompletionText(result)+(result.ExecutableConsent is null?"":"\n"+L["UnverifiedInstalled"]);
+        Activity=CompletionText(result)+"\n"+RuntimeStatus(result.ExecutableConsent is not null);
         Percent=100;Log(exceptions.Count==0?"Install verified "+result.Version:"Install completed with user-approved reconstruction exceptions: "+exceptions.Count);
         }
         finally{foreach(var work in new[]{textureWork,handsWork})if(work is not null&&Directory.Exists(work)){Paths.AssertNoLinks(work);Directory.Delete(work,true);}}
@@ -454,6 +466,7 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
     }
 
     internal string UnverifiedExecutableText(GameLocation build)=>L["UnverifiedWarning"]+"\n\n"+build.Root+"\nSHA256: "+build.ExeHash;
+    internal string RuntimeStatus(bool unknownFingerprint)=>L[unknownFingerprint?"UnknownFingerprint":"KnownFingerprint"]+"\n"+L["RuntimeNotTested"];
     internal string CompletionText(InstallReceipt receipt)=>(receipt.ReconstructionWarnings?.Count??0)==0?L["Done"]+" v"+receipt.Version:L["InstalledExceptions"]+"\n"+string.Join("\n",receipt.ReconstructionWarnings!.Select(w=>w.Path));
     internal string VerificationText(List<string> failures,InstallReceipt? receipt)=>failures.Count>0?"Repair required: "+string.Join(", ",failures):(receipt?.ReconstructionWarnings?.Count??0)==0?L["Verified"]:L["VerifiedExceptions"]+"\n"+string.Join("\n",receipt!.ReconstructionWarnings!.Select(w=>w.Path));
     internal IProgress<ProgressInfo> BeginInstallProgress(string version)
@@ -472,7 +485,7 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
     {
         var failures=await Task.Run(()=>installer.Verify(root),ct);
         var receipt=installer.Receipt(root);
-        Activity=VerificationText(failures,receipt)+(receipt?.ExecutableConsent is null?"":"\n"+L["UnverifiedInstalled"]);
+        Activity=VerificationText(failures,receipt)+(receipt is null?"":"\n"+RuntimeStatus(receipt.ExecutableConsent is not null));
     }
     public async Task Recover(CancellationToken ct){await Task.Run(()=>installer.Recover(root),ct);Activity=L["Restored"];}
     public async Task Uninstall(CancellationToken ct){var kept=await Task.Run(()=>installer.Uninstall(root,ct),ct);
@@ -480,7 +493,7 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
         Activity=L["Restored"]+(kept.Count==0?"":"\n"+L["KeptExternal"]+" "+kept.Count);plan=null;needsRepair=false;Changed(nameof(CanInstall));RefreshActions();await ScanLibrary(ct);}
     public async Task Update(CancellationToken ct)
     {
-        catalog=await catalogs.FetchLatestAsync(ct);Paths.AtomicBytes(Path.Combine(Home,"catalog.signed.json"),catalogs.LastVerifiedEnvelope!);
+        await RefreshLatestCatalog(ct);
         if(!catalog.Games.Any(x=>x.Id==gameId)){gameId="singularity";GameRoot="";DetectionStatus="";Modules.Clear();Changed(nameof(SingularityOptions));Changed(nameof(DarknessOptions));Changed(nameof(LaunchLabel));}
         location=null;Changed(nameof(CanLaunch));RefreshModules();Invalidate();TrustStatus=L["Trust"]+" · "+catalog.Version;Activity=L["ReviewHint"];
     }

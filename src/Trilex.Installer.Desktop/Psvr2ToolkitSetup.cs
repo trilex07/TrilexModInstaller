@@ -24,11 +24,16 @@ internal static class Psvr2ToolkitSetup
         foreach (var name in appProcesses)
             if (Running(name!)) throw new IOException("Close the PlayStation VR2 App and try again. Zamknij aplikację PlayStation VR2 i spróbuj ponownie. (" + name + ")");
     }
-    public static async Task Offer(HttpClient http, string home, bool polish, bool offline, Action<string> status, CancellationToken ct)
+    public static async Task Offer(HttpClient http, string home, bool polish, bool offline, Action<string> status, Action installClients, CancellationToken ct)
     {
         string T(string pl, string en) => polish ? pl : en;
         bool Ask(string text) => MessageBox.Show(Application.Current.MainWindow, text, "PSVR2 Toolkit", MessageBoxButton.YesNo,
             MessageBoxImage.Question, MessageBoxResult.No) == MessageBoxResult.Yes;
+        if (!Ask(T(
+            "Czy używasz PSVR2 i chcesz zainstalować składniki eye trackingu i haptyki? Możesz potem osobno wybrać instalację sterownika Toolkit.",
+            "Do you use PSVR2 and want to install the eye tracking and haptics clients? You can choose whether to install the Toolkit driver separately."))) return;
+        ct.ThrowIfCancellationRequested();
+        installClients();
         if (!Ask(T(
             "Czy używasz PSVR2 i chcesz pobrać oraz zainstalować bezpłatny PSVR2 Toolkit?\n\nWersja: " + Psvr2Toolkit.Version + " (eksperymentalna, zalecana przez autorów). Dodaje m.in. eye tracking. Zamknij SteamVR i aplikację PlayStation VR2 przed instalacją. Oryginalny sterownik Sony zostanie zachowany. Toolkit jest niezależny od moda gry.\n\nŹródło: github.com/BnuuySolutions/PSVR2Toolkit",
             "Do you use PSVR2 and want to download and install the free PSVR2 Toolkit?\n\nVersion: " + Psvr2Toolkit.Version + " (experimental, recommended by its authors). Adds eye tracking and other features. Close SteamVR and the PlayStation VR2 App before installation. The original Sony driver will be preserved. Toolkit is separate from the game mod.\n\nSource: github.com/BnuuySolutions/PSVR2Toolkit"))) return;

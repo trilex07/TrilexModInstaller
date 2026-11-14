@@ -19,6 +19,10 @@ internal static class UiSmoke
         {
             var window=new MainWindow();var vm=(InstallerViewModel)window.DataContext;vm.UiLanguage=language;
             CheckReconstructionWarning(vm);
+            if(!vm.RuntimeStatus(false).Contains(vm.L["KnownFingerprint"]) ||
+               !vm.RuntimeStatus(true).Contains(vm.L["UnknownFingerprint"]) ||
+               !new[]{false,true}.All(unknown=>vm.RuntimeStatus(unknown).Contains(vm.L["RuntimeNotTested"])))
+                throw new InvalidDataException("Executable fingerprint and untested VR status must be shown separately");
             Dispatcher.CurrentDispatcher.Invoke(()=>{},DispatcherPriority.Background);
             var root=(FrameworkElement)window.Content;
             root.Measure(new Size(width,height));root.Arrange(new Rect(0,0,width,height));root.UpdateLayout();
@@ -50,6 +54,13 @@ internal static class UiSmoke
             if(vm.Modules.Count==4)
             {
                 if(vm.Modules.Any(m=>m.Manifest.State!="stable"||m.Manifest.Version.Contains("preview",StringComparison.OrdinalIgnoreCase))||vm.DarknessOptions!=Visibility.Visible||vm.SingularityOptions!=Visibility.Collapsed)throw new InvalidDataException("Darkness release/options incomplete");
+                var polish=vm.Modules.Single(m=>m.Manifest.Id=="polish-text");
+                if(polish.Selected)throw new InvalidDataException("Polish Darkness text must be opt-in even after a Polish preset or UI language");
+                polish.Selected=true;
+                vm.UiLanguage=language=="pl"?"en":"pl";
+                if(!vm.Modules.Single(m=>m.Manifest.Id=="polish-text").Selected)throw new InvalidDataException("Changing installer UI language must preserve explicit Darkness text selection");
+                vm.Modules.Single(m=>m.Manifest.Id=="polish-text").Selected=false;
+                vm.UiLanguage=language;
                 root.Measure(new Size(width,height));root.Arrange(new Rect(0,0,width,height));root.UpdateLayout();
                 var darkness=new RenderTargetBitmap((int)(width*dpi/96.0),(int)(height*dpi/96.0),dpi,dpi,PixelFormats.Pbgra32);darkness.Render(root);
                 using var darkStream=File.Create(Path.Combine(output,"darkness2-"+file));var darkEncoder=new PngBitmapEncoder();darkEncoder.Frames.Add(BitmapFrame.Create(darkness));darkEncoder.Save(darkStream);

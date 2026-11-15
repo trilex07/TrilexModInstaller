@@ -8,6 +8,7 @@ from pathlib import Path
 import shutil
 import subprocess
 import sys
+from darkness_menu_language import validate_menu_language
 
 sys.dont_write_bytecode = True
 ROOT = Path(__file__).resolve().parents[1]
@@ -50,9 +51,12 @@ def main():
     if len(keys)!=1:
         raise ValueError("Cannot identify unique live Languages.cl")
     variants = {}
-    for mid, language in (("polish-text", a.polish_languages), ("darkness-menu", a.english_languages)):
+    for mid, locale, language in (("polish-text", "pl", a.polish_languages),
+                                  ("darkness-menu", "en", a.english_languages)):
+        payload = language.read_bytes()
+        validate_menu_language(tool, payload, locale)
         variants[mid] = out/("private-"+mid)
-        cache.write(variants[mid], {keys[0]: language.read_bytes()})
+        cache.write(variants[mid], {keys[0]: payload})
     tools = ROOT/"src/Trilex.Installer.Tools/bin/Release/net10.0/Trilex.Installer.Tools.dll"
     maker = ROOT/".build/recipe-maker/recipe-maker.exe"
     modules = []

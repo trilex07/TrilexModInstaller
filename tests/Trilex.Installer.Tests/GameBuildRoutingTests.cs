@@ -83,6 +83,34 @@ internal static class GameBuildRoutingTests
             catch(InvalidDataException){return Task.CompletedTask;}
             throw new Exception("Wrong build archive accepted");
         });
+        await test("manual Epic selection cannot override known Steam code and routes unknown consented builds",()=>
+        {
+            var f=Fixture();
+            var steamProfile=new GameBuildProfile("steam",Probes(Image(20)),[f.Steam]);
+            var game=f.Game with{BuildProfiles=[steamProfile,f.Game.BuildProfiles![0]]};
+            var location=new WonderlandsGameAdapter().Validate(f.Root,game);
+            var refused=false;
+            try{GameBuildRouting.Select(game,location,"epic");}catch(InvalidDataException){refused=true;}
+            Check(refused);
+            File.WriteAllBytes(f.Exe,Image(60));location=new WonderlandsGameAdapter().Validate(f.Root,game);
+            var plan=PlanBuilder.Build(game,location,new("en","en","en",[]),new(f.Root,location.ExeHash!),"epic");
+            Check(plan.Version=="epic"&&plan.Modules.Single().ArchiveSha256==f.Epic.ArchiveSha256);
+            File.WriteAllBytes(f.Exe,Image(40));location=new WonderlandsGameAdapter().Validate(f.Root,game);
+            Check(GameBuildRouting.DetectProfile(game,location)?.Id=="epic");
+            return Task.CompletedTask;
+        });
+        await test("offline Wonderlands bundle selects profile hash and retains NVIDIA target bounds",()=>
+        {
+            var f=Fixture();var dir=Path.Combine(f.Root,"bundle");Directory.CreateDirectory(Path.Combine(dir,"packages/wonderlands"));
+            var epic=Path.Combine(dir,"packages/wonderlands",f.Epic.ArchiveSha256!.ToUpperInvariant()+".zip");
+            File.Copy(Path.Combine(f.Root,"epic.zip"),epic);
+            File.Copy(Path.Combine(f.Root,"steam.zip"),Path.Combine(dir,"packages/wonderlands/vr-core.zip"));
+            Check(BundleSource.ArchiveAt(dir,f.Epic,"wonderlands")==Path.GetFullPath(epic));
+            foreach(var name in new[]{"nvngx_dlss.dll","nvngx_dlssg.dll","licenses/NVIDIA/LICENSE.txt","licenses/NVIDIA/THIRD-PARTY-NOTICES.txt"})
+                Check(Paths.WonderlandsTarget("OakGame/Binaries/Win64/"+name));
+            Check(!Paths.WonderlandsTarget("OakGame/Binaries/Win64/_nvngx.dll")&&!Paths.WonderlandsTarget("OakGame/Binaries/Win64/nvngx_dlssd.dll"));
+            return Task.CompletedTask;
+        });
         await test("Epic manifest discovery checks actual game layout and preserves unknown hash consent",()=>
         {
             var f=Fixture();var manifests=f.Root+"-manifests";Directory.CreateDirectory(manifests);

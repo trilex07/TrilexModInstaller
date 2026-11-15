@@ -13,6 +13,10 @@ public static class BundleSource
     {
         if(!System.Text.RegularExpressions.Regex.IsMatch(module.Id,"^[a-z0-9][a-z0-9-]{0,63}$"))throw new InvalidDataException("Invalid bundle module ID");
         var file=Paths.Safe(root,(gameId switch{"darkness2"=>"packages/darkness2/","wonderlands"=>"packages/wonderlands/",_=>"packages/"})+module.Id+".zip");
+        if(gameId=="wonderlands"&&PlanBuilder.ValidHash(module.ArchiveSha256)) {
+            var variant=Paths.Safe(root,"packages/wonderlands/"+module.ArchiveSha256!.ToUpperInvariant()+".zip");
+            if(File.Exists(variant))file=variant;
+        }
         if(!File.Exists(file))return null;
         if(new FileInfo(file).Length!=module.DownloadBytes||!Paths.Same(Paths.Hash(file),module.ArchiveSha256))
         {

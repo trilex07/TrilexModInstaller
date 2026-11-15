@@ -49,6 +49,18 @@ internal static class UiSmoke
             var file=$"installer-{language}-{width}x{height}-{dpi}dpi.png";using(var stream=File.Create(Path.Combine(output,file))){var encoder=new PngBitmapEncoder();encoder.Frames.Add(BitmapFrame.Create(bmp));encoder.Save(stream);}
             CheckInstallActivity(vm,root,output,$"{language}-{width}x{height}-{dpi}dpi");
             CheckLaunchFlow(vm,output,$"{language}-{width}x{height}-{dpi}dpi");
+            vm.SelectGame("wonderlands");
+            if(vm.WonderlandsOptions!=Visibility.Visible)throw new InvalidDataException("Epic selector missing");
+            vm.EpicVersion=true;
+            Dispatcher.CurrentDispatcher.Invoke(()=>{},DispatcherPriority.Background);
+            var epic=Descendants(root).OfType<CheckBox>().Single(x=>x.Content?.ToString()==vm.L["EpicVersion"]);
+            if(epic.IsChecked!=true||!vm.EpicVersion)throw new InvalidDataException("Epic selection binding failed");
+            vm.EpicVersion=false;
+            Dispatcher.CurrentDispatcher.Invoke(()=>{},DispatcherPriority.Background);
+            root.Measure(new Size(width,height));root.Arrange(new Rect(0,0,width,height));root.UpdateLayout();
+            var epicBmp=new RenderTargetBitmap((int)(width*dpi/96.0),(int)(height*dpi/96.0),dpi,dpi,PixelFormats.Pbgra32);epicBmp.Render(root);
+            using(var outputImage=File.Create(Path.Combine(output,"wonderlands-"+file))){var encoder=new PngBitmapEncoder();encoder.Frames.Add(BitmapFrame.Create(epicBmp));encoder.Save(outputImage);}
+            if(epic.IsChecked!=false||vm.EpicVersion)throw new InvalidDataException("Steam selection binding failed");
             rows.Add(new{language,width,height,dpi,file,status="PASS",activity="install/busy controls/late progress/error/cancel PASS",reconstruction="PL/EN prompt and exception completion/verify status PASS; native modal interaction not automated",scope="WPF layout/bindings/offscreen pixels; not physical DPI/input acceptance"});
             vm.SelectGame("darkness2");
             if(vm.Modules.Count==4)

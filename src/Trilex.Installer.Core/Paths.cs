@@ -38,7 +38,7 @@ public static class Paths
     public static bool DarknessAssetTarget(string path)=>DarknessFontTarget(path)||
         Same(path,"Cache.DLC/PCPatchManifests/Cache.Windows/H.Script.cache")||Same(path,"Cache.DLC/PCPatchManifests/Cache.Windows/H.Script.toc");
     public static bool DarknessTextTarget(string path)=>Same(path,"Cache.Windows/H.Misc.cache")||Same(path,"Cache.Windows/H.Misc.toc");
-    public static bool WonderlandsTarget(string path)=>new[]{"xinput1_3.dll","openxr_loader.dll","WonderlandsVR.ini","LICENSE-WonderlandsVR.txt","LICENSE-MinHook.txt","LICENSE-OpenXR.txt","THIRD-PARTY-PSVR2.txt"}.Any(name=>Same(path,"OakGame/Binaries/Win64/"+name));
+    public static bool WonderlandsTarget(string path)=>new[]{"xinput1_3.dll","openxr_loader.dll","nvngx_dlss.dll","nvngx_dlssg.dll","licenses/NVIDIA/LICENSE.txt","licenses/NVIDIA/THIRD-PARTY-NOTICES.txt","WonderlandsVR.ini","LICENSE-WonderlandsVR.txt","LICENSE-MinHook.txt","LICENSE-OpenXR.txt","THIRD-PARTY-PSVR2.txt"}.Any(name=>Same(path,"OakGame/Binaries/Win64/"+name));
     public static void AllowedTarget(string relative)
     {
         var norm = relative.Replace('\\','/');

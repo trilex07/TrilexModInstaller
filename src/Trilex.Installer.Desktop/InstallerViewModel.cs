@@ -38,6 +38,17 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
     private GameManifest Game=>catalog.Games.Single(x=>x.Id==gameId);
     public bool IsSingularity=>gameId=="singularity";
     public bool IsWonderlands=>gameId=="wonderlands";
+    public Visibility WonderlandsOptions=>IsWonderlands?Visibility.Visible:Visibility.Collapsed;
+    public Visibility EpicPackageNoteVisibility=>IsWonderlands&&EpicVersion?Visibility.Visible:Visibility.Collapsed;
+    private bool detectedEpic;
+    private bool? epicOverride;
+    public bool EpicVersion {get=>epicOverride??detectedEpic;set{epicOverride=value;Invalidate();Changed();Changed(nameof(EpicPackageNoteVisibility));}}
+    private void DetectWonderlandsVersion() {
+        detectedEpic=IsWonderlands&&location?.ExeHash is not null&&
+            (location.Source=="Epic Games manifest"||GameBuildRouting.DetectProfile(Game,location)?.Id=="epic");
+        Changed(nameof(EpicVersion));Changed(nameof(EpicPackageNoteVisibility));
+    }
+
     private bool manualExport;
     public bool ManualExport {get=>manualExport;set{if(Busy||manualExport==value)return;manualExport=value;Invalidate();Changed();Changed(nameof(InstallActionLabel));Changed(nameof(ManualActionVisibility));}}
     public Visibility ManualActionVisibility=>ManualExport?Visibility.Visible:Visibility.Collapsed;
@@ -51,7 +62,7 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
     {
         if(Busy||id==gameId||!catalog.Games.Any(x=>x.Id==id))return;
         gameId=id;HdTextures=false; GameRoot=""; DetectionStatus=Game.State=="coming_soon"?L["Blocked"]:""; Modules.Clear();
-        needsRepair=false;RefreshModules();RefreshActions(); Changed(nameof(SingularityOptions));Changed(nameof(DarknessOptions));Changed(nameof(LaunchLabel));Changed(nameof(IsWonderlands));
+        needsRepair=false;RefreshModules();RefreshActions(); Changed(nameof(SingularityOptions));Changed(nameof(DarknessOptions));Changed(nameof(LaunchLabel));Changed(nameof(IsWonderlands));Changed(nameof(WonderlandsOptions));Changed(nameof(EpicPackageNoteVisibility));
     }
     private GameLocation? location;
     private InstallPlan? plan;
@@ -68,6 +79,7 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
             catch(Exception e)when(e is IOException or ArgumentException or InvalidDataException or UnauthorizedAccessException or JsonException){hdTextures=false;}
             Changed(nameof(HdTextures));
         }
+        if(!Paths.Same(root,value)){epicOverride=null;detectedEpic=false;Changed(nameof(EpicVersion));Changed(nameof(EpicPackageNoteVisibility));}
         root=value;location=null;needsRepair=false;Invalidate();Changed();RefreshActions();}}
     public string Activity{get=>activity;private set{activity=value;Changed();}}
     private string workDetail="";
@@ -267,11 +279,11 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
     {
         var locations=await Task.Run(()=>adapter.Detect(SteamRoots.Discover(),Game).ToList(),ct);
         var best=locations.FirstOrDefault(x=>x.Compatible)??locations.FirstOrDefault();
-        if(best is null){DetectionStatus=L["NoGame"];return;}GameRoot=best.Root;location=best;DetectionStatus=L[best.Compatible?"Compatible":ExecutableCompatibility.CanTry(Game,best)?"UnverifiedBuild":"Wrong"];await AutoVerify(ct);
+        if(best is null){DetectionStatus=L["NoGame"];return;}GameRoot=best.Root;location=best;DetectWonderlandsVersion();DetectionStatus=L[best.Compatible?"Compatible":ExecutableCompatibility.CanTry(Game,best)?"UnverifiedBuild":"Wrong"];await AutoVerify(ct);
     }
     public async Task Validate(CancellationToken ct)
     {
-        location=await Task.Run(()=>adapter.Validate(root,Game),ct);DetectionStatus=L[location.Compatible?"Compatible":ExecutableCompatibility.CanTry(Game,location)?"UnverifiedBuild":"Wrong"]+(location.Compatible?"":" "+location.Detail);await AutoVerify(ct);
+        location=await Task.Run(()=>adapter.Validate(root,Game),ct);DetectWonderlandsVersion();DetectionStatus=L[location.Compatible?"Compatible":ExecutableCompatibility.CanTry(Game,location)?"UnverifiedBuild":"Wrong"]+(location.Compatible?"":" "+location.Detail);await AutoVerify(ct);
     }
     public async Task Review(CancellationToken ct)
     {
@@ -298,7 +310,7 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
         if(!prerequisites.Present)throw new InvalidOperationException(prerequisites.Detail+"\nMicrosoft Visual C++ v14 x86: "+WindowsPrerequisites.VisualCppX86Url+(ui=="pl"?"\nZainstaluj wymagany pakiet Microsoft i ponów sprawdzanie.":"\nInstall the Microsoft prerequisite, then review again."));
         var selected=Modules.Where(x=>x.Selected).Select(x=>x.Manifest.Id).ToList();
         var choices=new InstallChoices(IsSingularity?text:selected.Contains("polish-text")?"pl":"en",IsSingularity?voice:"en",ui,selected);
-        var reviewed=PlanBuilder.Build(Game,location!,choices,consent);
+        var reviewed=PlanBuilder.Build(Game,location!,choices,consent,IsWonderlands&&Game.BuildProfiles is {Count:>0}?(EpicVersion?"epic":"steam"):null);
         if(!IsSingularity)
         {
             var receipt=installer.Receipt(reviewed.Root);
@@ -332,7 +344,7 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
                     TextLanguage=incompatible.Id=="polish-text"?"en":choices.TextLanguage,
                     SelectedModules=choices.SelectedModules.Where(id=>id!=incompatible.Id).ToList()
                 };
-                reviewed=PlanBuilder.Build(Game,location!,choices,consent);
+                reviewed=PlanBuilder.Build(Game,location!,choices,consent,IsWonderlands&&Game.BuildProfiles is {Count:>0}?(EpicVersion?"epic":"steam"):null);
             }
             var modules=reviewed.Modules.Select(m=>m with {Files=m.Files.Select(f=>
             {

@@ -1,3 +1,8 @@
+## November 16 Wonderlands patch
+
+Download the [latest full installer](https://github.com/trilex07/TrilexModInstaller/releases/latest).
+See [Steam changes, Epic selection and verification limits](docs/releases/wonderlands-patch-20261116.md).
+
 # Trilex Mod Installer
 
 Free fan-made Windows installer by **Trilex / trilex07** for **Singularity VR**, **The Darkness II VR** and **Tiny Tina’s Wonderlands VR**.
@@ -12,7 +17,7 @@ Extract the whole ZIP and run `TrilexModInstaller.exe`. Select a game, choose it
 
 - **Singularity VR:** accepted V7 runtime (`7AD356F8`), motion-controlled hands and TMD, physical reload resources, inner-wrist health/E99/item HUD, weapon-mounted ammo HUD, corrected muzzle VFX, HD weapon resources, native menus, Polish text/dubbing, local audio remaster, stereo engine-cutscene cinema, gaze weapon selection/NIS and damage haptics. Gaze requires a compatible headset/backend; Bink video remains mono.
 - **The Darkness II VR:** VR runtime, native hand resources, menu changes, Polish text and optional HD textures. Existing voice modifications are preserved; this release does not supply a Darkness II dubbing pack.
-- **Tiny Tina’s Wonderlands VR:** native x64 OpenXR runtime, stereo, tracked hands, controller aiming, support grip, wrist HUD, menu laser, rumble and optional PSVR2 Toolkit triggers/gaze. Requires DX11. Packages the current installed runtime/profile; this installer release has offline lifecycle checks, not new headset acceptance.
+- **Tiny Tina’s Wonderlands VR:** native x64 OpenXR runtime, stereo, tracked hands, controller aiming, support grip, wrist HUD, menu laser, rumble and optional PSVR2 Toolkit triggers/gaze. The graphics backend follows the selected runtime profile. Packages the current installed runtime/profile; this installer release has offline lifecycle checks, not new headset acceptance.
 - **Manual installation:** select “Prepare files for manual installation”, choose your source game/options, review and choose an output folder. It creates ready-to-copy `files`, README-PL/EN, a manifest and checksums without modifying the game. Original-derived options require readable game sources. Repeat for each game you want to export.
 - **Run the game:** uses Steam for a game folder matched to its installed Steam appmanifest. Disc/GOG/manual copies launch their reviewed EXE directly, from its own folder. The button label stays universal; the game's own launcher/DRM requirements still apply.
 - English/Polish installer UI, signed catalogs, package hashes, per-game state, verified backups, repair, uninstall and interrupted-install recovery. User settings use three-way INI merging.

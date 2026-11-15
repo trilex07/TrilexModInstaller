@@ -31,9 +31,22 @@ public static class GameBuildRouting
         }
     }
 
-    public static GameManifest Select(GameManifest game,GameLocation location)
+    public static GameManifest Select(GameManifest game,GameLocation location,string? requestedProfile=null)
     {
-        if(game.BuildProfiles is not {Count: >0} profiles)return game;
+        var match=DetectProfile(game,location);
+        if(requestedProfile is not null) {
+            var requested=game.BuildProfiles?.SingleOrDefault(p=>p.Id==requestedProfile)
+                ??throw new InvalidDataException("Requested game version is not in the signed catalog");
+            if(match is not null && match.Id!=requested.Id)
+                throw new InvalidDataException("Selected game version conflicts with executable code; use automatic detection");
+            match=requested;
+        }
+        return match is null?game:game with{Modules=match.Modules,BuildProfiles=null};
+    }
+
+    public static GameBuildProfile? DetectProfile(GameManifest game,GameLocation location)
+    {
+        if(game.BuildProfiles is not {Count: >0} profiles)return null;
         Validate(game);
         var path=Paths.Safe(location.Root,game.Executable);
         using var stream=new FileStream(path,FileMode.Open,FileAccess.Read,FileShare.Read);
@@ -54,7 +67,7 @@ public static class GameBuildRouting
         }
         if(matches.Count>1 || matches.Count==0&&partial)
             throw new InvalidDataException("Ambiguous or incomplete executable build profile; no package selected");
-        return matches.Count==1?game with{Modules=matches[0].Modules,BuildProfiles=null}:game;
+        return matches.SingleOrDefault();
     }
 
     private static bool Matches(PEReader pe,ExecutableProbe probe)

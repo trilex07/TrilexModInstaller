@@ -96,13 +96,13 @@ public static class PlanBuilder
         }
     }
     public static bool ValidHash(string? hash)=>hash is not null && System.Text.RegularExpressions.Regex.IsMatch(hash,"^[0-9A-Fa-f]{64}$");
-    public static InstallPlan Build(GameManifest game,GameLocation location,InstallChoices choices,ExecutableConsent? consent=null)
+    public static InstallPlan Build(GameManifest game,GameLocation location,InstallChoices choices,ExecutableConsent? consent=null,string? buildProfile=null)
     {
         ValidateManifest(game);
         var verified=location.Compatible&&game.ExeSha256.Any(x=>Paths.Same(x,location.ExeHash));
         var acknowledged=location.ExeHash is not null&&ExecutableCompatibility.Matches(consent,location.Root,location.ExeHash)&&ExecutableCompatibility.CanTry(game,location);
         if(game.State is not ("stable" or "preview") || location.ExeHash is null || (!verified&&!acknowledged))throw new InvalidOperationException("Game is not compatible or not released; unverified builds require explicit review consent");
-        game=GameBuildRouting.Select(game,location);
+        game=GameBuildRouting.Select(game,location,buildProfile);
         if(choices.TextLanguage is not ("en" or "pl") || choices.VoiceLanguage is not ("en" or "pl") || choices.UiLanguage is not ("en" or "pl"))throw new InvalidDataException("Unsupported language");
         var ids=choices.SelectedModules.Concat(game.Modules.Where(x=>x.Required).Select(x=>x.Id)).ToHashSet(StringComparer.Ordinal);
         if(choices.TextLanguage=="pl")

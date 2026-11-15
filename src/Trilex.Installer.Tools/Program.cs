@@ -8,17 +8,28 @@ try
 {
     if(args is ["scan-darkness-renderer",var executable])
         Console.WriteLine(JsonSerializer.Serialize(DarknessRendererScan.Scan(executable),Json.Options));
-    else if(args is ["exercise-wonderlands",var exerciseCatalog,var exerciseKey,var exerciseBundle,var exerciseDirectory])
+    else if(args.Length is 5 or 6 && args[0]=="exercise-wonderlands")
     {
+        var exerciseCatalog=args[1];var exerciseKey=args[2];var exerciseBundle=args[3];var exerciseDirectory=args[4];
+        var profile=args.Length==6?args[5]:null;
         var exercise=Path.GetFullPath(exerciseDirectory);if(Directory.Exists(exercise))throw new IOException("Use a fresh fixture directory");
         Directory.CreateDirectory(exercise);var gameRoot=Path.Combine(exercise,"game");
         Directory.CreateDirectory(Paths.Safe(gameRoot,"OakGame/Content"));
         var exe=Paths.Safe(gameRoot,"OakGame/Binaries/Win64/Wonderlands.exe");Directory.CreateDirectory(Path.GetDirectoryName(exe)!);
-        var bytes=new byte[256];using(var memory=new MemoryStream(bytes))using(var writer=new BinaryWriter(memory)){writer.Write((ushort)0x5a4d);memory.Position=60;writer.Write(128);memory.Position=128;writer.Write(0x4550);writer.Write((ushort)0x8664);memory.Position=152;writer.Write((ushort)0x20b);}File.WriteAllBytes(exe,bytes);
+        var bytes=new byte[1024];
+        using(var memory=new MemoryStream(bytes))using(var writer=new BinaryWriter(memory)) {
+            writer.Write((ushort)0x5a4d);memory.Position=0x3c;writer.Write(0x80);
+            memory.Position=0x80;writer.Write(0x4550);writer.Write((ushort)0x8664);writer.Write((ushort)1);
+            memory.Position=0x94;writer.Write((ushort)0xf0);writer.Write((ushort)0x22);writer.Write((ushort)0x20b);
+            memory.Position=0x98+56;writer.Write(0x2000);writer.Write(0x200);
+            memory.Position=0x188;writer.Write(System.Text.Encoding.ASCII.GetBytes(".text\0\0\0"));writer.Write(0x200);writer.Write(0x1000);writer.Write(0x200);writer.Write(0x200);
+            memory.Position=0x188+36;writer.Write(0x60000020);
+        }
+        File.WriteAllBytes(exe,bytes);
         var iniPath=Paths.Safe(gameRoot,"OakGame/Binaries/Win64/WonderlandsVR.ini");var original="[User]\r\nKeep=fixture\r\n";File.WriteAllText(iniPath,original);
         using var http=new HttpClient();var game=new CatalogService(http,File.ReadAllText(exerciseKey)).Verify(File.ReadAllBytes(exerciseCatalog)).Games.Single(g=>g.Id=="wonderlands");
         var location=new WonderlandsGameAdapter().Validate(gameRoot,game);
-        var plan=PlanBuilder.Build(game,location,new("en","en","en",[]),new(gameRoot,location.ExeHash!));
+        var plan=PlanBuilder.Build(game,location,new("en","en","en",[]),new(gameRoot,location.ExeHash!),profile);
         var archives=plan.Modules.ToDictionary(m=>m.Id,m=>BundleSource.ArchiveAt(exerciseBundle,m,game.Id)??throw new IOException("Missing bundled package"));
         // This command created a fresh synthetic PE under gameRoot above.
         // Keep the fixture bounded there; an unrelated live game is untouched.
@@ -29,7 +40,7 @@ try
         foreach(var file in manual.Files)if(!Paths.Same(Paths.Hash(Paths.Safe(export,"files/"+file.Path)),Paths.Hash(Paths.Safe(gameRoot,file.Path))))throw new IOException("Manual/managed divergence");
         installer.Uninstall(gameRoot,default);
         if(File.ReadAllText(iniPath)!=original||File.Exists(Paths.Safe(gameRoot,"OakGame/Binaries/Win64/xinput1_3.dll")))throw new IOException("Original restore failed");
-        Json.Write(Path.Combine(exercise,"verification.json"),new{status="PASS",files=receipt.Files.Count,manualFiles=manual.Files.Count,restore="byte-exact",gameLaunched=false,source="synthetic PE header, never executed",headset="NOT RUN"});
+        Json.Write(Path.Combine(exercise,"verification.json"),new{status="PASS",profile,archive=plan.Modules.Single().ArchiveSha256,files=receipt.Files.Count,manualFiles=manual.Files.Count,restore="byte-exact",gameLaunched=false,source="synthetic PE header, never executed",headset="NOT RUN"});
         Console.WriteLine("PASS actual signed Wonderlands package: managed install, manual export equality, verify and exact restore");
     }
     else if(args is ["keygen",var privatePath,var publicPath])

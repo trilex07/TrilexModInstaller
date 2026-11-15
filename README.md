@@ -7,9 +7,11 @@ See [Steam changes, Epic selection and verification limits](docs/releases/wonder
 
 Free fan-made Windows installer by **Trilex / trilex07** for **Singularity VR**, **The Darkness II VR** and **Tiny Tina’s Wonderlands VR**.
 
-**[Download installer 1.0.9](https://github.com/trilex07/TrilexModInstaller/releases/tag/installer-1.0.9)**
+**[Download the latest installer for Windows](https://github.com/trilex07/TrilexModInstaller/releases/latest)** · **[VR controls for all three games](docs/VR-CONTROLS.md)**
 
 Extract the whole ZIP and run `TrilexModInstaller.exe`. Select a game, choose its installed folder and options, then review and install. No Python or .NET installation is required. The executable is not Authenticode signed.
+
+Controller guides: [Singularity VR](docs/VR-CONTROLS.md#singularity-vr) · [The Darkness II VR](docs/VR-CONTROLS.md#the-darkness-ii-vr) · [Tiny Tina’s Wonderlands VR](docs/VR-CONTROLS.md#tiny-tinas-wonderlands-vr).
 
 ![Installer interface](docs/screenshots/installer-en.png)
 

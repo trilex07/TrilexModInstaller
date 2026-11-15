@@ -1,5 +1,12 @@
 # Installer 1.1.0 — simpler installer, automatic update check
 
+## November 8 evening: Tiny Tina's Wonderlands refresh (catalog 1.1.3)
+
+- Updated Wonderlands runtime to the installed build DF9A05B1, module version `1.1.0-20261108-evening`. Includes current melee hold/controller alignment, melee swing input, head-relative movement, eye-tracking/foveation and settings support.
+- Uses the current installed profile with resolution scale 1.0, view distance 0.7 and grass density 0.6. The simulator is disabled and its machine-local paths are removed. Experimental D3D12 remains off.
+- Preserves the published Darkness II closed-wrist hands reconstruction, PSVR2 Toolkit setup, Singularity and all other game packages.
+- Same installer version and ZIP URL. Restart to fetch the new catalog, or redownload the full ZIP for the bundled offline package and embedded catalog. Physical headset acceptance of this refresh is not claimed.
+
 ## Changes
 
 - An unrecognized game EXE hash no longer blocks installation. Steam builds with a different hash are accepted automatically and recorded in `installer.log`. The warning dialog remains only when the Darkness II renderer signature scan does not find every signature.

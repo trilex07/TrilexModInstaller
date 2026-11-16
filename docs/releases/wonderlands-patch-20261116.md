@@ -7,6 +7,12 @@ November 10 EFC1685E; installer 1.1.1 on November 14 retained that package.
   selected-eye optical capture, optional centre dot in VR settings and tracked
   muzzle correction for beam weapons. The current DX12/DLSS/FG implementation
   is included; FG remains beta and OFF by default, as does ScopeDot.
+- Steam Overworld: native UseComponent view is preserved for chest/shrine/door
+  interactions; raw R3 reaches the native punch instead of being consumed by
+  first-person physical melee handling. These mode policies have CPU coverage;
+  the earlier final simulator run was not an exhaustive Overworld playthrough.
+- VR settings also expose cutscene/video/loading screen size. Current body/hand
+  alignment and optional head-only gameplay-camera changes are included.
 - Epic: automatically detect launcher manifests and signed executable probes;
   expose an Epic Games version checkbox for manual selection. Include the exact
   535502EE small overlay reported working by players, without substituting the

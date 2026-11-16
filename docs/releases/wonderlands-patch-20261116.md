@@ -21,8 +21,10 @@ November 10 EFC1685E; installer 1.1.1 on November 14 retained that package.
 - Package signed NVIDIA SR/FG runtime files plus complete license/notices.
   NVIDIA driver and supported hardware remain required. Simulator/private paths
   are disabled. User-modified settings retain the normal three-way INI merge.
-- All Darkness II and Singularity packages and settings are byte-identical to
-  installer 1.1.1. No unpublished Darkness II 1.1.2 candidate is included.
+- Initial publication kept Darkness II and Singularity unchanged. The later
+  [Darkness II refresh in the same 1.1.3 release](darkness-controls-113-20261116.md)
+  adds its English native menu repair and VR Controls guide; Wonderlands stays
+  byte-identical to this patch.
 
 Verification: Steam runtime Release and CTest 40/40; simulator Medium/Long scope
 and dot plus two-eye beam firing, zero hook refusals/pin mismatches; 114 installer

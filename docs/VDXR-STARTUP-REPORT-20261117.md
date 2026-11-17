@@ -1,6 +1,7 @@
 # Installer 1.1.3: reported VDXR flatscreen startup (2026-11-17)
 
-Status: unresolved player report; runtime NOT RUN, player logs requested.
+Status: player logs received; instance creation failure confirmed. Exact file
+and causal relationship to installer 1.1.3 remain unresolved. Local runtime NOT RUN.
 Player uses VDXR and says both games worked before the update. Treat this as a
 regression report, not proof that VDXR cannot run these 32-bit games.
 
@@ -55,3 +56,47 @@ No public package or installer was changed. The optional Pico stick-range work
 is separate and does not modify OpenXR loaders, instance/session creation or
 runtime selection. Private audit metadata is artifacts/vdxr-startup-audit/report.json;
 downloaded binaries and catalogs are ignored artifacts and never committed.
+
+## Player logs received (2026-11-17)
+
+Darkness II reaches the successful native Present boundary, loads its x86
+OpenXR loader, and attempts xrCreateInstance. Lines 146-148 show:
+processBits=32 loaderLoaded=1; xrCreateInstance failed (-32); swapchain formats
+result=-12 count=0. The first failure is XR_ERROR_FILE_ACCESS_ERROR (-32),
+not XR_ERROR_API_VERSION_UNSUPPORTED (-4). Later invalid-handle (-12) and
+missing eye pairs are downstream symptoms. The proxy hooked successfully;
+the log does not support a missing proxy or disabled VR configuration.
+
+Singularity's supplied run header says 2026-11-16 06:05:41. Line 224 reports
+no OpenXR instance; heartbeat session=0/running=0 confirms no session. This
+binary logs no numeric xrCreateInstance result. Do not assign Darkness's -32
+to Singularity, or assume the two logs represent identical installation states.
+
+The exact error mapping was checked against our OpenXR header and upstream:
+https://github.com/KhronosGroup/OpenXR-SDK/blob/main/include/openxr/openxr.h
+
+Upstream loader code returns -32 when opening a runtime or API-layer library
+fails. Possible causes include a missing DLL/dependency, inaccessible file or
+incompatible architecture. The player log identifies neither the file nor
+which component returned the error. The OpenXR loader itself is present.
+Examined mod sources already try API 1.0.34 before their current header version;
+blindly changing API versions does not address the evidenced -32 failure.
+
+Primary implementation references inspected:
+- https://github.com/KhronosGroup/OpenXR-SDK-Source/blob/main/src/loader/runtime_interface.cpp
+  TryLoadingSingleRuntime, library open failure.
+- https://github.com/KhronosGroup/OpenXR-SDK-Source/blob/main/src/loader/api_layer_interface.cpp
+  LoadApiLayers, library open failure.
+
+Next: run tools/openxr-startup-report/Collect-OpenXR-Report.cmd on the player's
+PC. This read-only inventory records both registry views, runtime/layer JSON
+paths, referenced library existence, PE architecture and selected XR process
+environment variables. It does not load libraries, detect transitive dependencies
+or establish the game's exact environment. No elevation, registry edit, forced
+SteamVR switch or speculative installer update is needed. A subsequent loader
+debug trace may still be needed to identify the failed LoadLibrary and Windows
+error. No player logs or binaries are committed.
+
+Collector validation: parsed successfully and ran under Windows PowerShell 5.1
+on the developer PC, producing valid JSON with both registry views. This is
+tool validation, not evidence about the player's runtime configuration.

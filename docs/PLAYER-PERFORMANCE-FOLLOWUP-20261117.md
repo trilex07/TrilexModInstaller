@@ -1,5 +1,9 @@
 # Recovered VDXR startup and performance report (2026-11-17)
 
+Superseded for performance conclusions by PLAYER-AMD-FULL-LOG-ANALYSIS-20261117.md:
+the user subsequently supplied the complete Downloads logs. Wonderlands is now
+explicitly out of scope pending the player retesting newer changes.
+
 ## Evidence scope
 
 The player reports both x86 games recovered after clearing shader caches,

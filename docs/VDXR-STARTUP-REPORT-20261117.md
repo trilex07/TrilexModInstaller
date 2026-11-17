@@ -1,7 +1,9 @@
 # Installer 1.1.3: reported VDXR flatscreen startup (2026-11-17)
 
-Status: player logs received; instance creation failure confirmed. Exact file
-and causal relationship to installer 1.1.3 remain unresolved. Local runtime NOT RUN.
+Status: later player logs confirm successful VDXR instance/session and frame
+submission in both games. Earlier -32 cause and installer relationship remain
+unproven. Performance follow-up is docs/PLAYER-PERFORMANCE-FOLLOWUP-20261117.md.
+Local runtime NOT RUN.
 Player uses VDXR and says both games worked before the update. Treat this as a
 regression report, not proof that VDXR cannot run these 32-bit games.
 

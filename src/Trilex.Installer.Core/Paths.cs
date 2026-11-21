@@ -39,13 +39,18 @@ public static class Paths
         Same(path,"Cache.DLC/PCPatchManifests/Cache.Windows/H.Script.cache")||Same(path,"Cache.DLC/PCPatchManifests/Cache.Windows/H.Script.toc");
     public static bool DarknessTextTarget(string path)=>Same(path,"Cache.Windows/H.Misc.cache")||Same(path,"Cache.Windows/H.Misc.toc");
     public static bool WonderlandsTarget(string path)=>new[]{"xinput1_3.dll","openxr_loader.dll","nvngx_dlss.dll","nvngx_dlssg.dll","licenses/NVIDIA/LICENSE.txt","licenses/NVIDIA/THIRD-PARTY-NOTICES.txt","WonderlandsVR.ini","LICENSE-WonderlandsVR.txt","LICENSE-MinHook.txt","LICENSE-OpenXR.txt","THIRD-PARTY-PSVR2.txt"}.Any(name=>Same(path,"OakGame/Binaries/Win64/"+name));
+    // RaptureVR: proxy, OpenXR loader, profile, notices and the VR panel art (Bin64/RaptureVR-ui). Nothing else.
+    public static readonly string[] RaptureUiArt={"panel_bg.png","header.png","button_normal.png","button_hover.png","button_selected.png","button_accent.png","controllers.png",
+        "icon_walk.png","icon_turn.png","icon_snap.png","icon_eye.png","icon_screen.png","icon_recentre.png","icon_sharpen.png","icon_vignette.png","icon_controls.png","icon_reset.png"};
+    public static bool RaptureTarget(string path)=>new[]{"dinput8.dll","openxr_loader.dll","RaptureVR.ini","LICENSE-RaptureVR.txt","LICENSE-OpenXR.txt"}.Any(name=>Same(path,"Bin64/"+name))||
+        RaptureUiArt.Any(name=>Same(path,"Bin64/RaptureVR-ui/"+name));
     public static void AllowedTarget(string relative)
     {
         var norm = relative.Replace('\\','/');
         // Source-owned, catalog-hash-pinned PSVR2 IPC helper is an explicit
         // runtime dependency. Never permit replacing the game/other EXEs.
         var triggerHelper=string.Equals(norm,"Binaries/SingularityPsvr2Bridge.exe",StringComparison.OrdinalIgnoreCase);
-        if (WonderlandsTarget(norm)||DarknessHandsInstall.IsTarget(norm)) return;
+        if (WonderlandsTarget(norm)||RaptureTarget(norm)||DarknessHandsInstall.IsTarget(norm)) return;
         if (Same(norm,"d3d9.dll") || Same(norm,"Darkness2VR.ini") || Same(norm,"openxr_loader.dll") || Same(norm,"Darkness2VR-diagnostic.ini") || DarknessAssetTarget(norm) || DarknessTextureInstall.IsTarget(norm) || DarknessTextTarget(norm)) return;
         if (norm.EndsWith(".exe",StringComparison.OrdinalIgnoreCase) && !triggerHelper || norm.StartsWith("saves/",StringComparison.OrdinalIgnoreCase) || !(norm.StartsWith("Binaries/",StringComparison.OrdinalIgnoreCase) || norm.StartsWith("RvGame/",StringComparison.OrdinalIgnoreCase))) throw new InvalidDataException("Target is not a mod installation path");
     }

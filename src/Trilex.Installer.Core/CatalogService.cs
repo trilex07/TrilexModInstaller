@@ -74,6 +74,8 @@ public static class PlanBuilder
              game.Modules.Count(m=>m.Required)!=1 || game.Modules.Any(m=>m.Id=="polish-dubbing")))
             throw new InvalidDataException("Invalid Darkness II release manifest");
         if(game.Id=="wonderlands" && (game.Adapter!="WonderlandsGameAdapter" || game.SteamAppId!="1286680" || game.Executable!="OakGame/Binaries/Win64/Wonderlands.exe" || game.Modules.Count(m=>m.Required)!=1 || game.ExeSha256.Count==0 || game.ExeSha256.Any(h=>!ValidHash(h))))throw new InvalidDataException("Invalid Wonderlands manifest");
+        if(game.Id=="rapture" && game.State is ("stable" or "preview") && (game.Adapter!="RaptureGameAdapter" || game.SteamAppId!="417880" || game.Executable!="Bin64/Rapture_Release.exe" ||
+            game.Modules.Count(m=>m.Required)!=1 || game.ExeSha256.Count==0 || game.ExeSha256.Any(h=>!ValidHash(h))))throw new InvalidDataException("Invalid Rapture manifest");
         foreach(var m in game.Modules)
         {
             if(m.DownloadBytes<0 || m.DownloadBytes >= 2L*1024*1024*1024 || m.ExpandedBytes<0 || m.ExpandedBytes>16L*1024*1024*1024)throw new InvalidDataException("Invalid package size");
@@ -86,6 +88,7 @@ public static class PlanBuilder
                 darknessTarget|=DarknessHandsInstall.IsTarget(target);
                 if(DarknessHandsInstall.IsTarget(target)&&(m.Id!="hands-only"||f.Kind!="recipe"||f.Ownership!="local-transform"))throw new InvalidDataException("Darkness II hands require a local reconstruction");
                 if((game.Id=="wonderlands")!=Paths.WonderlandsTarget(target))throw new InvalidDataException("Target belongs to another game");
+                if((game.Id=="rapture")!=Paths.RaptureTarget(target))throw new InvalidDataException("Target belongs to another game");
                 if((game.Id=="darkness2")!=darknessTarget)throw new InvalidDataException("Target belongs to another game");
                 if(game.Id=="darkness2" && Paths.DarknessTextTarget(target) && (m.Id is not ("polish-text" or "darkness-menu") || f.Kind!="recipe"))
                     throw new InvalidDataException("Darkness II language cache requires a local recipe");

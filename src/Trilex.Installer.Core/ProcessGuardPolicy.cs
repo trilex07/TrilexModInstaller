@@ -12,6 +12,11 @@ public static class ProcessGuardPolicy
             if(!Paths.Same(name,"Wonderlands")&&!Paths.Same(name,"Wonderlands.exe")&&!Paths.Same(Path.GetFileName(path),"Wonderlands.exe"))return null;
             return $"Installation blocked by Tiny Tina's Wonderlands (PID {pid}). Close the game normally; no process will be terminated.";
         }
+        if(File.Exists(Path.Combine(root,"Bin64","Rapture_Release.exe")))
+        {
+            if(!Paths.Same(name,"Rapture_Release")&&!Paths.Same(name,"Rapture_Release.exe")&&!Paths.Same(Path.GetFileName(path),"Rapture_Release.exe"))return null;
+            return $"Installation blocked by Everybody's Gone to the Rapture (PID {pid}). Close the game normally; no process will be terminated.";
+        }
         if(File.Exists(Path.Combine(root,"DarknessII.exe")))
         {
             if(!Paths.Same(name,"DarknessII") && !Paths.Same(name,"DarknessII.exe") &&

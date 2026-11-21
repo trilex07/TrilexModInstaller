@@ -93,3 +93,10 @@ public sealed class WonderlandsGameAdapter(string? epicManifests = null) : Steam
         }
     }
 }
+
+// Everybody's Gone to the Rapture (Steam 417880, CryEngine x64). RaptureVR is a dinput8 proxy in Bin64.
+public sealed class RaptureGameAdapter : SteamGameAdapter
+{
+    public override string Id=>"rapture";
+    protected override string DataDirectory=>"rapture";
+}

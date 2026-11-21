@@ -96,7 +96,7 @@ internal static class UiSmoke
     static void CheckLaunchFlow(InstallerViewModel vm,string output,string name)
     {
         var flags=System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic;
-        foreach(var id in new[]{"singularity","darkness2","wonderlands"})
+        foreach(var id in new[]{"singularity","darkness2","wonderlands","rapture"})
         {
             vm.SelectGame(id);
             var game=(GameManifest)typeof(InstallerViewModel).GetProperty("Game",flags)!.GetValue(vm)!;

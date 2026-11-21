@@ -912,6 +912,27 @@ await Test("manual export uses verified managed originals rather than patching i
     ManualExporter.Export(f.Plan(m),Archives(f,m),f.Root+"-managed-export",f.Installer,null,default);
     Assert(Paths.Hash(source)==before&&receipt.SequenceEqual(File.ReadAllBytes(Path.Combine(f.Installer.StateDirectory(f.Root),"installed.json"))));
 });
+await Test("Rapture x64 adapter, Bin64 targets, panel art, install/export/restore and guard",async()=>
+{
+    var f=Fixture();Directory.CreateDirectory(Paths.Safe(f.Root,"Bin64"));Directory.CreateDirectory(Paths.Safe(f.Root,"rapture"));
+    var exe=Paths.Safe(f.Root,"Bin64/Rapture_Release.exe");var pe=new byte[256];
+    using(var stream=new MemoryStream(pe))using(var writer=new BinaryWriter(stream)){writer.Write((ushort)0x5A4D);stream.Position=60;writer.Write(128);stream.Position=128;writer.Write(0x4550);writer.Write((ushort)0x8664);stream.Position=152;writer.Write((ushort)0x20B);}File.WriteAllBytes(exe,pe);
+    var initial=Package(f);var sha=initial.Files[0].Sha256;
+    var m=initial with{Files=[new("Bin64/dinput8.dll","data/mod.bin",sha,"copy","mod-authored"),new("Bin64/RaptureVR-ui/panel_bg.png","data/mod.bin",sha,"copy","mod-authored")]};
+    var game=new GameManifest("rapture","Everybody's Gone to the Rapture VR","stable","RaptureGameAdapter","417880","Bin64/Rapture_Release.exe",[new string('0',64)],[m]);
+    var location=new RaptureGameAdapter().Validate(f.Root,game);Assert(!location.Compatible&&ExecutableCompatibility.CanTry(game,location));
+    var plan=PlanBuilder.Build(game,location,new("en","en","en",[]),new(f.Root,location.ExeHash!));
+    var receipt=await f.Installer.InstallAsync(plan,Archives(f,m),null,default);Assert(f.Installer.Verify(f.Root).Count==0);
+    Assert(File.Exists(Paths.Safe(f.Root,"Bin64/dinput8.dll"))&&File.Exists(Paths.Safe(f.Root,"Bin64/RaptureVR-ui/panel_bg.png")));
+    var start=GameLauncher.CreateStartInfo(game,location,receipt);Assert(start.Arguments==""&&Paths.Same(start.WorkingDirectory,Path.GetDirectoryName(exe)));
+    Assert(ProcessGuardPolicy.Refusal(f.Root,1,2,"Rapture_Release",exe) is not null&&ProcessGuardPolicy.Refusal(f.Root,1,2,"Steam",null) is null);
+    ManualExporter.Export(plan,Archives(f,m),f.Root+"-rapture-export",f.Installer,null,default);
+    f.Installer.Uninstall(f.Root,default);Assert(!File.Exists(Paths.Safe(f.Root,"Bin64/dinput8.dll"))&&File.Exists(exe));
+    await Reject(()=>Sync(()=>PlanBuilder.ValidateManifest(game with{Modules=[m with{Files=[m.Files[0] with{Path="Bin64/Rapture_Release.exe"}]}]})));
+    await Reject(()=>Sync(()=>PlanBuilder.ValidateManifest(game with{Modules=[m with{Files=[m.Files[0] with{Path="Bin64/RaptureVR-ui/unknown.png"}]}]})));
+    await Reject(()=>Sync(()=>PlanBuilder.ValidateManifest(game with{Modules=[m with{Files=[m.Files[0] with{Path="OakGame/Binaries/Win64/xinput1_3.dll"}]}]})));
+    await Reject(()=>Sync(()=>PlanBuilder.ValidateManifest(game with{SteamAppId="1"})));
+});
 await Test("Wonderlands x64 adapter, unknown hash consent, install/export/restore and DX11 launch",async()=>
 {
     var f=Fixture();var bin=Paths.Safe(f.Root,"OakGame/Binaries/Win64/xinput1_3.dll");Directory.CreateDirectory(Path.GetDirectoryName(bin)!);Directory.CreateDirectory(Paths.Safe(f.Root,"OakGame/Content"));

@@ -16,11 +16,15 @@ unsigned catalog, so the consumer app shows it but installs nothing until a main
 
 ## Package
 
+Branch `claude/rapture-vr-package` sits on `codex/wonderlands-patch-20261120` (the branch that produced the published
+1.1.12 catalog) plus the Darkness II 1.1.3 refresh commits of `feature/installer-product`.
+
+
 `python scripts/package-rapture.py --mod <RaptureVR checkout> --tag <date>` stages the built RaptureVR files
 (static-CRT proxy, OpenXR loader, VR profile, panel art, MIT + OpenXR notices), packs them with the `pack` tool (consumer
 extractor audit) and writes `artifacts/rapture-<tag>/catalog.unsigned.json` on top of the newest signed catalog
-(1.1.10 → 1.1.11). 2026-11-21: `rapture-vr-core-20261121.zip`, 22 files, 7 602 751 bytes, SHA-256 `F4C56D6C…9F11`.
-Validated by signing with a throwaway key and `verify` ("Verified catalog 1.1.11"). Tests: 115/115 including
+(published catalog 1.1.12 of installer 1.1.3 → 1.1.13). 2026-11-21: `rapture-vr-core-20261121.zip`, 22 files, 7 602 751 bytes, SHA-256 `F4C56D6C…9F11`.
+Validated by signing with a throwaway key and `verify` ("Verified catalog 1.1.13"). Tests: 115/115 including
 "Rapture x64 adapter, Bin64 targets, panel art, install/export/restore and guard".
 
 ## Evidence on the mod side (RaptureVR repo)

@@ -7,7 +7,7 @@ catalog with the Rapture game added. It never signs, uploads or touches a game f
     python scripts/package-rapture.py --mod D:/projekty/rapturevr --tag 20261121
 
 Then (maintainer, after review): sign artifacts/rapture-<tag>/catalog.unsigned.json, attach the ZIP to the release
-named in downloadUrl, and add packages/rapture/vr-core.zip to the portable bundle.
+named in downloadUrl (--release, default installer-1.1.4), and add packages/rapture/vr-core.zip to the portable bundle.
 """
 import argparse, base64, hashlib, json, shutil, subprocess
 from pathlib import Path
@@ -48,6 +48,7 @@ def sha(p): return hashlib.sha256(Path(p).read_bytes()).hexdigest().upper()
 
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument('--mod', type=Path, required=True); ap.add_argument('--tag', required=True)
+    ap.add_argument('--release', default='installer-1.1.4', help='GitHub release tag that hosts the module ZIP (downloadUrl)')
     ap.add_argument('--base', type=Path, help='signed catalog to extend (default: newest catalog.signed.json under artifacts by version)')
     a = ap.parse_args()
     out = ROOT / 'artifacts' / f'rapture-{a.tag}'
@@ -79,7 +80,7 @@ def main():
     module = {
         'id': 'vr-core', 'labels': {'en': 'Native stereo VR, head tracking, controllers, VR panel', 'pl': 'Natywne VR stereo, śledzenie głowy, kontrolery, panel VR'},
         'version': f'0.1.0-{a.tag}', 'state': 'stable', 'required': True, 'dependencies': [],
-        'downloadBytes': 0, 'downloadUrl': f'https://github.com/trilex07/TrilexModInstaller/releases/download/installer-1.1.0/{package}',
+        'downloadBytes': 0, 'downloadUrl': f'https://github.com/trilex07/TrilexModInstaller/releases/download/{a.release}/{package}',
         'archiveSha256': '', 'expandedBytes': 0, 'rightsVerified': True,
         'rightsEvidence': 'Original Trilex runtime (MIT) and original Trilex panel art; OpenXR loader Apache-2.0 notice included; no game binaries or assets.',
         'files': files, 'reason': ''}

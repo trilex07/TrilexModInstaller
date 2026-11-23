@@ -1,6 +1,6 @@
 # Trilex Mod Installer 1.1.4 — Everybody's Gone to the Rapture VR (preview)
 
-Status: **built, signed, verified offline and staged; upload pending `gh auth login`.** Rapture game state: `preview`
+Status: **published 2026-11-23** — https://github.com/trilex07/TrilexModInstaller/releases/tag/installer-1.1.4 (latest). Rapture game state: `preview`
 (headset acceptance of RaptureVR b1068cf pending). Owner approval for signing and publishing: given in chat on 2026-11-23.
 
 ## What changed against the published 1.1.3 ZIP
@@ -72,4 +72,13 @@ uploads the six assets, downloads them back into a fresh folder and checks every
 
 ## Upload result
 
-Pending.
+`scripts/publish-installer-1.1.4.ps1` (log `artifacts/installer-1.1.4/publish.log`):
+
+- Branch `claude/rapture-vr-package` pushed to origin (as previous release branches were); release `installer-1.1.4`
+  created on commit `f4ace17`, not draft, not prerelease, published 2026-11-23T18:19:18Z, 6 assets.
+- All assets downloaded back with `gh release download` into a fresh folder: every SHA-256 equals SHA256SUMS.txt
+  (installer ZIP `5F9B80AF…CBD63`, both catalogs, Rapture package, tester bundle); remote SHA256SUMS.txt identical.
+- `releases/latest` = `installer-1.1.4` (also checked anonymously through the public API).
+- `Tools verify-downloads catalog-1.1.13.signed.json … rapture … vr-core`: `PASS verified download: vr-core`.
+- Downloaded online `catalog.signed.json`: `Verified catalog 1.1.12`.
+- Still open: real Steam install of Rapture via the installer; owner's PSVR2 acceptance of b1068cf (game stays `preview`).

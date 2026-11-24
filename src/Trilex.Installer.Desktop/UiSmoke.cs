@@ -88,6 +88,16 @@ internal static class UiSmoke
                 using(var stream=File.Create(Path.Combine(output,"wonderlands-manual-"+file))){var encoder=new PngBitmapEncoder();encoder.Frames.Add(BitmapFrame.Create(tiny));encoder.Save(stream);}
                 vm.ManualExport=false;
             }
+            vm.SelectGame(Borderlands3Runtime.GameId);
+            if(!vm.IsWonderlands&&vm.WonderlandsOptions==Visibility.Visible)
+            {
+                vm.EpicVersion=true;
+                Dispatcher.CurrentDispatcher.Invoke(()=>{},DispatcherPriority.Background);
+                if(epic.Visibility!=Visibility.Visible||epic.IsChecked!=true||
+                   vm.EpicPackageNote!=vm.L["Borderlands3EpicPackageNote"]||
+                   vm.Modules.Count!=1||!vm.Modules[0].Selected)
+                    throw new InvalidDataException("Borderlands 3 store selector or required module is incomplete");
+            }
             window.Close();
         }
         if(errors.Messages.Count>0)throw new InvalidDataException(string.Join("\n",errors.Messages));

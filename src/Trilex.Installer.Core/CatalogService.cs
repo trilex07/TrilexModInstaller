@@ -114,7 +114,8 @@ public static class PlanBuilder
     public static InstallPlan Build(GameManifest game,GameLocation location,InstallChoices choices,ExecutableConsent? consent=null,string? buildProfile=null)
     {
         ValidateManifest(game);
-        var verified=location.Compatible&&game.ExeSha256.Any(x=>Paths.Same(x,location.ExeHash));
+        var checkedStore=game.Id==Borderlands3Runtime.GameId&&game.BuildProfiles is {Count:>0};
+        var verified=location.Compatible&&(checkedStore||game.ExeSha256.Any(x=>Paths.Same(x,location.ExeHash)));
         var acknowledged=location.ExeHash is not null&&ExecutableCompatibility.Matches(consent,location.Root,location.ExeHash)&&ExecutableCompatibility.CanTry(game,location);
         if(game.State is not ("stable" or "preview") || location.ExeHash is null || (!verified&&!acknowledged))throw new InvalidOperationException("Game is not compatible or not released; unverified builds require explicit review consent");
         game=GameBuildRouting.Select(game,location,buildProfile);

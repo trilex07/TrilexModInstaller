@@ -6,8 +6,10 @@ public static class GameLauncher
 {
     public static bool CanLaunch(GameManifest game,GameLocation? location,InstallReceipt? receipt)=>
         location?.ExeHash is { } hash && receipt?.GameId==game.Id &&
+        (game.Id!=Borderlands3Runtime.GameId||game.BuildProfiles is not {Count:>0}||IsSteamInstallation(game,location.Root)) &&
         Paths.Same(Path.GetFullPath(receipt.Root),Path.GetFullPath(location.Root)) &&
-        ((location.Compatible&&game.ExeSha256.Any(h=>Paths.Same(h,hash))) ||
+        ((location.Compatible&&(game.ExeSha256.Any(h=>Paths.Same(h,hash))||
+            game.Id==Borderlands3Runtime.GameId&&game.BuildProfiles is {Count:>0})) ||
          ExecutableCompatibility.Matches(receipt.ExecutableConsent,location.Root,hash));
 
     // Only prepare the launch here; tests never start the game.

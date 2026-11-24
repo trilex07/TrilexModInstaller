@@ -11,6 +11,7 @@ public sealed class Localization : INotifyPropertyChanged
     {
         ["EpicVersion"]=("Epic Games version", "Wersja Epic Games"),
         ["EpicPackageNote"]=("Epic uses the earlier player-tested package. New Steam scope and beam changes are not included.", "Epic korzysta z wcześniejszej paczki sprawdzonej przez graczy. Nie zawiera nowych zmian lunet i wiązki ze Steam."),
+        ["Borderlands3EpicPackageNote"]=("Epic build is a preview. Start it from Epic Games Launcher with SteamVR running.", "Build Epic jest wersją testową. Uruchom grę przez Epic Games Launcher przy włączonym SteamVR."),
         ["EpicVersionHelp"]=("Detected automatically. Select manually for an Epic installation not found by the launcher scan.", "Wykrywana automatycznie. Zaznacz ręcznie, jeśli skanowanie nie znalazło instalacji Epic."),
         ["ActionInstall"]=("Install","Zainstaluj"),
         ["InstallSelected"]=("Install selected","Zainstaluj wybrane"),

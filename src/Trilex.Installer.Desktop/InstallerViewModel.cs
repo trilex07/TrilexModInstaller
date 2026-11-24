@@ -32,7 +32,7 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
     private readonly HttpClient http=CatalogService.CreateHttpClient();
     private readonly CatalogService catalogs;
     private readonly TransactionInstaller installer;
-    private IGameAdapter adapter=>gameId switch {"singularity"=>new SingularityGameAdapter(),"wonderlands"=>new WonderlandsGameAdapter(),"rapture"=>new RaptureGameAdapter(),_=>new Darkness2GameAdapter()};
+    private IGameAdapter adapter=>gameId switch {"singularity"=>new SingularityGameAdapter(),"wonderlands"=>new WonderlandsGameAdapter(),"rapture"=>new RaptureGameAdapter(),Borderlands3Runtime.GameId=>new Borderlands3GameAdapter(),_=>new Darkness2GameAdapter()};
     private Catalog catalog;
     private string gameId="singularity";
     private GameManifest Game=>catalog.Games.Single(x=>x.Id==gameId);
@@ -160,6 +160,7 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
     public string SingularityTile=>tiles.GetValueOrDefault("singularity","");
     public string DarknessTile=>tiles.GetValueOrDefault("darkness2","");
     public string WonderlandsTile=>tiles.GetValueOrDefault("wonderlands","");
+    public string Borderlands3Tile=>tiles.GetValueOrDefault(Borderlands3Runtime.GameId,"");
     public string RaptureTile=>tiles.GetValueOrDefault("rapture","");
     private string installerUpdate="";private string? installerUpdatePage;
     public string InstallerUpdateText{get=>installerUpdate;private set{installerUpdate=value;Changed();Changed(nameof(InstallerUpdateVisibility));}}
@@ -215,7 +216,7 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
     {
         foreach(var game in catalog.Games)
         {
-            IGameAdapter? scan=game.Id switch{"singularity"=>new SingularityGameAdapter(),"darkness2"=>new Darkness2GameAdapter(),"wonderlands"=>new WonderlandsGameAdapter(),"rapture"=>new RaptureGameAdapter(),_=>null};
+            IGameAdapter? scan=game.Id switch{"singularity"=>new SingularityGameAdapter(),"darkness2"=>new Darkness2GameAdapter(),"wonderlands"=>new WonderlandsGameAdapter(),"rapture"=>new RaptureGameAdapter(),Borderlands3Runtime.GameId=>new Borderlands3GameAdapter(),_=>null};
             if(scan is null||game.State=="coming_soon"){tiles[game.Id]=L["TileSoon"];continue;}
             var latest=CatalogGameVersion(game);string tile;
             try
@@ -228,7 +229,7 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
             catch(Exception e)when(e is IOException or UnauthorizedAccessException or InvalidDataException){Log("Library scan "+game.Id+": "+e.Message);tile=V(latest);}
             tiles[game.Id]=tile;
         }
-        Changed(nameof(SingularityTile));Changed(nameof(DarknessTile));Changed(nameof(WonderlandsTile));Changed(nameof(RaptureTile));
+        Changed(nameof(SingularityTile));Changed(nameof(DarknessTile));Changed(nameof(WonderlandsTile));Changed(nameof(RaptureTile));Changed(nameof(Borderlands3Tile));
     }
     private async Task AutoVerify(CancellationToken ct)
     {
@@ -308,7 +309,7 @@ public sealed class InstallerViewModel : INotifyPropertyChanged, IDisposable
             }
             consent=new(location.Root,location.ExeHash!);
         }
-        var prerequisites=IsWonderlands||IsRapture||ManualExport?new PrerequisiteResult(true,"Bundled static-CRT proxy; target prerequisites documented in README"):WindowsPrerequisites.Inspect();
+        var prerequisites=IsWonderlands||IsRapture||gameId==Borderlands3Runtime.GameId||ManualExport?new PrerequisiteResult(true,"Bundled static-CRT proxy; target prerequisites documented in README"):WindowsPrerequisites.Inspect();
         if(!prerequisites.Present)throw new InvalidOperationException(prerequisites.Detail+"\nMicrosoft Visual C++ v14 x86: "+WindowsPrerequisites.VisualCppX86Url+(ui=="pl"?"\nZainstaluj wymagany pakiet Microsoft i ponów sprawdzanie.":"\nInstall the Microsoft prerequisite, then review again."));
         var selected=Modules.Where(x=>x.Selected).Select(x=>x.Manifest.Id).ToList();
         var choices=new InstallChoices(IsSingularity?text:selected.Contains("polish-text")?"pl":"en",IsSingularity?voice:"en",ui,selected);

@@ -36,16 +36,7 @@ public abstract class SteamGameAdapter : IGameAdapter
     protected abstract string DataDirectory { get; }
     public virtual IEnumerable<GameLocation> Detect(IEnumerable<string> steamRoots,GameManifest manifest)
     {
-        var libraries=new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        foreach(var root in steamRoots.Where(Directory.Exists))
-        {
-            libraries.Add(Path.GetFullPath(root));
-            var vdf=Path.Combine(root,"steamapps","libraryfolders.vdf");if(!File.Exists(vdf))continue;
-            Dictionary<string,object> parsed;try{parsed=Vdf.Parse(File.ReadAllText(vdf));}catch(InvalidDataException){continue;}
-            if(parsed.GetValueOrDefault("libraryfolders") is Dictionary<string,object> entries)
-                foreach(var (key,value) in entries)if(int.TryParse(key,out _)){if(value is Dictionary<string,object> child && child.GetValueOrDefault("path") is string path)libraries.Add(path);else if(value is string old)libraries.Add(old);}
-        }
-        foreach(var library in libraries)
+        foreach(var library in SteamRoots.Libraries(steamRoots))
         {
             var app=Path.Combine(library,"steamapps","appmanifest_"+manifest.SteamAppId+".acf");if(!File.Exists(app))continue;
             Dictionary<string,object> parsed;try{parsed=Vdf.Parse(File.ReadAllText(app));}catch(InvalidDataException){continue;}
@@ -99,4 +90,10 @@ public sealed class RaptureGameAdapter : SteamGameAdapter
 {
     public override string Id=>"rapture";
     protected override string DataDirectory=>"rapture";
+}
+
+public sealed class Borderlands3GameAdapter : SteamGameAdapter
+{
+    public override string Id => "borderlands3";
+    protected override string DataDirectory => "OakGame/Content";
 }

@@ -90,7 +90,7 @@ try
         using var http=CatalogService.CreateHttpClient();
         var catalog=new CatalogService(http,File.ReadAllText(installKey)).Verify(File.ReadAllBytes(installCatalog));
         var game=catalog.Games.Single(g=>g.Id==installGame);
-        IGameAdapter adapter=installGame=="singularity"?new SingularityGameAdapter():installGame=="darkness2"?new Darkness2GameAdapter():installGame=="wonderlands"?new WonderlandsGameAdapter():throw new InvalidDataException("Unknown game");
+        IGameAdapter adapter=installGame=="singularity"?new SingularityGameAdapter():installGame=="darkness2"?new Darkness2GameAdapter():installGame=="wonderlands"?new WonderlandsGameAdapter():installGame==Borderlands3Runtime.GameId?new Borderlands3GameAdapter():throw new InvalidDataException("Unknown game");
         var location=adapter.Validate(installRoot,game);
         var selected=game.Modules.Where(m=>m.State=="stable"&&m.Id is not ("polish-text" or "polish-dubbing")).Select(m=>m.Id).ToList();
         var plan=PlanBuilder.Build(game,location,new(installLanguage,installGame=="singularity"?installLanguage:"en",installLanguage,selected));

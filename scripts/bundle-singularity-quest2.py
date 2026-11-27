@@ -30,6 +30,7 @@ def main():
         'E8734187E13C6C665481F529A280AD98F247CAC0B247B73D7E593E4051EE2CD2': '1.1.26',
         '9E7A3CAA12B9DA17EA628FEC63B360BE2F94E6EA9A098D241CB8F8E444BA81B4': '1.1.27',
         'D6FF2164FAAC07842AD197A08A94256F88253E24E89A17149153F45984CD80AD': '1.1.28',
+        '8EE5DB96F64C50DF09607B82FB8A4485A00C4CA43AEF5C1240D583BA3EACC36D': '1.1.29',
     }
     version = predecessors.get(sha(args.base.read_bytes()))
     signed = args.signed.read_bytes()
@@ -65,6 +66,13 @@ def main():
             'when drawing glove depth and color, and prevents cutscene objects from being learned as hands. '
             'Tested on the Steam game with simulated Touch controllers at the burning helicopter. '
             'The extra helicopter silhouette remains under investigation.\n\n'
+        ).encode()
+    if version == '1.1.29':
+        notice = (
+            '## Singularity VR gravity decal update (November 27, 2026)\n\n'
+            'Select VR core to update. The TMD gravity decal filter now checks which shader is actually active '
+            'when the game draws the effect. Two-handed support also releases when the native game reports that '
+            'the player is unarmed after a cutscene. Existing portable settings remain compatible.\n\n'
         ).encode()
     if sha(core) != core_hash(catalog(signed)):
         raise ValueError('Core archive differs from new catalog')

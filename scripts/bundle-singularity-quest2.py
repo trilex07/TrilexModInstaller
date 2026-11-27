@@ -1,0 +1,69 @@
+"""Refresh the published 1.1.5 bundle with the tested Singularity packages."""
+import argparse
+import base64
+import hashlib
+import json
+from pathlib import Path
+import zipfile
+
+
+def sha(data):
+    return hashlib.sha256(data).hexdigest().upper()
+
+
+def catalog(data):
+    return json.loads(base64.b64decode(json.loads(data)['payload'], validate=True))
+
+
+def core_hash(metadata):
+    game = next(g for g in metadata['games'] if g['id'] == 'singularity')
+    return next(m['archiveSha256'] for m in game['modules'] if m['id'] == 'vr-core')
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    for key in ('base', 'signed', 'core', 'output'):
+        parser.add_argument('--' + key, type=Path, required=True)
+    args = parser.parse_args()
+    if sha(args.base.read_bytes()) != 'C52DB6BA4B7A2B77E2859F3004DA8734B1FE205FDB97D0AF3AB0F98EAB9370AD':
+        raise ValueError('Expected the published November 25 bundle')
+    signed = args.signed.read_bytes()
+    notice = (
+        '## Singularity VR update for Oculus Touch (November 27, 2026)\n\n'
+        'Select Singularity VR and include its portable settings. The mod now reads the Touch pointing pose '
+        'separately and aligns empty hands with the controllers. Tested at the helicopter checkpoint in the '
+        'OpenXR simulator. Physical Quest 2 verification and the reported floating silhouette remain open. '
+        'This bundle leaves headset resolution discovery to the local runtime. Remove any old manual low-resolution '
+        'launch override if you want automatic sizing.\n\n'
+    ).encode()
+    core = args.core.read_bytes()
+    if sha(core) != core_hash(catalog(signed)):
+        raise ValueError('Core archive differs from new catalog')
+    with zipfile.ZipFile(args.base) as source:
+        if sha(source.read('packages/vr-core.zip')) != core_hash(catalog(source.read('catalog.signed.json'))):
+            raise ValueError('Wrong Singularity core in base bundle')
+        changes = {'catalog.signed.json': signed, 'packages/vr-core.zip': core}
+        for name in ('README.md', 'RELEASE-NOTES.md'):
+            changes[name] = notice + source.read(name)
+        checks = {}
+        with zipfile.ZipFile(args.output, 'x', zipfile.ZIP_DEFLATED, compresslevel=3) as dest:
+            for info in source.infolist():
+                name = info.filename
+                if name == 'SHA256SUMS.txt':
+                    continue
+                data = changes[name] if name in changes else source.read(info)
+                checks[name] = sha(data)
+                dest.writestr(info, data)
+            sums = ''.join(f'{digest}  {name}\n' for name, digest in sorted(checks.items()))
+            dest.writestr('SHA256SUMS.txt', sums)
+        with zipfile.ZipFile(args.output) as dest:
+            if dest.namelist() != source.namelist() or dest.read('SHA256SUMS.txt').decode() != sums:
+                raise ValueError('Output manifest or archive listing mismatch')
+            for name, digest in checks.items():
+                if sha(dest.read(name)) != digest:
+                    raise ValueError('Output mismatch for ' + name)
+    print(sha(args.output.read_bytes()), args.output.name)
+
+
+if __name__ == '__main__':
+    main()

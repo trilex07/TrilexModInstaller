@@ -25,9 +25,14 @@ def main():
     for key in ('base', 'signed', 'core', 'output'):
         parser.add_argument('--' + key, type=Path, required=True)
     args = parser.parse_args()
-    if sha(args.base.read_bytes()) != 'C52DB6BA4B7A2B77E2859F3004DA8734B1FE205FDB97D0AF3AB0F98EAB9370AD':
-        raise ValueError('Expected the published November 25 bundle')
+    predecessors = {
+        'C52DB6BA4B7A2B77E2859F3004DA8734B1FE205FDB97D0AF3AB0F98EAB9370AD': '1.1.25',
+        'E8734187E13C6C665481F529A280AD98F247CAC0B247B73D7E593E4051EE2CD2': '1.1.26',
+    }
+    version = predecessors.get(sha(args.base.read_bytes()))
     signed = args.signed.read_bytes()
+    if not version or version != catalog(signed)['version']:
+        raise ValueError('Unexpected published predecessor or catalog')
     notice = (
         '## Singularity VR update for Oculus Touch (November 27, 2026)\n\n'
         'Select Singularity VR and include its portable settings. The mod now reads the Touch pointing pose '
@@ -36,6 +41,13 @@ def main():
         'This bundle leaves headset resolution discovery to the local runtime. Remove any old manual low-resolution '
         'launch override if you want automatic sizing.\n\n'
     ).encode()
+    if version == '1.1.26':
+        notice = (
+            '## Singularity 720p VR menu correction (November 27, 2026)\n\n'
+            'At 1280x720 the main menu and load-game list now render once per eye, '
+            'including when the game starts at its default resolution. Select VR core and portable settings. '
+            'The Oculus Touch hand update from catalog 1.1.25 is included.\n\n'
+        ).encode()
     core = args.core.read_bytes()
     if sha(core) != core_hash(catalog(signed)):
         raise ValueError('Core archive differs from new catalog')

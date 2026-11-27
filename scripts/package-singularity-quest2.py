@@ -30,12 +30,17 @@ def main():
     core = modules['vr-core']
     settings = modules['portable-settings']
     dll = args.dll.read_bytes()
-    if digest(dll) != 'D265B8843C10D98BFB748D809C871FD03C0472B972B7D0F6F151727F7ADA5D9D':
+    builds = {
+        'D265B8843C10D98BFB748D809C871FD03C0472B972B7D0F6F151727F7ADA5D9D': ('1.1.24', 'v7-20261127-quest2'),
+        '2B6B0A8972992087E69E564E898211BFFB6C9F6358B53824ACE500EC987EE817': ('1.1.25', 'v8-20261127-quest2-menu'),
+    }
+    build = builds.get(digest(dll))
+    if not build or build[0] != catalog['version']:
         raise ValueError('DLL differs from the tested release candidate')
     if digest(args.core.read_bytes()) != core['archiveSha256']:
         raise ValueError('Original package differs from the signed catalog')
     args.out.mkdir(parents=True, exist_ok=True)
-    output = args.out / 'singularity-vr-core-20261127-quest2.zip'
+    output = args.out / ('singularity-vr-core-' + build[1].split('-', 1)[1] + '.zip')
     if output.exists() or (args.out / 'catalog.unsigned.json').exists():
         raise FileExistsError('Choose a fresh output directory')
     archive = io.BytesIO()
@@ -54,11 +59,13 @@ def main():
                 file['sha256'] = digest(data)
             dest.writestr(info, data)
             expanded += len(data)
-    core.update(version='v7-20261127-quest2', downloadBytes=len(archive.getvalue()),
+    core.update(version=build[1], downloadBytes=len(archive.getvalue()),
                 expandedBytes=expanded, archiveSha256=digest(archive.getvalue()),
                 downloadUrl='https://github.com/trilex07/TrilexModInstaller/releases/download/installer-1.1.5/' + output.name)
     ini = next(f['iniValues'] for f in settings['files'] if f['path'] == 'Binaries/SingularityVR.ini')
     ini.update({'Input/PreferAimPose': '1', 'Render/AlignFreeHands': '1'})
+    if build[0] == '1.1.25':
+        ini['Render/NativeMenuTargetSizeFix'] = '1'
     # These are runtime caches for the local headset. Keep the user's measured values on upgrade.
     for field in ('Render/AutoResX', 'Render/AutoResY'):
         ini.pop(field, None)

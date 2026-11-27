@@ -72,7 +72,8 @@ def main():
             '## Singularity VR gravity decal update (November 27, 2026)\n\n'
             'Select VR core to update. The TMD gravity decal filter now checks which shader is actually active '
             'when the game draws the effect. Two-handed support also releases when the native game reports that '
-            'the player is unarmed after a cutscene. Existing portable settings remain compatible.\n\n'
+            'the player is unarmed after a cutscene. Backspace toggles VR only while the game is in focus. '
+            'Existing portable settings remain compatible.\n\n'
         ).encode()
     if sha(core) != core_hash(catalog(signed)):
         raise ValueError('Core archive differs from new catalog')

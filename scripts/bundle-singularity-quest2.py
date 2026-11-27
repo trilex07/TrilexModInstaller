@@ -68,13 +68,21 @@ def main():
             'Tested on the Steam game with simulated Touch controllers at the burning helicopter. '
             'The extra helicopter silhouette remains under investigation.\n\n'
         ).encode()
-    if version in ('1.1.29', '1.1.31'):
+    if version == '1.1.29':
         notice = (
             '## Singularity VR gravity decal update (November 27, 2026)\n\n'
             'Select VR core to update. The TMD gravity decal filter now checks which shader is actually active '
             'when the game draws the effect. Two-handed support also releases when the native game reports that '
             'the player is unarmed after a cutscene. Backspace toggles VR only while the game is in focus. '
             'Existing portable settings remain compatible.\n\n'
+        ).encode()
+    if version == '1.1.31':
+        notice = (
+            '## Singularity VR TMD gravity update (November 27, 2026)\n\n'
+            'Select VR core to update. Lifting objects with the TMD now keeps the matching world depth '
+            'and color passes aligned. The black rectangles were reproduced and cleared in both eyes '
+            'on the Steam game with OpenXR simulation. The two-handed support and focused Backspace '
+            'fixes are also included.\n\n'
         ).encode()
     if sha(core) != core_hash(catalog(signed)):
         raise ValueError('Core archive differs from new catalog')

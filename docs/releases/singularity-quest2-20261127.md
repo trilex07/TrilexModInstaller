@@ -11,7 +11,15 @@ For the Quest 2 configuration reporting **2232 × 2292 per eye**, the matching S
 
 ### Capture the floating silhouette
 
-At the helicopter, run the following in PowerShell. Return to the game and hold both controllers forward while looking at the silhouette. After the delay the mod captures one focused gameplay frame with both controllers tracked.
+Load the campaign at the helicopter. Download the [frame collector](https://github.com/trilex07/TrilexModInstaller/releases/download/installer-1.1.5/collect-singularity-vr-frame.ps1) and run it from the download folder in PowerShell:
+
+~~~powershell
+.\collect-singularity-vr-frame.ps1
+~~~
+
+Return to the headset during the 15-second countdown and hold the controllers forward where the silhouette is visible. The script prints the path to a ZIP in `%LOCALAPPDATA%\SingularityVR` containing the two-eye bitmap, its draw trace and the session log. It replaces your Windows profile path in the log and keeps the archive on your computer. Attach that ZIP and, if available, the headset recording of the same moment. To collect a manual capture already completed, pass `-ExistingLog` followed by the path to that session's log, with the bitmap and trace in the same directory.
+
+For manual capture, run the following in PowerShell at the wreck, then return to the headset.
 
 ~~~powershell
 Start-Sleep -Seconds 15

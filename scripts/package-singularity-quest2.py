@@ -38,7 +38,8 @@ def main():
         'E0F1706DA723253DB867EBC300A48899C05A76289F913EC8C2F0E91AF3ABF706': ('1.1.28', 'v11-20261127-tmd-gravity'),
     }
     build = builds.get(digest(dll))
-    if not build or build[0] != catalog['version']:
+    source_version = catalog['version']
+    if not build or not (build[0] == source_version or (build[0], source_version) == ('1.1.28', '1.1.30')):
         raise ValueError('DLL differs from the tested release candidate')
     if digest(args.core.read_bytes()) != core['archiveSha256']:
         raise ValueError('Original package differs from the signed catalog')

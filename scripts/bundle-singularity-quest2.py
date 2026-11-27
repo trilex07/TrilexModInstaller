@@ -31,6 +31,7 @@ def main():
         '9E7A3CAA12B9DA17EA628FEC63B360BE2F94E6EA9A098D241CB8F8E444BA81B4': '1.1.27',
         'D6FF2164FAAC07842AD197A08A94256F88253E24E89A17149153F45984CD80AD': '1.1.28',
         '8EE5DB96F64C50DF09607B82FB8A4485A00C4CA43AEF5C1240D583BA3EACC36D': '1.1.29',
+        'C430CC6BC2C07626FE523A2D38BFFD5E6D993EF23839D99B6162401E6B95F495': '1.1.31',
     }
     version = predecessors.get(sha(args.base.read_bytes()))
     signed = args.signed.read_bytes()
@@ -67,7 +68,7 @@ def main():
             'Tested on the Steam game with simulated Touch controllers at the burning helicopter. '
             'The extra helicopter silhouette remains under investigation.\n\n'
         ).encode()
-    if version == '1.1.29':
+    if version in ('1.1.29', '1.1.31'):
         notice = (
             '## Singularity VR gravity decal update (November 27, 2026)\n\n'
             'Select VR core to update. The TMD gravity decal filter now checks which shader is actually active '

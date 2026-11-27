@@ -18,7 +18,7 @@ Start-Sleep -Seconds 15
 New-Item -ItemType File -Force -Path "$env:LOCALAPPDATA\SingularityVR\shadow-pass.request" | Out-Null
 ~~~
 
-After exiting the game, the newest `capture_*.bmp`, matching `shadow-pass-*.txt`, and `view_matrix.log` in `%LOCALAPPDATA%\SingularityVR` show the two eyes before submission, the draws that produced the frame, and the active settings. Copy these before relaunching. A headset recording from the same moment allows comparison with the image delivered over Air Link.
+After exiting the game, open `%LOCALAPPDATA%\SingularityVR\view_matrix.log` and search from the bottom for `shadow-pass trace finished`. That line names the draw trace. The following `capture: saved` line ending in `source=XR-backbuffer` names the matching two-eye bitmap. A later automatic screenshot can have a newer timestamp. Copy those two named files and the log before relaunching. If the capture failed or the next line refers to a different event, repeat the capture at the wreck. A headset recording from the same moment allows comparison with the image delivered over Air Link.
 
 ### Catalog 1.1.26
 

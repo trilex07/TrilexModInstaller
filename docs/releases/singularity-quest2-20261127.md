@@ -20,6 +20,19 @@ New-Item -ItemType File -Force -Path "$env:LOCALAPPDATA\SingularityVR\shadow-pas
 
 After exiting the game, open `%LOCALAPPDATA%\SingularityVR\view_matrix.log` and search from the bottom for `shadow-pass trace finished`. That line names the draw trace. The following `capture: saved` line ending in `source=XR-backbuffer` names the matching two-eye bitmap. A later automatic screenshot can have a newer timestamp. Copy those two named files and the log before relaunching. If the capture failed or the next line refers to a different event, repeat the capture at the wreck. A headset recording from the same moment allows comparison with the image delivered over Air Link.
 
+### Catalog 1.1.27
+
+The retail core from `041fa024` activates the two native muzzle effects together. In consecutive Research Facility loads on the development build, the gameplay helper peaked at 68.52 ms before the change and 33.94 ms after it. The retail DLL activated both targets in 32.836 ms. Firing the AR9 Valkyrie produced the tracked muzzle and tracer receipts. The Steam/OpenXR simulator ran the original checkpoint with the player's save protected. The separate tracer setup and the remaining one-time activation cost are still present.
+
+The fixture upgraded the signed 1.1.26 bundle to 1.1.27, checked local headset settings and DLL identity, then exercised reinstall, damage detection, repair and uninstall. The package changes only the Singularity core. Quest 2 verification of hand orientation and the black helicopter silhouette still requires a player capture.
+
+| Artifact | SHA-256 |
+|---|---|
+| Retail DLL | `F14D396E75E814E20D378A8C9D1D7C8777375C7B12F575FB9B6857B16664AB12` |
+| Singularity VR core ZIP | `FF26813FEF6FDCDE6D789EBE2A6DA5F633AD93924FFCB5A016660CCF2E644F7C` |
+| Signed catalog | `8FDEB255146C2B24B199A603374D74D567CEBE5DF6A8C3358E56B445D3445A03` |
+| Installer bundle | `D6FF2164FAAC07842AD197A08A94256F88253E24E89A17149153F45984CD80AD` |
+
 ### Catalog 1.1.26
 
 The tested runtime is built from the retail-compatible source at `cbf69b1a`. An isolated upgrade from the signed 1.1.25 bundle verified both retained Touch settings, the new menu setting, the DLL hash, user resolution cache, idempotent reinstall, damage detection, repair and uninstall.

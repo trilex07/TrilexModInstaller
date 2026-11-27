@@ -32,6 +32,7 @@ def main():
         'D6FF2164FAAC07842AD197A08A94256F88253E24E89A17149153F45984CD80AD': '1.1.28',
         '8EE5DB96F64C50DF09607B82FB8A4485A00C4CA43AEF5C1240D583BA3EACC36D': '1.1.29',
         'C430CC6BC2C07626FE523A2D38BFFD5E6D993EF23839D99B6162401E6B95F495': '1.1.31',
+        '77284A931183140FA50BBCF8F82AF515FCC018C6D7BBD5B77187F1A9C6263D04': '1.1.32',
     }
     version = predecessors.get(sha(args.base.read_bytes()))
     signed = args.signed.read_bytes()
@@ -83,6 +84,12 @@ def main():
             'and color passes aligned. The black rectangles were reproduced and cleared in both eyes '
             'on the Steam game with OpenXR simulation. The two-handed support and focused Backspace '
             'fixes are also included.\n\n'
+        ).encode()
+    if version == '1.1.32':
+        notice = (
+            '## Singularity VR audio update (November 28, 2026)\n\n'
+            'Select VR core to update. Singularity now keeps its native sound playing during an active VR '
+            'session when another desktop window has focus. The TMD graphics fix is included.\n\n'
         ).encode()
     if sha(core) != core_hash(catalog(signed)):
         raise ValueError('Core archive differs from new catalog')

@@ -37,6 +37,7 @@ def main():
         '46B7C8CB22DAE3A72DFA41F35AABC54682BDEA890EADAFF98D9AAED7D61A04E7': ('1.1.27', 'v10-20261127-quest2-gloves'),
         'E0F1706DA723253DB867EBC300A48899C05A76289F913EC8C2F0E91AF3ABF706': ('1.1.28', 'v11-20261127-tmd-gravity'),
         '88D0C46E1FAECF182697B72A11D070FC63B9714865EF9AF307FE655E0D864A6F': ('1.1.28', 'v12-20261127-tmd-gravity'),
+        '42915A690C33C1A2AD5CD9AD071DC2C31814A7F548DE6D6F974BF0097010AD3C': ('1.1.31', 'v13-20261128-background-audio'),
     }
     build = builds.get(digest(dll))
     source_version = catalog['version']
@@ -76,7 +77,7 @@ def main():
     # These are runtime caches for the local headset. Keep the user's measured values on upgrade.
     for field in ('Render/AutoResX', 'Render/AutoResY'):
         ini.pop(field, None)
-    if build[0] not in ('1.1.26', '1.1.28'):
+    if build[0] not in ('1.1.26', '1.1.28', '1.1.31'):
         settings['version'] = core['version']
     catalog['version'] = args.version
     output.write_bytes(archive.getvalue())

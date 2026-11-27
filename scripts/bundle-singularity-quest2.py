@@ -29,6 +29,7 @@ def main():
         'C52DB6BA4B7A2B77E2859F3004DA8734B1FE205FDB97D0AF3AB0F98EAB9370AD': '1.1.25',
         'E8734187E13C6C665481F529A280AD98F247CAC0B247B73D7E593E4051EE2CD2': '1.1.26',
         '9E7A3CAA12B9DA17EA628FEC63B360BE2F94E6EA9A098D241CB8F8E444BA81B4': '1.1.27',
+        'D6FF2164FAAC07842AD197A08A94256F88253E24E89A17149153F45984CD80AD': '1.1.28',
     }
     version = predecessors.get(sha(args.base.read_bytes()))
     signed = args.signed.read_bytes()
@@ -57,6 +58,14 @@ def main():
             'Select VR core to update. The Quest controller, menu and resolution changes are included.\n\n'
         ).encode()
     core = args.core.read_bytes()
+    if version == '1.1.28':
+        notice = (
+            '## Singularity VR glove rendering update (November 27, 2026)\n\n'
+            'Install VR core and portable settings. This update keeps the same hand geometry and pose '
+            'when drawing glove depth and color, and prevents cutscene objects from being learned as hands. '
+            'Tested on the Steam game with simulated Touch controllers at the burning helicopter. '
+            'The extra helicopter silhouette remains under investigation.\n\n'
+        ).encode()
     if sha(core) != core_hash(catalog(signed)):
         raise ValueError('Core archive differs from new catalog')
     with zipfile.ZipFile(args.base) as source:

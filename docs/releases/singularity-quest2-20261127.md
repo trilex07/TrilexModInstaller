@@ -1,7 +1,15 @@
 # Singularity VR on Oculus Touch, installer 1.1.5
 
-[Download the refreshed Windows bundle (catalog 1.1.26)](https://github.com/trilex07/TrilexModInstaller/releases/download/installer-1.1.5/Trilex-Mod-Installer-1.1.5-Singularity-Quest2-Menu-20261127-win-x64.zip).
+[Download the refreshed Windows bundle (catalog 1.1.28)](https://github.com/trilex07/TrilexModInstaller/releases/download/installer-1.1.5/Trilex-Mod-Installer-1.1.5-Singularity-Quest2-Gloves-20261127-win-x64.zip).
 Extract it to a new folder, run TrilexModInstaller.exe, and install Singularity VR with the VR core and portable settings. The optional texture and audio packs are independent of this update.
+
+### Catalog 1.1.28
+
+A cinematic could be mistaken for a gameplay hand mesh. The mod now waits for gameplay to identify the hands. It also keeps the native glove geometry and pose consistent across the early depth pass and later draws. At the helicopter in Workers’ District, mismatched draws produced black gloves. The corrected draws showed textured gloves in both eyes. The released DLL was checked in Steam with simulated Oculus Touch controllers, including a capture with both hands extended. The player’s report of a second pair on physical Quest 2 remains open.
+
+A separate controlled depth-pass test reproduced the floating black helicopter. In four captures with the released DLL under normal conditions, the wreck’s depth and color projections matched across 3,041 model points in each eye. The trigger on the player’s system remains unknown.
+
+The portable bundle includes the existing Touch alignment, 720p menu and rifle fixes. Upgrading the signed 1.1.27 bundle preserved custom headset dimensions. The installer also passed reinstall, damage detection, repair and uninstall tests.
 
 The 32-bit mod reads the OpenXR pointing pose separately from the grip pose on Oculus Touch. When both unarmed hands are visible before acquiring the TMD, it aligns each wrist and knuckles with that controller. A Steam gameplay test at the burning helicopter in Workers' District verified horizontal hands and independent left-hand movement in both eye images. This used a simulated Quest 3 with Touch controllers. Physical Quest 2 acceptance, the reported second pair of hands and the floating helicopter silhouette remain open.
 

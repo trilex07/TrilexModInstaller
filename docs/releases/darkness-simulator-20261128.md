@@ -12,3 +12,11 @@ The actual signed packages passed fresh install, managed upgrade and uninstall o
 - Portable bundle SHA-256 `31556AAF0458CFB900493126549E1C44CFAD94B841EEE969883C89A3B07F1910`
 
 [Installer 1.1.5 with The Darkness II VR update](https://github.com/trilex07/TrilexModInstaller/releases/download/installer-1.1.5/Trilex-Mod-Installer-1.1.5-Darkness2-VR-20261128-win-x64.zip)
+
+The current `installer-1.1.5` release serves catalog 1.1.33 at
+`catalog.signed.json`. Both the named installer bundle and the canonical
+`TrilexModInstaller-win-x64.zip` resolve to the tested portable SHA-256
+above. The published versioned catalog, package and bundle were downloaded
+again and matched every local SHA-256. The installer catalog client resolved
+the live signed catalog and the actual downloader verified the new VR core.
+The desktop layouts and all 117 core tests passed.

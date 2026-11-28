@@ -36,16 +36,7 @@ public abstract class SteamGameAdapter : IGameAdapter
     protected abstract string DataDirectory { get; }
     public virtual IEnumerable<GameLocation> Detect(IEnumerable<string> steamRoots,GameManifest manifest)
     {
-        var libraries=new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        foreach(var root in steamRoots.Where(Directory.Exists))
-        {
-            libraries.Add(Path.GetFullPath(root));
-            var vdf=Path.Combine(root,"steamapps","libraryfolders.vdf");if(!File.Exists(vdf))continue;
-            Dictionary<string,object> parsed;try{parsed=Vdf.Parse(File.ReadAllText(vdf));}catch(InvalidDataException){continue;}
-            if(parsed.GetValueOrDefault("libraryfolders") is Dictionary<string,object> entries)
-                foreach(var (key,value) in entries)if(int.TryParse(key,out _)){if(value is Dictionary<string,object> child && child.GetValueOrDefault("path") is string path)libraries.Add(path);else if(value is string old)libraries.Add(old);}
-        }
-        foreach(var library in libraries)
+        foreach(var library in SteamRoots.Libraries(steamRoots))
         {
             var app=Path.Combine(library,"steamapps","appmanifest_"+manifest.SteamAppId+".acf");if(!File.Exists(app))continue;
             Dictionary<string,object> parsed;try{parsed=Vdf.Parse(File.ReadAllText(app));}catch(InvalidDataException){continue;}
@@ -54,7 +45,7 @@ public abstract class SteamGameAdapter : IGameAdapter
             yield return Validate(root,manifest) with {Source="Steam appmanifest "+manifest.SteamAppId};
         }
     }
-    public GameLocation Validate(string root,GameManifest manifest)
+    public virtual GameLocation Validate(string root,GameManifest manifest)
     {
         try
         {
@@ -77,19 +68,56 @@ public sealed class Darkness2GameAdapter : SteamGameAdapter
     protected override string DataDirectory=>"Cache.Windows";
 }
 
-public sealed class WonderlandsGameAdapter(string? epicManifests = null) : SteamGameAdapter
+public abstract class SteamEpicGameAdapter(string? epicManifests) : SteamGameAdapter
 {
-    public override string Id=>"wonderlands";
     protected override string DataDirectory=>"OakGame/Content";
+    protected virtual bool SupportsEpic(GameManifest manifest)=>true;
     public override IEnumerable<GameLocation> Detect(IEnumerable<string> steamRoots,GameManifest manifest)
     {
         var seen=new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         foreach(var found in base.Detect(steamRoots,manifest))if(seen.Add(Path.GetFullPath(found.Root)))yield return found;
+        if(!SupportsEpic(manifest))yield break;
         var directory=epicManifests??Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),"Epic","EpicGamesLauncher","Data","Manifests");
         foreach(var root in EpicGameLocations.ReadRoots(directory))
         {
             var found=Validate(root,manifest);
             if(found.ExeHash is not null&&seen.Add(Path.GetFullPath(found.Root)))yield return found with{Source="Epic Games manifest"};
+        }
+    }
+}
+
+public sealed class WonderlandsGameAdapter(string? epicManifests = null) : SteamEpicGameAdapter(epicManifests)
+{
+    public override string Id=>"wonderlands";
+}
+
+// Everybody's Gone to the Rapture (Steam 417880, CryEngine x64). RaptureVR is a dinput8 proxy in Bin64.
+public sealed class RaptureGameAdapter : SteamGameAdapter
+{
+    public override string Id=>"rapture";
+    protected override string DataDirectory=>"rapture";
+}
+
+public sealed class Borderlands3GameAdapter(string? epicManifests = null) : SteamEpicGameAdapter(epicManifests)
+{
+    public override string Id => Borderlands3Runtime.GameId;
+    protected override bool SupportsEpic(GameManifest manifest)=>manifest.BuildProfiles?.Any(p=>p.Id=="epic")==true;
+
+    public override GameLocation Validate(string root,GameManifest manifest)
+    {
+        var location=base.Validate(root,manifest);
+        if(location.ExeHash is null || manifest.BuildProfiles is not {Count:>0})return location;
+        try
+        {
+            var profile=GameBuildRouting.DetectProfile(manifest,location);
+            return location with {
+                Compatible=profile is not null,
+                Detail=profile is null?"Unknown Borderlands 3 executable layout":"Compatible "+profile.Id+" executable layout"
+            };
+        }
+        catch(Exception e)when(e is IOException or InvalidDataException or BadImageFormatException or UnauthorizedAccessException)
+        {
+            return location with {Compatible=false,Detail=e.Message};
         }
     }
 }

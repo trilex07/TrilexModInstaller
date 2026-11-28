@@ -1,5 +1,6 @@
 using System.Windows;
 using Microsoft.Win32;
+using Trilex.Installer.Core;
 
 namespace Trilex.Installer.Desktop;
 public partial class MainWindow : Window
@@ -36,6 +37,8 @@ public partial class MainWindow : Window
     }
     private async void Singularity_Click(object sender,RoutedEventArgs e)=>await SelectAndDetect("singularity");
     private async void Wonderlands_Click(object sender,RoutedEventArgs e)=>await SelectAndDetect("wonderlands");
+    private async void Borderlands3_Click(object sender,RoutedEventArgs e)=>await SelectAndDetect(Borderlands3Runtime.GameId);
+    private async void Rapture_Click(object sender,RoutedEventArgs e)=>await SelectAndDetect("rapture");
     private async void Darkness_Click(object sender,RoutedEventArgs e)=>await SelectAndDetect("darkness2");
     private async void FullPreset_Click(object sender,RoutedEventArgs e)=>await vm.Run(ct=>{vm.SelectAcceptedPreset();return Task.CompletedTask;});
     private async void Install_Click(object sender,RoutedEventArgs e)

@@ -10,8 +10,10 @@ public static class GameBuildRouting
     public static void Validate(GameManifest game)
     {
         if(game.BuildProfiles is not {Count: >0} profiles)return;
-        if(game.Id!="wonderlands" || profiles.Count>8 || profiles.Select(p=>p.Id).Distinct(StringComparer.Ordinal).Count()!=profiles.Count)
+        if(game.Id is not ("wonderlands" or Borderlands3Runtime.GameId) || profiles.Count>8 || profiles.Select(p=>p.Id).Distinct(StringComparer.Ordinal).Count()!=profiles.Count)
             throw new InvalidDataException("Invalid build profile set");
+        if(game.Id==Borderlands3Runtime.GameId&&!profiles.Select(p=>p.Id).ToHashSet(StringComparer.Ordinal).SetEquals(["steam","epic"]))
+            throw new InvalidDataException("Borderlands 3 requires separate Steam and Epic profiles");
         foreach(var profile in profiles)
         {
             if(string.IsNullOrWhiteSpace(profile.Id) || profile.Id.Length>80 || profile.Probes.Count is <3 or >16 ||
@@ -34,6 +36,8 @@ public static class GameBuildRouting
     public static GameManifest Select(GameManifest game,GameLocation location,string? requestedProfile=null)
     {
         var match=DetectProfile(game,location);
+        if(game.Id==Borderlands3Runtime.GameId && game.BuildProfiles is {Count:>0} && match is null)
+            throw new InvalidDataException("Unknown Borderlands 3 store layout; no package selected");
         if(requestedProfile is not null) {
             var requested=game.BuildProfiles?.SingleOrDefault(p=>p.Id==requestedProfile)
                 ??throw new InvalidDataException("Requested game version is not in the signed catalog");

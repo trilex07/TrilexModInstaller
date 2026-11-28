@@ -1,3 +1,7 @@
+## November 23: installer 1.1.4 adds Everybody's Gone to the Rapture VR (preview)
+
+Download the [latest full installer](https://github.com/trilex07/TrilexModInstaller/releases/latest). Rapture VR needs an NVIDIA GPU for foveation; PSVR2 Toolkit is optional; headset acceptance of this build is pending. See [installer 1.1.4](docs/releases/installer-1.1.4.md).
+
 ## November 16 Wonderlands patch
 
 Download the [latest full installer](https://github.com/trilex07/TrilexModInstaller/releases/latest).

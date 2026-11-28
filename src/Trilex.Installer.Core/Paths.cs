@@ -39,13 +39,39 @@ public static class Paths
         Same(path,"Cache.DLC/PCPatchManifests/Cache.Windows/H.Script.cache")||Same(path,"Cache.DLC/PCPatchManifests/Cache.Windows/H.Script.toc");
     public static bool DarknessTextTarget(string path)=>Same(path,"Cache.Windows/H.Misc.cache")||Same(path,"Cache.Windows/H.Misc.toc");
     public static bool WonderlandsTarget(string path)=>new[]{"xinput1_3.dll","openxr_loader.dll","nvngx_dlss.dll","nvngx_dlssg.dll","licenses/NVIDIA/LICENSE.txt","licenses/NVIDIA/THIRD-PARTY-NOTICES.txt","WonderlandsVR.ini","LICENSE-WonderlandsVR.txt","LICENSE-MinHook.txt","LICENSE-OpenXR.txt","THIRD-PARTY-PSVR2.txt"}.Any(name=>Same(path,"OakGame/Binaries/Win64/"+name));
+    // RaptureVR: proxy, OpenXR loader, profile, notices and the VR panel art (Bin64/RaptureVR-ui). Nothing else.
+    public static readonly string[] RaptureUiArt={"panel_bg.png","header.png","button_normal.png","button_hover.png","button_selected.png","button_accent.png","controllers.png",
+        "icon_walk.png","icon_turn.png","icon_snap.png","icon_eye.png","icon_screen.png","icon_recentre.png","icon_sharpen.png","icon_vignette.png","icon_controls.png","icon_reset.png"};
+    public static bool RaptureTarget(string path)=>new[]{"dinput8.dll","openxr_loader.dll","RaptureVR.ini","LICENSE-RaptureVR.txt","LICENSE-OpenXR.txt"}.Any(name=>Same(path,"Bin64/"+name))||
+        RaptureUiArt.Any(name=>Same(path,"Bin64/RaptureVR-ui/"+name));
+    private static readonly string[] Borderlands3UiArt =
+    [
+        "arrow_left.png", "arrow_right.png", "background.png", "btn_circle.png", "btn_create.png",
+        "btn_cross.png", "btn_l1.png", "btn_l2.png", "btn_l3.png", "btn_options.png",
+        "btn_r1.png", "btn_r2.png", "btn_r3.png", "btn_square.png", "btn_triangle.png",
+        "button_hover.png", "button_normal.png", "button_pressed.png", "close_x.png", "decorative_panel.png",
+        "frame.png", "header_controls.png", "header_vr_settings.png", "icon_adaptive_triggers.png", "icon_comfort.png",
+        "icon_controls.png", "icon_foveation.png", "icon_frame_generation.png", "icon_graphics.png", "icon_handedness.png",
+        "icon_hands_hud.png", "icon_left_controller.png", "icon_left_stick.png", "icon_recenter.png", "icon_right_controller.png",
+        "icon_right_stick.png", "icon_smooth_turn.png", "icon_snap_turn.png", "icon_turn_speed.png", "icon_upscaling.png",
+        "icon_vehicles.png", "icon_vignette.png", "mech_joystick_atlas.png", "mech_joystick_left.png", "mech_joystick_right.png",
+        "selector_field.png", "slider_knob.png", "slider_track_base.png", "slider_track_fill.png", "tab_active.png",
+        "tab_hover.png", "tab_normal.png", "toggle_off.png", "toggle_on.png"
+    ];
+    public static bool Borderlands3Target(string path) =>
+        Same(path, Borderlands3Runtime.Bin + "xinput1_3.dll") ||
+        Same(path, Borderlands3Runtime.Profile) || Same(path, Borderlands3Runtime.Loader) ||
+        new[] {"README-Borderlands3VR.txt", "LICENSE-OpenXR.txt", "LICENSE-MinHook.txt", "LICENSE-TXFG.txt"}
+            .Any(name => Same(path, Borderlands3Runtime.Bin + "BL3VR/" + name)) ||
+        Borderlands3UiArt.Any(name => Same(path, Borderlands3Runtime.Bin + "vrui/" + name));
+
     public static void AllowedTarget(string relative)
     {
         var norm = relative.Replace('\\','/');
         // Source-owned, catalog-hash-pinned PSVR2 IPC helper is an explicit
         // runtime dependency. Never permit replacing the game/other EXEs.
         var triggerHelper=string.Equals(norm,"Binaries/SingularityPsvr2Bridge.exe",StringComparison.OrdinalIgnoreCase);
-        if (WonderlandsTarget(norm)||DarknessHandsInstall.IsTarget(norm)) return;
+        if (WonderlandsTarget(norm)||Borderlands3Target(norm)||RaptureTarget(norm)||DarknessHandsInstall.IsTarget(norm)) return;
         if (Same(norm,"d3d9.dll") || Same(norm,"Darkness2VR.ini") || Same(norm,"openxr_loader.dll") || Same(norm,"Darkness2VR-diagnostic.ini") || DarknessAssetTarget(norm) || DarknessTextureInstall.IsTarget(norm) || DarknessTextTarget(norm)) return;
         if (norm.EndsWith(".exe",StringComparison.OrdinalIgnoreCase) && !triggerHelper || norm.StartsWith("saves/",StringComparison.OrdinalIgnoreCase) || !(norm.StartsWith("Binaries/",StringComparison.OrdinalIgnoreCase) || norm.StartsWith("RvGame/",StringComparison.OrdinalIgnoreCase))) throw new InvalidDataException("Target is not a mod installation path");
     }

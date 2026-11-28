@@ -126,5 +126,34 @@ internal static class GameBuildRoutingTests
             Check(!new WonderlandsGameAdapter(manifests+"-missing").Detect([],f.Game).Any());
             return Task.CompletedTask;
         });
+        await test("Borderlands 3 selects by store code and refuses unmatched or conflicting layouts",()=>
+        {
+            var f=Fixture();
+            var path=Paths.Safe(f.Root,Borderlands3Runtime.Executable);
+            var steam=Image(20);
+            var epic=Image(40);
+            var game=new GameManifest(Borderlands3Runtime.GameId,"Borderlands 3 VR","stable",
+                nameof(Borderlands3GameAdapter),"397540",Borderlands3Runtime.Executable,[Hash(steam),Hash(epic)],[f.Steam],
+                [new("steam",Probes(steam),[f.Steam]),new("epic",Probes(epic),[f.Epic])]);
+            var adapter=new Borderlands3GameAdapter();
+            void Refuse(Action action){try{action();}catch(InvalidDataException){return;}throw new Exception("Expected profile refusal");}
+
+            File.WriteAllBytes(path,steam);
+            var location=adapter.Validate(f.Root,game);
+            Check(location.Compatible&&GameBuildRouting.Select(game,location).Modules.Single()==f.Steam);
+            Refuse(()=>GameBuildRouting.Select(game,location,"epic"));
+
+            epic[0x50]=123; // Headers differ. The relevant signed code still matches.
+            File.WriteAllBytes(path,epic);
+            location=adapter.Validate(f.Root,game);
+            Check(location.Compatible&&GameBuildRouting.Select(game,location).Modules.Single()==f.Epic);
+            Refuse(()=>GameBuildRouting.Select(game,location,"steam"));
+
+            File.WriteAllBytes(path,Image(60));
+            location=adapter.Validate(f.Root,game);
+            Check(!location.Compatible);
+            Refuse(()=>GameBuildRouting.Select(game,location,"epic"));
+            return Task.CompletedTask;
+        });
     }
 }

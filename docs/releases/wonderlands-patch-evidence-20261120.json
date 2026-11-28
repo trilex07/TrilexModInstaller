@@ -1,0 +1,26 @@
+{
+  "dll": "7E318B928261A35D38E3E84F579A9B47F858C1229025CA91A6DB003504ED950E",
+  "catalog": "1.1.12",
+  "baselineCatalog": "1A8044F20B92776B2347A28617ED6E08B71A1CA6CFEF4286FA72C604EBB6B85D",
+  "otherGamesUnchanged": true,
+  "epicUnchanged": true,
+  "installerExeUnchanged": true,
+  "status": "OFFLINE_PACKAGE_PASS",
+  "changedPriorFiles": [
+    "README.md",
+    "RELEASE-NOTES.md",
+    "SHA256SUMS.txt",
+    "catalog.signed.json",
+    "packages/wonderlands/vr-core.zip"
+  ],
+  "addedFiles": [
+    "docs/WONDERLANDS-PATCH-20261120.md",
+    "docs/WonderlandsVR-Controls-20261120.png"
+  ],
+  "lifecycle": [
+    "steam PASS",
+    "epic PASS"
+  ],
+  "physicalNewBindings": "NOT RUN",
+  "runtimeLaunch": false
+}

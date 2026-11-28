@@ -74,6 +74,13 @@ public static class PlanBuilder
              game.Modules.Count(m=>m.Required)!=1 || game.Modules.Any(m=>m.Id=="polish-dubbing")))
             throw new InvalidDataException("Invalid Darkness II release manifest");
         if(game.Id=="wonderlands" && (game.Adapter!="WonderlandsGameAdapter" || game.SteamAppId!="1286680" || game.Executable!="OakGame/Binaries/Win64/Wonderlands.exe" || game.Modules.Count(m=>m.Required)!=1 || game.ExeSha256.Count==0 || game.ExeSha256.Any(h=>!ValidHash(h))))throw new InvalidDataException("Invalid Wonderlands manifest");
+        if(game.Id=="rapture" && game.State is ("stable" or "preview") && (game.Adapter!="RaptureGameAdapter" || game.SteamAppId!="417880" || game.Executable!="Bin64/Rapture_Release.exe" ||
+            game.Modules.Count(m=>m.Required)!=1 || game.ExeSha256.Count==0 || game.ExeSha256.Any(h=>!ValidHash(h))))throw new InvalidDataException("Invalid Rapture manifest");
+        if(game.Id==Borderlands3Runtime.GameId &&
+            (game.Adapter!="Borderlands3GameAdapter" || game.SteamAppId!="397540" ||
+             game.Executable!=Borderlands3Runtime.Executable || game.ExeSha256.Count==0 ||
+             game.ExeSha256.Any(h=>!ValidHash(h)) || game.Modules.Count(m=>m.Required)!=1))
+            throw new InvalidDataException("Invalid Borderlands 3 manifest");
         foreach(var m in game.Modules)
         {
             if(m.DownloadBytes<0 || m.DownloadBytes >= 2L*1024*1024*1024 || m.ExpandedBytes<0 || m.ExpandedBytes>16L*1024*1024*1024)throw new InvalidDataException("Invalid package size");
@@ -85,7 +92,15 @@ public static class PlanBuilder
                 var darknessTarget=Paths.Same(target,"d3d9.dll")||Paths.Same(target,"Darkness2VR.ini") || Paths.Same(target,"openxr_loader.dll")||Paths.Same(target,"Darkness2VR-diagnostic.ini")||Paths.DarknessAssetTarget(target)||Paths.DarknessTextTarget(target)||DarknessTextureInstall.IsTarget(target);
                 darknessTarget|=DarknessHandsInstall.IsTarget(target);
                 if(DarknessHandsInstall.IsTarget(target)&&(m.Id!="hands-only"||f.Kind!="recipe"||f.Ownership!="local-transform"))throw new InvalidDataException("Darkness II hands require a local reconstruction");
-                if((game.Id=="wonderlands")!=Paths.WonderlandsTarget(target))throw new InvalidDataException("Target belongs to another game");
+                var wonderlandsTarget=Paths.WonderlandsTarget(target);
+                var borderlandsTarget=Paths.Borderlands3Target(target);
+                if(game.Id switch
+                {
+                    "wonderlands" => !wonderlandsTarget,
+                    Borderlands3Runtime.GameId => !borderlandsTarget,
+                    _ => wonderlandsTarget || borderlandsTarget
+                })throw new InvalidDataException("Target belongs to another game");
+                if((game.Id=="rapture")!=Paths.RaptureTarget(target))throw new InvalidDataException("Target belongs to another game");
                 if((game.Id=="darkness2")!=darknessTarget)throw new InvalidDataException("Target belongs to another game");
                 if(game.Id=="darkness2" && Paths.DarknessTextTarget(target) && (m.Id is not ("polish-text" or "darkness-menu") || f.Kind!="recipe"))
                     throw new InvalidDataException("Darkness II language cache requires a local recipe");
@@ -99,7 +114,8 @@ public static class PlanBuilder
     public static InstallPlan Build(GameManifest game,GameLocation location,InstallChoices choices,ExecutableConsent? consent=null,string? buildProfile=null)
     {
         ValidateManifest(game);
-        var verified=location.Compatible&&game.ExeSha256.Any(x=>Paths.Same(x,location.ExeHash));
+        var checkedStore=game.Id==Borderlands3Runtime.GameId&&game.BuildProfiles is {Count:>0};
+        var verified=location.Compatible&&(checkedStore||game.ExeSha256.Any(x=>Paths.Same(x,location.ExeHash)));
         var acknowledged=location.ExeHash is not null&&ExecutableCompatibility.Matches(consent,location.Root,location.ExeHash)&&ExecutableCompatibility.CanTry(game,location);
         if(game.State is not ("stable" or "preview") || location.ExeHash is null || (!verified&&!acknowledged))throw new InvalidOperationException("Game is not compatible or not released; unverified builds require explicit review consent");
         game=GameBuildRouting.Select(game,location,buildProfile);
@@ -128,6 +144,7 @@ public static class PlanBuilder
         if(game.Adapter=="SingularityGameAdapter")result=SingularityV7Settings.Apply(result,choices);
         result=LocalSources.BindCurrentSystem(result);
         result=Psvr2ClientRuntime.Configure(game.Id,result,Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
+        if(game.Id==Borderlands3Runtime.GameId)result=Borderlands3Runtime.Configure(result,location.Root);
         var paths=result.SelectMany(x=>x.Files).Where(x=>x.Kind!="ini").Select(x=>x.Path).ToList();
         if(paths.Distinct(StringComparer.OrdinalIgnoreCase).Count()!=paths.Count)throw new InvalidDataException("Two modules own the same target");
         return new(game.Id,game.Modules.First(x=>x.Required).Version,location.Root,location.ExeHash,choices,result,game.Executable,verified?null:consent);

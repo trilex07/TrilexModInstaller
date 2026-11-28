@@ -6,10 +6,13 @@ namespace Trilex.Installer.Core;
 // before transaction hashes are recorded. It never changes the staged package.
 public static class DarknessLanguageSettings
 {
-    public static bool ApplyPrepared(InstallPlan plan,PackageFile file,string prepared)
+    internal static bool IsUserSettings(string path) =>
+        Paths.Same(path,"Darkness2VR.ini") || Paths.Same(path,"Darkness2VR-diagnostic.ini");
+
+    public static bool ApplyPrepared(InstallPlan plan,PackageFile file,string prepared,bool preserveUserSettings=false)
     {
         if(plan.GameId!="darkness2" || file.Kind!="copy" || !Paths.Same(file.Path,"Darkness2VR.ini"))return false;
-        if(!Paths.Same(Paths.Hash(prepared),file.Sha256))throw new InvalidDataException("Darkness config payload checksum mismatch");
+        if(!preserveUserSettings && !Paths.Same(Paths.Hash(prepared),file.Sha256))throw new InvalidDataException("Darkness config payload checksum mismatch");
         if(plan.Choices.TextLanguage is not ("en" or "pl") || plan.Choices.VoiceLanguage is not ("en" or "pl"))throw new InvalidDataException("Unsupported Darkness language");
         var polish=plan.Choices.TextLanguage=="pl";
         if(polish!=plan.Modules.Any(m=>m.Id=="polish-text"))throw new InvalidDataException("Darkness text choice does not match installed resources");

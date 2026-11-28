@@ -987,6 +987,47 @@ await Test("Darkness language config requires matching resources and rejects tam
     await Reject(()=>Sync(()=>DarknessLanguageSettings.ApplyPrepared(plan,file,prepared)));
     Assert(!DarknessLanguageSettings.ApplyPrepared(plan with{GameId="singularity"},file,prepared));
 });
+await Test("Darkness VR update preserves both edited INIs byte for byte",async()=>
+{
+    var f=Fixture();
+    const string main="Darkness2VR.ini", diagnostic="Darkness2VR-diagnostic.ini";
+    const string acceptedRender="[Render]\r\nSubmitMode=4\r\n";
+    const string acceptedDiagnostic="[Diagnostics]\r\nSimulator=0\r\n";
+    var exe=Paths.Safe(f.Root,"DarknessII.exe");
+    File.WriteAllText(exe,"SYNTHETIC DARKNESS TEST");
+    ModuleManifest Runtime(string version)
+    {
+        var archive=Path.Combine(f.Root,version+".zip");
+        Dictionary<string,string> entries=new(){{"d3d9.dll",version},{main,acceptedRender},{diagnostic,acceptedDiagnostic}};
+        var files=entries.Select(item=>new PackageFile(item.Key,item.Key,
+            Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(item.Value))),"copy","mod-authored")).ToList();
+        using(var zip=ZipFile.Open(archive,ZipArchiveMode.Create))
+            foreach(var (name,content) in entries)
+                using(var writer=new StreamWriter(zip.CreateEntry(name).Open(),new UTF8Encoding(false)))writer.Write(content);
+        return new("vr-core",new(){{"en","VR Core"}},version,"stable",true,[],new FileInfo(archive).Length,
+            "https://github.com/trilex07/TrilexModInstaller/releases/download/test/"+version+".zip",Paths.Hash(archive),
+            entries.Values.Sum(value=>Encoding.UTF8.GetByteCount(value)),true,"Synthetic runtime fixture",files,"");
+    }
+    InstallPlan Plan(ModuleManifest module)=>f.Plan(module) with{GameId="darkness2",Executable="DarknessII.exe",ExeSha256=Paths.Hash(exe)};
+    var predecessor=Runtime("overlay-v1");
+    await f.Installer.InstallAsync(Plan(predecessor),Archives(f,predecessor),null,default);
+    var mainPath=Paths.Safe(f.Root,main);var diagnosticPath=Paths.Safe(f.Root,diagnostic);
+    Assert(new IniDocument(File.ReadAllText(mainPath)).Get("Render/SubmitMode")=="4");
+    Assert(File.ReadAllText(diagnosticPath)==acceptedDiagnostic);
+
+    const string editedMain="[Render]\nSubmitMode=4\nSupersample=137\n; player comment\n";
+    const string editedDiagnostic="[Diagnostics]\nSimulator=0\nCameraLogging=1\n";
+    File.WriteAllText(mainPath,editedMain);File.WriteAllText(diagnosticPath,editedDiagnostic);
+    var upgrade=Runtime("overlay-v2");
+    await f.Installer.InstallAsync(Plan(upgrade),Archives(f,upgrade),null,default);
+    Assert(File.ReadAllText(Paths.Safe(f.Root,"d3d9.dll"))=="overlay-v2");
+    Assert(File.ReadAllText(mainPath)==editedMain&&File.ReadAllText(diagnosticPath)==editedDiagnostic);
+    Assert(f.Installer.Verify(f.Root).Count==0);
+    await f.Installer.RepairAsync(Plan(upgrade),Archives(f,upgrade),null,default);
+    f.Installer.Uninstall(f.Root,default);
+    Assert(File.ReadAllText(mainPath)==editedMain&&File.ReadAllText(diagnosticPath)==editedDiagnostic);
+    Assert(!File.Exists(Paths.Safe(f.Root,"d3d9.dll")));
+});
 await Test("Darkness text choice selects matching native menu resources",()=>Sync(()=>
 {
     var f=Fixture();var fixture=Package(f);

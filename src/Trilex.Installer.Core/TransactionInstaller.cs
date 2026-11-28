@@ -83,11 +83,21 @@ public sealed class TransactionInstaller(string stateRoot, IProcessGuard process
             ct.ThrowIfCancellationRequested();Paths.AllowedTarget(path);var target=Paths.Safe(plan.Root,path);var live=Paths.HashOrNull(target);
             var old=previous?.Files.SingleOrDefault(x=>Paths.Same(x.Path,path));
             var original=old is not null?old.OriginalHash:live;var originalBackup=old?.Backup??("originals/"+id+"/"+path);
-            if(old is null && live is not null && file.Kind!="ini" && !Paths.Same(live,file.BeforeSha256) && !Paths.Same(live,file.Sha256))throw new IOException("Unowned file conflict: "+path);
-            if(!repair && old is not null && file.Kind!="ini" && !Paths.Same(live,old.InstalledHash) && live is not null && !Paths.Same(live,old.OriginalHash))throw new IOException("Modified installed file: "+path+"; use Repair explicitly");
+            var preserveUserSettings=plan.GameId=="darkness2" && file.Kind=="copy" && live is not null &&
+                DarknessLanguageSettings.IsUserSettings(path) &&
+                (old is null || !old.CanRestoreWhole || !Paths.Same(live,old.InstalledHash));
+            if(!preserveUserSettings && old is null && live is not null && file.Kind!="ini" && !Paths.Same(live,file.BeforeSha256) && !Paths.Same(live,file.Sha256))throw new IOException("Unowned file conflict: "+path);
+            if(!preserveUserSettings && !repair && old is not null && file.Kind!="ini" && !Paths.Same(live,old.InstalledHash) && live is not null && !Paths.Same(live,old.OriginalHash))throw new IOException("Modified installed file: "+path+"; use Repair explicitly");
             if(old is null && live is not null){var backup=Paths.Safe(state,originalBackup);Directory.CreateDirectory(Path.GetDirectoryName(backup)!);Paths.AtomicCopy(target,backup);}
             var prepared=Paths.Safe(txn,"prepared/"+path);Dictionary<string,string>? installedIni=null;Dictionary<string,string?>? originalIni=null;
-            if(file.Kind=="ini")
+            if(preserveUserSettings)
+            {
+                Paths.AtomicCopy(target,prepared);
+                if(previous?.Choices.TextLanguage!=plan.Choices.TextLanguage ||
+                   previous?.Choices.VoiceLanguage!=plan.Choices.VoiceLanguage)
+                    DarknessLanguageSettings.ApplyPrepared(plan,file,prepared,preserveUserSettings:true);
+            }
+            else if(file.Kind=="ini")
             {
                 var ini=new IniDocument(File.Exists(target)?File.ReadAllText(target):"");installedIni=[];originalIni=old?.OriginalIniValues is null?[]:new(old.OriginalIniValues);
                 foreach(var (key,value) in file.IniValues??throw new InvalidDataException("INI values missing"))
@@ -122,10 +132,10 @@ public sealed class TransactionInstaller(string stateRoot, IProcessGuard process
                 });
             }
             else Paths.AtomicCopy(Paths.Safe(stage,file.Entry),prepared);
-            DarknessLanguageSettings.ApplyPrepared(plan,file,prepared);
+            if(!preserveUserSettings)DarknessLanguageSettings.ApplyPrepared(plan,file,prepared);
             var after=Paths.Hash(prepared);
             if(file.Kind=="recipe"&&!Paths.Same(after,file.Sha256)&&!warnings.Any(w=>Paths.Same(w.Path,path)&&Paths.Same(w.ActualSha256,after)))throw new InvalidDataException("Reconstructed file changed after approval: "+path);
-            var pristine=old is null || old.CanRestoreWhole&&Paths.Same(live,old.InstalledHash);
+            var pristine=!preserveUserSettings && (old is null || old.CanRestoreWhole&&Paths.Same(live,old.InstalledHash));
             ownership.Add(new(path,original,originalBackup,after,file.Kind,installedIni,originalIni,pristine));edits.Add((path,prepared));
             progress?.Report(new("Prepare",path,edits.Count,files.Count));
         }
@@ -140,6 +150,7 @@ public sealed class TransactionInstaller(string stateRoot, IProcessGuard process
     private static bool LeaveInPlace(string root,OwnedFile file)
     {
         if(file.Kind=="ini")return false;
+        if(!file.CanRestoreWhole && DarknessLanguageSettings.IsUserSettings(file.Path))return true;
         var live=Paths.HashOrNull(Paths.Safe(root,file.Path));
         return !Paths.Same(live,file.InstalledHash)&&(live is not null||file.OriginalHash is null);
     }

@@ -1,13 +1,18 @@
-## November 16 Wonderlands patch
-
-Download the [latest full installer](https://github.com/trilex07/TrilexModInstaller/releases/latest/download/TrilexModInstaller-win-x64.zip).
-See [Steam changes, Epic selection and verification limits](docs/releases/wonderlands-patch-20261116.md).
-
 # Trilex Mod Installer
 
 Free fan-made Windows installer by **Trilex / trilex07** for **Singularity VR**, **The Darkness II VR** and **Tiny Tina’s Wonderlands VR**.
 
 **[Download the latest installer for Windows](https://github.com/trilex07/TrilexModInstaller/releases/latest/download/TrilexModInstaller-win-x64.zip)** · **[VR controls for all three games](docs/VR-CONTROLS.md)**
+
+## The Darkness II VR update · November 28, 2026
+
+Installer **1.1.5**, signed catalog **1.1.33**, fixes the warehouse ladder dismount, weapon aiming, off-axis tentacle grabs, and fog and shadow alignment in the Villa.
+
+Throw assist steers props toward the eligible enemy nearest your aim. If there's no target, the prop follows the hand motion. Camera shake is disabled for firing and damage. Firing sends a pulse to the firing controller, and damage sends a pulse to both.
+
+These changes were verified in the OpenXR simulator. Physical controller vibration remains to be checked. The updated installer preserves both edited Darkness II INI files when you keep the same language selection.
+
+[Download installer 1.1.5 with the Darkness II VR update](https://github.com/trilex07/TrilexModInstaller/releases/download/installer-1.1.5/Trilex-Mod-Installer-1.1.5-Darkness2-VR-20261128-win-x64.zip)
 
 Extract the whole ZIP and run `TrilexModInstaller.exe`. Select a game, choose its installed folder and options, then review and install. No Python or .NET installation is required. The executable is not Authenticode signed.
 
@@ -39,6 +44,8 @@ Games must be closed during installation. Unrelated Steam apps, fpsVR and SteamV
 Keep `%LOCALAPPDATA%/Trilex/ModInstaller/installations`: it contains original backups and transaction journals. Use **Restore / uninstall** or **Recover interrupted install** as appropriate. **Open local logs** opens local diagnostics; include those logs, game edition/language and the exact error in bug reports. No telemetry is sent.
 
 ## Verification
+
+See [the November 16 Wonderlands patch](docs/releases/wonderlands-patch-20261116.md) for Steam changes, Epic selection and verification limits.
 
 See [1.0.9 evidence and limits](docs/releases/installer-1.0.9.md). Offline, actual installation, gameplay and physical headset acceptance are separate evidence levels. No new FPS or exhaustive HMD compatibility claim is made.
 

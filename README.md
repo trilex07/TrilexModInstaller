@@ -1,8 +1,8 @@
 # Trilex Mod Installer
 
-Free fan-made Windows installer by **Trilex / trilex07** for **Singularity VR**, **The Darkness II VR** and **Tiny Tina’s Wonderlands VR**.
+Free fan-made Windows installer by **Trilex / trilex07** for **Singularity VR**, **The Darkness II VR**, **Tiny Tina’s Wonderlands VR**, **Everybody’s Gone to the Rapture VR** and **Borderlands 3 VR**.
 
-**[Download the latest installer for Windows](https://github.com/trilex07/TrilexModInstaller/releases/latest/download/TrilexModInstaller-win-x64.zip)** · **[VR controls for all three games](docs/VR-CONTROLS.md)**
+**[Download the latest installer for Windows](https://github.com/trilex07/TrilexModInstaller/releases/latest/download/TrilexModInstaller-win-x64.zip)** · **[VR controls](docs/VR-CONTROLS.md)**
 
 ## The Darkness II VR update · November 28, 2026
 
@@ -11,6 +11,8 @@ Installer **1.1.5**, signed catalog **1.1.33**, fixes the warehouse ladder dismo
 Throw assist steers props toward the eligible enemy nearest your aim. If there's no target, the prop follows the hand motion. Camera shake is disabled for firing and damage. Firing sends a pulse to the firing controller, and damage sends a pulse to both.
 
 These changes were verified in the OpenXR simulator. Physical controller vibration remains to be checked. The updated installer preserves both edited Darkness II INI files when you keep the same language selection.
+
+The full bundle also includes the current Rapture VR preview and Borderlands 3 VR packages for Steam and Epic Games Store. [Release notes for all included updates](https://github.com/trilex07/TrilexModInstaller/releases/tag/installer-1.1.5).
 
 [Download installer 1.1.5 with the Darkness II VR update](https://github.com/trilex07/TrilexModInstaller/releases/download/installer-1.1.5/Trilex-Mod-Installer-1.1.5-Darkness2-VR-20261128-win-x64.zip)
 
@@ -25,6 +27,8 @@ Controller guides: [Singularity VR](docs/VR-CONTROLS.md#singularity-vr) · [The 
 - **Singularity VR:** accepted V7 runtime (`7AD356F8`), motion-controlled hands and TMD, physical reload resources, inner-wrist health/E99/item HUD, weapon-mounted ammo HUD, corrected muzzle VFX, HD weapon resources, native menus, Polish text/dubbing, local audio remaster, stereo engine-cutscene cinema, gaze weapon selection/NIS and damage haptics. Gaze requires a compatible headset/backend; Bink video remains mono.
 - **The Darkness II VR:** VR runtime, native hand resources, menu changes, Polish text and optional HD textures. Existing voice modifications are preserved; this release does not supply a Darkness II dubbing pack.
 - **Tiny Tina’s Wonderlands VR:** native x64 OpenXR runtime, stereo, tracked hands, controller aiming, support grip, wrist HUD, menu laser, rumble and optional PSVR2 Toolkit triggers/gaze. The graphics backend follows the selected runtime profile. Packages the current installed runtime/profile; this installer release has offline lifecycle checks, not new headset acceptance.
+- **Everybody’s Gone to the Rapture VR (preview).** The stereo flat-screen menu, 16:9 videos and wider subtitles were checked in the OpenXR simulator. Physical headset verification is pending.
+- **Borderlands 3 VR.** Includes the Auto frame generation update with Hybrid Stereo Frame Generation (HSFG). Steam passed the in-game OpenXR simulator check for Auto. The Epic Games Store build is a preview with installer checks completed and gameplay testing pending.
 - **Manual installation:** select “Prepare files for manual installation”, choose your source game/options, review and choose an output folder. It creates ready-to-copy `files`, README-PL/EN, a manifest and checksums without modifying the game. Original-derived options require readable game sources. Repeat for each game you want to export.
 - **Run the game:** uses Steam for a game folder matched to its installed Steam appmanifest. Disc/GOG/manual copies launch their reviewed EXE directly, from its own folder. The button label stays universal; the game's own launcher/DRM requirements still apply.
 - English/Polish installer UI, signed catalogs, package hashes, per-game state, verified backups, repair, uninstall and interrupted-install recovery. User settings use three-way INI merging.
@@ -35,7 +39,7 @@ The complete installer bundle includes the other module archives and pinned UE V
 
 ## Requirements and recovery
 
-Windows x64, a legally owned compatible game, and the appropriate VC++ runtimes. The installer provides Microsoft links if needed. Choose the folder containing the game's EXE (Darkness II), Binaries and RvGame (Singularity), or OakGame (Wonderlands).
+Windows x64, a legally owned compatible game, and the appropriate VC++ runtimes. The installer provides Microsoft links if needed. Choose the game's installation root. Look for `DarknessII.exe` in The Darkness II, `Binaries` and `RvGame` in Singularity, `OakGame` in Wonderlands or Borderlands 3, or `Bin64/Rapture_Release.exe` in Rapture.
 
 Unrecognized Singularity x86 executables can be tried after an explicit warning, default No. Consent binds the folder and EXE hash. Disc/GOG compatibility remains experimental; source, package and rollback integrity checks stay enabled. Send logs with the game edition/language if reconstruction fails. Do not replace the EXE or download evidence files.
 

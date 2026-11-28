@@ -1,13 +1,13 @@
 ## November 16 Wonderlands patch
 
-Download the [latest full installer](https://github.com/trilex07/TrilexModInstaller/releases/latest).
+Download the [latest full installer](https://github.com/trilex07/TrilexModInstaller/releases/latest/download/TrilexModInstaller-win-x64.zip).
 See [Steam changes, Epic selection and verification limits](docs/releases/wonderlands-patch-20261116.md).
 
 # Trilex Mod Installer
 
 Free fan-made Windows installer by **Trilex / trilex07** for **Singularity VR**, **The Darkness II VR** and **Tiny Tina’s Wonderlands VR**.
 
-**[Download the latest installer for Windows](https://github.com/trilex07/TrilexModInstaller/releases/latest)** · **[VR controls for all three games](docs/VR-CONTROLS.md)**
+**[Download the latest installer for Windows](https://github.com/trilex07/TrilexModInstaller/releases/latest/download/TrilexModInstaller-win-x64.zip)** · **[VR controls for all three games](docs/VR-CONTROLS.md)**
 
 Extract the whole ZIP and run `TrilexModInstaller.exe`. Select a game, choose its installed folder and options, then review and install. No Python or .NET installation is required. The executable is not Authenticode signed.
 
